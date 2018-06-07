@@ -1,0 +1,98 @@
+<br />
+<div class="ui-g">
+    <div class="ui-grid-col-12">
+        <p-splitButton icon="fa-search" (click)="searchTasksList()" label="Search" [model]="searchButtonItems"></p-splitButton>
+        <input type="text" id="SearchBox" pInputText size="30" [(ngModel)]="searchString" placeholder="Ticket # Or Search Text" />
+    </div>
+</div>
+<br />
+<div class="ui-g">
+    <div class="ui-g-12 ui-md-10">
+        <p-dataTable #datatable [value]="SearchResults" [resizableColumns]="true"
+                     [responsive]="true" [loading]="loading" [lazy]="true"
+                     [paginator]="true" [rows]="rowsPerPage" [pageLinks]="5" [rowsPerPageOptions]="[5,10,20,50,100,500,1000]"
+                     [(first)]="first" [totalRecords]="totalTasks" (onLazyLoad)="loadTasksLazy($event)" selectionMode="single"
+                     (onSort)="changeSort($event)" (onRowSelect)="onTicketSelect($event)">
+            <p-column field="taskId" header="#" [sortable]="true" [style]="{'text-align':'center','width':'5%'}"></p-column>
+            <p-column field="status" header="Status" [sortable]="true" [style]="{'text-align':'center','width':'12%'}">
+                <ng-template pTemplate="header">
+                    <p-dropdown id="paramStatus"
+                                [options]="statusDropdown"
+                                [(ngModel)]="paramStatus"
+                                [style]="{'width':'100px'}"
+                                styleClass="ui-column-filter"
+                                appendTo="body"></p-dropdown> Status
+                </ng-template>
+            </p-column>
+            <p-column field="priority" header="Priority" [sortable]="true" [style]="{'text-align':'center','width':'12%'}">
+                <ng-template pTemplate="header">
+                    <p-dropdown id="paramPriority"
+                                [options]="priorityDropdown"
+                                [(ngModel)]="paramPriority"
+                                [style]="{'text-align':'center','width':'100px'}"
+                                styleClass="ui-column-filter"
+                                appendTo="body"></p-dropdown> Priority
+                </ng-template>
+            </p-column>
+            <p-column field="dueDate" header="Due" [sortable]="true" [style]="{'text-align':'center','width':'12%'}">
+                <ng-template pTemplate="header">
+                    <p-inputMask id="paramDueDate"
+                                 mask="99/99/9999"
+                                 slotChar="mm/dd/yyyy"
+                                 [(ngModel)]="paramDueDate"
+                                 [style]="{'text-align':'center','width':'100px'}"
+                                 styleClass="ui-column-filter"
+                                 appendTo="body"></p-inputMask> Due
+                </ng-template>
+            </p-column>
+            <p-column field="createdDate" header="Created" [sortable]="true" [style]="{'text-align':'center','width':'12%'}">
+                <ng-template pTemplate="header">
+                    <p-inputMask id="paramCreated"
+                                 mask="99/99/9999"
+                                 slotChar="mm/dd/yyyy"
+                                 [(ngModel)]="paramCreated"
+                                 [style]="{'text-align':'center','width':'100px'}"
+                                 styleClass="ui-column-filter"
+                                 appendTo="body"></p-inputMask> Created
+                </ng-template>
+            </p-column>
+            <p-column field="assignedRoleName" header="Assigned" [sortable]="true" [style]="{'text-align':'center','width':'12%'}">
+                <ng-template pTemplate="header">
+                    <p-dropdown id="assignedRole"
+                                [options]="rolesDropdown"
+                                [(ngModel)]="paramAssignedRole"
+                                [style]="{'text-align':'center','width':'100px'}"
+                                styleClass="ui-column-filter"
+                                appendTo="body"></p-dropdown> Assigned
+                </ng-template>
+            </p-column>
+            <p-column field="requesterName" header="Requester" [sortable]="true" [style]="{'text-align':'left','width':'15%'}"></p-column>
+            <p-column field="description" header="Description" [style]="{'text-align':'left','width':'20%'}"></p-column>
+        </p-dataTable>
+    </div>
+    <div class="ui-g-12 ui-md-2">
+        <!-- Tree Node Control -->
+        <p-tree #tree [value]="treeNodes"
+                [propagateSelectionUp]="false"
+                [propagateSelectionDown]="false"
+                [style]="{'border':'hidden','width':'auto'}"
+                appendTo="body" responsive="true">
+            <ng-template let-node pTemplate="default">
+                <p-checkbox binary="true"></p-checkbox>
+                <label> {{node.label}} </label>
+            </ng-template>
+            <ng-template let-node pTemplate="ShowCheckBox">
+                <p-checkbox name="SelectedNode"
+                            (onChange)="OnchangeNode(node)"
+                            value='node.data.checkboxChecked'
+                            [(ngModel)]='node.data.checkboxChecked'
+                            binary="true">
+                </p-checkbox>
+                <label> {{node.label}} </label>
+            </ng-template>
+            <ng-template let-node pTemplate="HideCheckBox">
+                {{node.label}}
+            </ng-template>
+        </p-tree>
+    </div>
+</div>

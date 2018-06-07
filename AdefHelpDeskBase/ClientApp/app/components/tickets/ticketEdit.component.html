@@ -1,0 +1,511 @@
+<div class="spinner" *ngIf='showWaitGraphic'>
+    <div class="rect1"></div>
+    <div class="rect2"></div>
+    <div class="rect3"></div>
+    <div class="rect4"></div>
+    <div class="rect5"></div>
+</div>
+<div *ngIf='!showWaitGraphic'>
+    <p-tabView [activeIndex]="EditIndex" (onChange)="editTabChange($event)">
+        <p-header>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix" [hidden]="!isAdmin">
+                <button type="button" class="ui-button-danger" pButton icon="fa-trash" (click)="displayConfirmDeleteTaskDialog = true" [hidden]="!isAdmin"></button>&nbsp;&nbsp;
+                <button type="button" class="ui-button-success" pButton icon="fa-save" (click)="save()" label="Save"></button>
+            </div>
+        </p-header>
+        <p-tabPanel header="Info">
+            <form [formGroup]="taskForm" (ngSubmit)="Update($event)" *ngIf="isAdmin">
+                <div class="ui-grid ui-grid-responsive ui-grid-pad">
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Status:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-3">
+                                <p-dropdown id="status"
+                                            [options]="statusDropdownEdit"
+                                            formControlName="status"
+                                            [style]="{'width':'100px'}" *ngIf="isAdmin"></p-dropdown>
+                            </div>
+                            <div class="ui-grid-col-2">
+                                <b>Priority:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-4">
+                                <p-dropdown id="priority"
+                                            [options]="priorityDropdownEdit"
+                                            formControlName="priority"
+                                            [style]="{'width':'100px'}" *ngIf="isAdmin"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row" *ngIf="isAdmin">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Assigned Role:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <p-dropdown id="AddRoles"
+                                            [options]="rolesDropdownEdit"
+                                            formControlName="assignedRole"
+                                            [style]="{'width':'250px'}"></p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row" [hidden]="showManualUser" *ngIf='SelectedTask'>
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Name:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                {{SelectedTask.requesterName}} &nbsp;
+                                <button pButton type="button" *ngIf="isAdmin"
+                                        (click)="ClearUser()"
+                                        label="Clear" icon="fa-user-o"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row" [hidden]="!showManualUser">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Name:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <input formControlName="name" pInputText size="30" type="text">
+                                <button pButton type="button" *ngIf="isAdmin"
+                                        (click)="SetUser()"
+                                        label="Set" icon="fa-user-o"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row" [hidden]="!showManualUser">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Email:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <input formControlName="email" pInputText size="30"
+                                       type="email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Phone:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-4">
+                                <input formControlName="phone" pInputText size="15">
+                            </div>
+                            <div class="ui-grid-col-2">
+                                <b>Est. Hours:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-3">
+                                <p-spinner size="5" formControlName="estimatedHours"></p-spinner>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Description:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <input formControlName="description" pInputText size="40" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Due Date:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <p-calendar formControlName="dueDate" appendTo="body" [showIcon]="true"></p-calendar>&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Est. Start:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <p-calendar formControlName="estimatedStart" appendTo="body" [showIcon]="true"></p-calendar>&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-12">
+                            <div class="ui-grid-col-3">
+                                <b>Est. Completion:</b>&nbsp;
+                            </div>
+                            <div class="ui-grid-col-9">
+                                <p-calendar formControlName="estimatedCompletion" appendTo="body" [showIcon]="true"></p-calendar>&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- Anonymous Info screen -->
+            <div class="ui-grid ui-grid-responsive ui-grid-pad" *ngIf="!isAdmin && SelectedTask">
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Status:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-3">
+                            {{SelectedTask.status}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Priority:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-3">
+                            {{SelectedTask.priority}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row" [hidden]="showManualUser" *ngIf='SelectedTask'>
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Name:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.requesterName}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row" [hidden]="!showManualUser">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Name:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.requesterName}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row" [hidden]="!showManualUser">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Email:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.requesterEmail}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Phone:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-4">
+                            {{SelectedTask.requesterPhone}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Description:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.description}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Due Date:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.dueDate}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Est. Hours:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-4">
+                            {{SelectedTask.estimatedHours}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Est. Start:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.estimatedStart}}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-grid-row">
+                    <div class="ui-grid-col-12">
+                        <div class="ui-grid-col-3">
+                            <b>Est. Completion:</b>&nbsp;
+                        </div>
+                        <div class="ui-grid-col-9">
+                            {{SelectedTask.estimatedCompletion}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Comments">
+            <div>
+                <button type="button" pButton icon="fa-plus-square" (click)="addNewCommentsDetail()" label="Add"></button>
+            </div>
+            <div>
+                &nbsp;
+            </div>
+            <div style="overflow-y: scroll; height:300px;">
+                <p-dataList [value]="taskDetailsComments" [paginator]="false">
+                    <ng-template let-detail pTemplate="item">
+                        <div class="ui-g ui-fluid detail-item">
+                            <div class="ui-g-12 ui-md-2" style="text-align:center">
+                                <br />
+                                <button pButton type="button"
+                                        label="Edit"
+                                        (click)="editComment(detail)"
+                                        class="ui-button-secondary"></button>
+                            </div>
+                            <div class="ui-g-12 ui-md-10 detail-details">
+                                <div class="ui-g-12"><b>Date:</b> {{detail.insertDate}}</div>
+                                <div class="ui-g-12" [hidden]="detail.userName == null"><b>User:</b> {{detail.userName}}</div>
+                                <div class="ui-g-12">{{detail.description}}</div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dataList>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Work" *ngIf="isAdmin">
+            <div>
+                <button type="button" pButton icon="fa-plus-square" (click)="addNewWorkDetail()" label="Add"></button>
+            </div>
+            <div>
+                &nbsp;
+            </div>
+            <div style="overflow-y: scroll; height:300px;">
+                <p-dataList [value]="taskDetailsWork" [paginator]="false">
+                    <ng-template let-detail pTemplate="item">
+                        <div class="ui-g ui-fluid detail-item">
+                            <div class="ui-g-12 ui-md-2" style="text-align:center">
+                                <br />
+                                <button pButton type="button"
+                                        label="Edit"
+                                        (click)="editWork(detail)"
+                                        class="ui-button-secondary"></button>
+                            </div>
+                            <div class="ui-g-12 ui-md-10 detail-details">
+                                <div class="ui-g-12"><b>Start:</b> {{detail.startTime}}</div>
+                                <div class="ui-g-12" *ngIf='detail.stopTime'><b>Stop:</b> {{detail.stopTime}}</div>
+                                <div class="ui-g-12">{{detail.description}}</div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dataList>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Tags">
+            <div style="overflow-y: scroll; height:350px;">
+                <!-- Tree Node Control -->
+                <p-tree #tree [value]="treeNodesEdit"
+                        [propagateSelectionUp]="false"
+                        [propagateSelectionDown]="false"
+                        [style]="{'border':'hidden','width':'auto'}"
+                        appendTo="body" responsive="true">
+                    <ng-template let-node pTemplate="default">
+                        <p-checkbox binary="true"></p-checkbox>
+                        <label> {{node.label}} </label>
+                    </ng-template>
+                    <ng-template let-node pTemplate="ShowCheckBox">
+                        <p-checkbox name="SelectedNode"
+                                    (onChange)="OnchangeNodeEdit(node)"
+                                    value='node.data.checkboxChecked'
+                                    [(ngModel)]='node.data.checkboxChecked'
+                                    binary="true">
+                        </p-checkbox>
+                        <label> {{node.label}} </label>
+                    </ng-template>
+                    <ng-template let-node pTemplate="HideCheckBox">
+                        {{node.label}}
+                    </ng-template>
+                </p-tree>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Logs" *ngIf="isAdmin">
+            <div>
+                {{searchErrorLog}}
+            </div>
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <p-dataList [value]="SearchResultsLog"
+                                [pageLinks]="5"
+                                [lazy]="true" [paginator]="true" [rows]="rowsPerPageLog"
+                                [totalRecords]="totalLogs" (onLazyLoad)="loadLogsLazy($event)"
+                                [style]="{'width': '100%'}">
+                        <ng-template let-log pTemplate="item">
+                            <div><b>Date:</b> {{log.dateCreated}}</div>
+                            <div><b>Description:</b> {{log.logDescription}}</div>
+                            <br />
+                        </ng-template>
+                    </p-dataList>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<!-- Select User DIALOG -->
+<p-dialog appendTo="body" header="Select User" [(visible)]="displaySelectUserDialog" width="800" [responsive]="true" showEffect="fade" [modal]="true">
+    <div class="ui-g">
+        <div class="ui-g-12 ui-md-4 ui-lg-2">
+            <div class="ui-g">
+                <div class="ui-grid-col-6">
+                    <label for="SearchBox">Search:</label>
+                </div>
+                <div class="ui-grid-col-6">
+                    <input type="text" id="SearchBoxUser" pInputText [(ngModel)]="searchStringUser" (keyup)="onSearchParameterChange()" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <p-dataTable [value]="SearchResultsUsers" [responsive]="true" [loading]="loading" [lazy]="true" [paginator]="true"
+                 [rows]="rowsPerPageManual"
+                 [(first)]="first" [totalRecords]="totalUsers" (onLazyLoad)="loadUsersLazy($event)" selectionMode="single"
+                 (onRowSelect)="onUserSelect($event)">
+        <p-column field="userName" header="User Name" [style]="{'text-align':'left'}"></p-column>
+        <p-column field="firstName" header="First Name" [style]="{'text-align':'left'}"></p-column>
+        <p-column field="lastName" header="Last Name" [style]="{'text-align':'left'}"></p-column>
+        <p-column field="email" header="Email" [style]="{'text-align':'left'}"></p-column>
+    </p-dataTable>
+</p-dialog>
+
+<!-- Edit Comment DIALOG -->
+<p-dialog appendTo="body" header="Edit Comment" [(visible)]="displayEditCommentDialog" width="500" height="450"
+          [responsive]="true" showEffect="fade" [modal]="true">
+    <div>
+        <p-checkbox label="Visible to requester" [(ngModel)]="boolVisibleToRequester" binary="true" [hidden]="!isAdmin || SelectedTaskDetail.contentType == 'EML'"></p-checkbox>
+        <div>
+            <button type="button" class="ui-button-success" pButton icon="fa-save" (click)="saveComment()" label="Save" [hidden]="boolHideForNonAdmin || SelectedTaskDetail.contentType == 'EML'"></button>
+            <button type="button" class="ui-button-success" pButton icon="fa-envelope" (click)="saveCommentEmail()" label="Save and Email Requester" [hidden]="!isAdmin || SelectedTaskDetail.contentType == 'EML'"></button>
+            <button type="button" class="ui-button-danger" pButton icon="fa-trash" (click)="deleteComment()" label="Delete" [hidden]="!isAdmin"></button>
+        </div>
+        <div>
+            &nbsp;
+        </div>
+        <!-- Normal Text Description -->
+        <div [hidden]="SelectedTaskDetail.contentType == 'EML'">
+            <textarea rows="5" cols="55" pInputTextarea [(ngModel)]="SelectedTaskDetail.description"></textarea>
+        </div>
+        <!-- EML File -->
+        <div *ngIf="SelectedTaskDetail.contentType == 'EML'">
+            <div appendTo="body" style="overflow-y: scroll; height:250px;" [innerHTML]="SelectedTaskDetail.emailDescription"></div>
+            <br />
+            <p-dataList [value]="SelectedTaskDetail.colDTOAttachment" [paginator]="true" [rows]="1">
+                <ng-template let-attachment pTemplate="item">
+                    <div class="attachment-item" style="text-align:center">
+                        <button type="button" pButton (click)="viewEmailFile(attachment.fileName)" icon="fa-download" class="ui-button-secondary" [label]="shortenName(attachment.fileName)"></button>
+                    </div>
+                </ng-template>
+            </p-dataList>
+        </div>
+        <!-- Normal File Display -->
+        <div [hidden]="!hasFile || SelectedTaskDetail.contentType == 'EML'">
+            <br />
+            <button type="button" pButton (click)="displayConfirmDeleteDialog=true" icon="fa-trash" class="ui-button-danger" [hidden]="!isAdmin"></button>&nbsp;
+            <button type="button" pButton (click)="viewfile()" icon="fa-download" class="ui-button-secondary" [label]="SelectedTaskDetail.colDTOAttachment[0].originalFileName"></button>
+        </div>
+        <div [hidden]="!showUpload || hasFile || SelectedTaskDetail.contentType == 'EML'">
+            &nbsp;<p-fileUpload #fileInput
+                                chooseLabel="Select file to Upload"
+                                name="myfile[]"
+                                url="api/UploadTask/InsertUpdateTaskDetail"
+                                maxFileSize="10000000"
+                                [multiple]="false"
+                                [showUploadButton]="false"
+                                [showCancelButton]="false"
+                                (onBeforeUpload)="onBeforeUpload($event)"
+                                (onUpload)="onUploadHandler($event)"
+                                (onError)="onError($event)"
+                                [style]="{'border':'hidden','width':'420px'}">
+            </p-fileUpload>
+        </div>
+        <div>
+            &nbsp;
+        </div>
+        <div>
+            <b>Date:</b> {{SelectedTaskDetail.insertDate}}
+            &nbsp;&nbsp;
+            <b [hidden]="SelectedTaskDetail.userName == null || SelectedTaskDetail.userName == ''">User:</b> {{SelectedTaskDetail.userName}}
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Edit Work DIALOG -->
+<p-dialog appendTo="body" header="Edit Work" [(visible)]="displayEditWorkDialog" width="520" height="290"
+          [responsive]="true" showEffect="fade" [modal]="true">
+    <div>
+        <div>
+            <button type="button" class="ui-button-success" pButton icon="fa-save" (click)="saveWork()" label="Save"></button>
+            <button type="button" class="ui-button-danger" pButton icon="fa-trash" (click)="deleteWork()" label="Delete"></button>
+        </div>
+        <div>
+            &nbsp;
+        </div>
+        <div>
+            <textarea rows="2" cols="55" pInputTextarea [(ngModel)]="SelectedTaskDetail.description"></textarea>
+        </div>
+        <div>
+            &nbsp;
+        </div>
+        <div>
+            <b>Start: </b>&nbsp;
+            <p-calendar [(ngModel)]="SelectedTaskDetail.startTime" showTime="true" hourFormat="12" appendTo="body"></p-calendar>
+            &nbsp;&nbsp;<b>Stop: </b>&nbsp;
+            <p-calendar [(ngModel)]="SelectedTaskDetail.stopTime" showTime="true" hourFormat="12" appendTo="body"></p-calendar>
+        </div>
+        <div>
+            &nbsp;
+        </div>
+        <div>
+            <b>Date:</b> {{SelectedTaskDetail.insertDate}}
+            &nbsp;&nbsp;
+            <b>User:</b> {{SelectedTaskDetail.userName}}
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Confirm Delete File DIALOG -->
+<p-dialog appendTo="body" header="Confirm Delete" [(visible)]="displayConfirmDeleteDialog" width="250" height="150"
+          [responsive]="true" showEffect="fade" [modal]="true">
+    <div style="vertical-align: middle; text-align: center;">
+        Delete the selected file?
+    </div>
+    <p-footer>
+        <button type="button" pButton icon="fa-check" (click)="deletefile()" label="Yes"></button>
+        <button type="button" pButton icon="fa-close" (click)="displayConfirmDeleteDialog=false" label="No"></button>
+    </p-footer>
+</p-dialog>
+
+<!-- Confirm Delete Task DIALOG -->
+<p-dialog appendTo="body" header="Confirm Delete" [(visible)]="displayConfirmDeleteTaskDialog" width="250" height="150"
+          [responsive]="true" showEffect="fade" [modal]="true">
+    <div style="vertical-align: middle; text-align: center;">
+        Delete the current Task?
+    </div>
+    <p-footer>
+        <button type="button" pButton icon="fa-check" (click)="delete()" label="Yes"></button>
+        <button type="button" pButton icon="fa-close" (click)="displayConfirmDeleteTaskDialog=false" label="No"></button>
+    </p-footer>
+</p-dialog>

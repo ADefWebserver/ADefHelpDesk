@@ -1,0 +1,27 @@
+﻿<div *ngIf='!showWaitGraphic'>
+    <form [formGroup]="registerForm" (ngSubmit)="Register($event)">
+        <input formControlName="username" pInputText size="30"
+               type="text" placeholder="Username">
+        <br /><br />
+        <input formControlName="firstname" pInputText size="30"
+               type="text" placeholder="First Name">
+        <br /><br />
+        <input formControlName="lastname" pInputText size="30"
+               type="text" placeholder="Last Name">
+        <br /><br />
+        <input formControlName="email" pInputText size="30"
+               type="email" placeholder="Email">
+        <br /><br />
+        <input formControlName="password" pInputText size="30"
+               type="password" placeholder="password">
+        <br /><br />
+        <button pButton type="submit" label="Register" style="float: right;"></button>
+    </form>
+</div>
+<div class="spinner" *ngIf='showWaitGraphic'>
+    <div class="rect1"></div>
+    <div class="rect2"></div>
+    <div class="rect3"></div>
+    <div class="rect4"></div>
+    <div class="rect5"></div>
+</div>

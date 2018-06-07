@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADefHelpDeskApp", "ADefHelpDeskApp\ADefHelpDeskApp.csproj", "{70FA6E73-908F-4AD2-A36A-B2EE1F783D1E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdefHelpDeskBase", "AdefHelpDeskBase\AdefHelpDeskBase.csproj", "{1E5DA63B-D654-42BC-8914-5DF8010A2442}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70FA6E73-908F-4AD2-A36A-B2EE1F783D1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70FA6E73-908F-4AD2-A36A-B2EE1F783D1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70FA6E73-908F-4AD2-A36A-B2EE1F783D1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70FA6E73-908F-4AD2-A36A-B2EE1F783D1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E5DA63B-D654-42BC-8914-5DF8010A2442}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E5DA63B-D654-42BC-8914-5DF8010A2442}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E5DA63B-D654-42BC-8914-5DF8010A2442}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E5DA63B-D654-42BC-8914-5DF8010A2442}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8D6B63CD-5DE5-476B-A093-785C6806D4EA}
+	EndGlobalSection
+EndGlobal

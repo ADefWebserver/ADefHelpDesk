@@ -1,0 +1,31 @@
+<h4>System Files</h4>
+<div class="ui-toolbar-group-right">
+    <button pButton type="button"
+            (click)="downloadItem()"
+            label="View"
+            icon="fa-download"
+            class="ui-button-success"></button>
+</div>
+<!-- Tree Node Control -->
+<p-tree [value]="fileList"
+        selectionMode="single"
+        [propagateSelectionUp]="false"
+        [(selection)]="selectedNode"
+        [style]="{'width':'100%','max-height':'400px','overflow':'auto'}">
+    <ng-template let-node pTemplate="file">
+        {{node.label}}
+    </ng-template>
+    <ng-template let-node pTemplate="folder">
+        <b>{{node.label}}</b>
+    </ng-template>
+</p-tree>
+<br />
+<h4>Upload Files</h4>
+<p-fileUpload #fileInput 
+              name="myfile[]"
+              url="api/UploadSystemFiles"
+              multiple="multiple"
+              (onSelect)="filesSelected($event)"
+              (onBeforeUpload)="onBeforeUploadHandler($event)"
+              (onUpload)="onUploadHandler($event)">
+</p-fileUpload>

@@ -1,0 +1,10 @@
+﻿<!-- Only show if not in SetUp mode -->
+<div *ngIf='!setUpMode'>
+    <div *ngIf='user.isLoggedIn' class="ui-auth-div">
+        <a [routerLink]="" (click)="showProfile()"><b>Hello</b>, {{user.userName}}</a> <button pButton label="Logout" (click)="LogOut()" icon="fa-sign-out" class="ui-button-secondary"></button>
+    </div>
+    <div *ngIf='!user.isLoggedIn' class="ui-auth-div">
+        <button *ngIf='registerButtonVisibility' pButton type="button" label="Register" (click)="showRegister()"></button>
+        <button pButton type="button" label="Log In" (click)="showLogIn()" class="ui-button-success"></button>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<h4>Tags Administration</h4>
+
+<!-- Tree Node Control -->
+<p-tree [value]="treeNodes"
+        selectionMode="single"
+        (onNodeSelect)="nodeSelect()"
+        [(selection)]="selectedNode"></p-tree>
+
+<br />
+<!-- Error (if any) -->
+<div style="color:red;" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+</div>
+<div class="ui-grid ui-grid-responsive ui-grid-pad" style="max-width: 500px;">
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-3" style="text-align:left">
+            <label for="NodeName">Node Name:</label>
+        </div>
+        <div class="ui-grid-col-11" style="text-align:left">
+            <input type="text"
+                   id="NodeName"
+                   [(ngModel)]="selectedNode.label"
+                   name="NodeName"
+                   #name="ngModel" pInputText>
+        </div>
+    </div>
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-3" style="text-align:left">
+            <label for="NodeParent">Node Parent:</label>
+        </div>
+        <div class="ui-grid-col-11" style="text-align:left">
+            <p-dropdown id="NodeParent"
+                        [options]="nodeParentsDropdown"
+                        [(ngModel)]="selectedNodeParent"
+                        [style]="{'width':'200px'}"></p-dropdown>
+        </div>
+    </div>
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-3" style="text-align:left">
+            <label for="Selectable">Selectable:</label>
+        </div>
+        <div class="ui-grid-col-11" style="text-align:left">
+            <p-checkbox id="Selectable" [(ngModel)]="selectedNode.data.selectable" binary="true"></p-checkbox>
+        </div>
+    </div>
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-3" style="text-align:left">
+            <label for="RequestorVisible">Requester Visible:</label>
+        </div>
+        <div class="ui-grid-col-11" style="text-align:left">
+            <p-checkbox id="RequestorVisible" [(ngModel)]="selectedNode.data.requestorVisible" binary="true"></p-checkbox>
+        </div>
+    </div>
+    <div class="ui-grid-row">
+        <div class="ui-grid-col-12">
+            <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix" style="border:hidden;">
+
+                <button pButton type="button"
+                        (click)="Save()"
+                        label="Save" icon="fa-save"></button>
+
+                <button pButton type="button"
+                        (click)="NewNode()"
+                        label="New"
+                        class="ui-button-success"
+                        icon="fa fa-plus"></button>
+
+                <button pButton
+                        icon="fa-close"
+                        type="button"
+                        (click)="DeleteNode()"
+                        label="Delete"
+                        class="ui-button-danger"></button>
+            </div>
+        </div>
+    </div>
+</div>

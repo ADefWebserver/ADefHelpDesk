@@ -1,0 +1,34 @@
+.layout-main {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.layout-topmenu {
+    padding-top: 190px;
+}
+
+.app-bar {
+    background-color: gainsboro;
+}
+
+@media (max-width: 500px) {
+    /* Mobile */
+    .layout-topmenu {
+        display: none;
+    }
+
+    .layout-sidemenu {
+        visibility: visible;
+    }
+}
+
+@media (min-width: 500px) {
+    /* Desktop */
+    .layout-topmenu {
+        visibility: visible;
+    }
+
+    .layout-sidemenu {
+        display: none;
+    }
+}
