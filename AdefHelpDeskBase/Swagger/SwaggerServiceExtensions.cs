@@ -50,7 +50,7 @@ namespace AdefHelpDeskBase
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/external/swagger.json", "ADefHelpDesk External API V1");
+                c.SwaggerEndpoint("../swagger/external/swagger.json", "ADefHelpDesk External API V1");
             });
 
             return app;
