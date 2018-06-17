@@ -1,4 +1,4 @@
-![ADefHelpDesk Help Desk](http://adefhelpdesk.com/images/ADefHelpDesk030000_Big.png)
+
 # ADefHelpDesk
 https://ADefHelpDesk.com 
 # Download The Release
