@@ -1,0 +1,206 @@
+<br />
+<div style="width:800px">
+    <p-panel header="Install Wizard" *ngIf='version'>
+        <div>
+            <span style="background-color: #FFFF00">{{errorMessage}}</span>
+        </div>
+        <p-tabView orientation="left">
+            <!--Database Configuration Panel-->
+            <p-tabPanel header="Database Configuration" lefticon="fas fa-database"
+                        [selected]="DatabaseConfigurationPanel_Selected"
+                        [disabled]="DatabaseConfigurationPanel_Disabled">
+                <div class="ui-grid ui-grid-responsive ui-grid-pad">
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Server:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" pInputText id="ServerName" [(ngModel)]="ServerName" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The name or IP address of the Server
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Database:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="DatabaseName" pInputText [(ngModel)]="DatabaseName" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The name of the database (must already exist)
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Integrated &nbsp; Security:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <p-inputSwitch [(ngModel)]="IntegratedSecurity"></p-inputSwitch>
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            Intergrated or username and password
+                        </div>
+                    </div>
+
+                    <div class="ui-grid-row" *ngIf='!IntegratedSecurity'>
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Username:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="Username" pInputText [(ngModel)]="Username" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The username for the account
+                        </div>
+                    </div>
+                    <div class="ui-grid-row" *ngIf='!IntegratedSecurity'>
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Password:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="password" id="Password" pInputText [(ngModel)]="Password" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The password for the account
+                        </div>
+                    </div>
+                    <br />
+                    <button pButton type="button" label="Set Connection" (click)="setConnection()"></button>
+                </div>
+            </p-tabPanel>
+            <!--Administrator Creation Panel-->
+            <p-tabPanel header="Administrator Creation" lefticon="fas fa-database"
+                        [selected]="AdministratorCreationPanel_Selected"
+                        [disabled]="AdministratorCreationPanel_Disabled">
+                <div class="ui-grid ui-grid-responsive ui-grid-pad">
+                    To proceed, you will need to create an administrator account
+                    <br />
+                    and then, in the next step, log in as that administrator.
+                    <br /><br />
+                    Passwords must have at least one non letter or digit character.
+                    <br />
+                    Passwords must have at least one digit ('0'-'9').
+                    <br />
+                    Passwords must have at least one uppercase ('A'-'Z').
+                    <br /><br />
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Username:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="CreateAdminUsername" pInputText [(ngModel)]="CreateAdminUsername" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The Username of the Administrator
+                        </div>
+                    </div>
+                    
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                First Name:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="CreateAdminFirstName" pInputText [(ngModel)]="CreateAdminFirstName" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The First Name of the Administrator
+                        </div>
+                    </div>
+
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Last Name:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="CreateAdminLastName" pInputText [(ngModel)]="CreateAdminLastName" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The Last Name of the Administrator
+                        </div>
+                    </div>
+
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Email:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="text" id="CreateAdminEmail" pInputText [(ngModel)]="CreateAdminEmail" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The email of the Administrator
+                        </div>
+                    </div>
+
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-6">
+                            <div class="ui-grid-col-4" style="text-align: right;">
+                                Password:&nbsp;
+                            </div>
+                            <div class="ui-grid-col-8">
+                                <input type="password" id="CreateAdminPassword" pPassword [(ngModel)]="CreateAdminPassword" />
+                            </div>
+                        </div>
+                        <div class="ui-grid-col-6">
+                            The password of the Administrator
+                        </div>
+                    </div>
+                    <br />
+                    <button pButton type="button" label="Create Account" (click)="createAdministrator()"></button>
+                    <br />
+                </div>
+            </p-tabPanel>
+            <!--Administrator Login Panel-->
+            <p-tabPanel header="Administrator Login" lefticon="fas fa-database"
+                        [selected]="AdministratorLoginPanel_Selected"
+                        [disabled]="AdministratorLoginPanel_Disabled">
+                <div>
+                    <div width="300">
+                        <p>To proceed, you will need to log in using an Administrator Account</p>
+                        <br />
+                        <!-- Login control -->
+                        <login-dialog></login-dialog>
+                    </div>
+                </div>
+            </p-tabPanel>
+            <!--Install Scripts Panel-->
+            <p-tabPanel header="Install Scripts" lefticon="fas fa-database"
+                        [selected]="InstallScriptsPanel_Selected"
+                        [disabled]="InstallScriptsPanel_Disabled">
+                <div>
+                    <h4>{{InstallStatus}}</h4>
+                    <br /><br />
+                    <button pButton type="button" label="Continue" (click)="CompleteWizard()"></button>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </p-panel>
+</div>
+<p-dialog header="Processing..." [(visible)]="showWaitGraphic" modal="modal" height="360" width="300" [responsive]="true">
+    <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+    </div>
+</p-dialog>

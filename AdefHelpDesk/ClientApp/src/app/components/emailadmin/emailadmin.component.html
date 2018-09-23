@@ -1,0 +1,96 @@
+<h4>Email Administration</h4>
+<div *ngIf='!showWaitGraphic' style="max-width: 500px;">
+    <form [formGroup]="emailAdminForm" (ngSubmit)="Update($event)">
+        <div class="ui-grid ui-grid-responsive ui-grid-pad">
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        SMTP Server and port:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <input formControlName="smtpServer" pInputText size="30" type="text">
+                        <div class="ui-message ui-messages-error ui-corner-all" *ngIf="!emailAdminForm.controls['smtpServer'].valid&&emailAdminForm.controls['smtpServer'].dirty">
+                            <i class="fas fa-times"></i>
+                            SMTP Server and port is required
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        SMTP Authentication:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <p-radioButton name="smtpAuthentication" value="0" label="Anonymous" formControlName="smtpAuthentication" inputId="Anonymous"></p-radioButton>
+                        <p-radioButton name="smtpAuthentication" value="1" label="Basic" formControlName="smtpAuthentication" inputId="Basic"></p-radioButton>
+                        <p-radioButton name="smtpAuthentication" value="2" label="NTLM" formControlName="smtpAuthentication" inputId="NTLM"></p-radioButton>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        Use secure SMTP Access:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <p-radioButton name="smtpSecure" value="True" label="True" formControlName="smtpSecure" inputId="True"></p-radioButton>
+                        <p-radioButton name="smtpSecure" value="False" label="False" formControlName="smtpSecure" inputId="False"></p-radioButton>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row" *ngIf="emailAdminForm.controls['smtpAuthentication'].value !== '0'">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        SMTP Username:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <input formControlName="smtpUserName" pInputText size="30"
+                               type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row" *ngIf="emailAdminForm.controls['smtpAuthentication'].value !== '0'">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        SMTP Password:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <input formControlName="smtpPassword" pInputText size="30"
+                               type="password">
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-5" style="text-align: left;">
+                        SMTP "From" email address:&nbsp;
+                    </div>
+                    <div class="ui-grid-col-7">
+                        <input formControlName="smtpFromEmail" pInputText size="40" type="text">
+                        <div class="ui-message ui-messages-error ui-corner-all" *ngIf="!emailAdminForm.controls['smtpFromEmail'].valid&&emailAdminForm.controls['smtpFromEmail'].dirty">
+                            <i class="fas fa-times"></i>
+                            SMTP "From" email address is required
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-grid-row">
+                <div class="ui-grid-col-12">
+                    <div class="ui-grid-col-12" style="text-align: left;">
+                        <br/>
+                        <button pButton type="submit" class="ui-button-warning" label="Send Test Email" (click)="TestSMTP()"></button>
+                        <button pButton type="submit" class="ui-button-success" label="Update" (click)="SaveSMTP()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="spinner" *ngIf='showWaitGraphic'>
+    <div class="rect1"></div>
+    <div class="rect2"></div>
+    <div class="rect3"></div>
+    <div class="rect4"></div>
+    <div class="rect5"></div>
+</div>

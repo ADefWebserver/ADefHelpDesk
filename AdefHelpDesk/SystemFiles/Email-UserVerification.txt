@@ -1,0 +1,4 @@
+Hello [strFullName], <br>Thank your for creating an ADefHelpDesk user account.
+<br>To complete your registration, log into: [CurrentHostLocation]?username=[paramUserName]
+<br>After logging in using your username: <b>[paramUserName]</b>, 
+and password, you will need to enter the following verification code: <b>[strVerifyCode]</b>

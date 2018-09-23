@@ -1,0 +1,36 @@
+<!-- Only show if not in SetUp mode -->
+<div *ngIf='!setUpMode'>
+    <!-- Normal Full Page Menu -->
+    <top-menu class="layout-topmenu"></top-menu>
+    <!-- Mobile Small Popup Menu -->
+    <side-menu class="layout-sidemenu"></side-menu>
+    <!-- Login control -->
+    <p-dialog header="Login" [(visible)]="LoginDialogVisibility" modal="modal" width="300" [responsive]="true">
+        <login-dialog></login-dialog>
+    </p-dialog>
+    <!-- Register control -->
+    <p-dialog header="Register" [(visible)]="RegisterDialogVisibility" modal="modal" height="360" width="300" [responsive]="true">
+        <register-dialog></register-dialog>
+    </p-dialog>
+    <!-- Profile control -->
+    <p-dialog header="Profile" [(visible)]="ProfileDialogVisibility" modal="modal" height="380" width="500" [responsive]="true">
+        <profile-dialog></profile-dialog>
+    </p-dialog>
+    <!-- Dialog control -->
+    <p-dialog showHeader="false" [(visible)]="DialogVisibility" modal="modal" width="300" dismissableMask="true" closable="false" [responsive]="true">
+        <h4 align="center">
+            {{DialogMessage}}
+        </h4>
+        <p-footer>
+            <button type="button" pButton icon="fa fas fa-window-close" (click)="DialogVisibility=false" label="Close"></button>
+        </p-footer>
+    </p-dialog>
+    <!-- HTML Dialog control -->
+    <p-dialog showHeader="false" [(visible)]="HTMLDialogVisibility" modal="modal" width="600" dismissableMask="true" closable="false" [responsive]="true">
+        <div [innerHTML]="HTMLDialogMessage"></div>
+    </p-dialog>    
+    <!-- EDIT Ticket DIALOG -->
+    <p-dialog appendTo="body" header="{{TicketHeader}}" [(visible)]="displayEditTicketDialog" width="600" height="540" [responsive]="true" showEffect="fade" [modal]="true">
+        <ticketEdit></ticketEdit>
+    </p-dialog>
+</div>

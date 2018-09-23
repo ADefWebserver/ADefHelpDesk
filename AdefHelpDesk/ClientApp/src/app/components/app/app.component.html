@@ -1,0 +1,34 @@
+<div class="layout-main">
+  <div>
+    <div class="ui-toolbar-group-left">
+      <h4>{{ApplicationName}}</h4>
+    </div>
+    <div class="ui-toolbar-group-right">
+      <user-detail class="layout-topmenu">Loading...</user-detail>
+    </div>
+  </div>
+  <br /><br /><br /><br />
+  <div>
+    <menu-component></menu-component>
+  </div>
+
+  <router-outlet></router-outlet>
+
+  <br /><br />
+
+  <!-- Footer -->
+  <div class="app-bar">
+    <div class="ui-g">
+      <div class="ui-g-12 ui-md-6">
+        <div class="ui-g-12">
+          {{FooterMessage}}
+        </div>
+      </div>
+      <div class="ui-g-12 ui-md-6">
+        <div class="ui-g-12" style="text-align:right">
+          <a style="cursor: pointer;" (click)="showTermsOfUse()">Terms Of Use</a> | <a style="cursor: pointer;" (click)="showPrivacyStatement()">Privacy Statement</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

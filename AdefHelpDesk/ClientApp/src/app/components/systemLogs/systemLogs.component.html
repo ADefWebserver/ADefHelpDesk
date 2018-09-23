@@ -1,0 +1,26 @@
+<div class="ui-g dashboard">
+    <div class="ui-g-12">
+            <h4>System Logs</h4>
+            <div>
+                {{searchError}}
+            </div>
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <p-dataTable [value]="SearchResults" [responsive]="true"
+                                 [pageLinks]="5"
+                                 [lazy]="true" [paginator]="true" [rows]="rowsPerPage"
+                                 [rowsPerPageOptions]="[5,10,20,50,100,500,1000]"
+                                 [totalRecords]="totalLogs" (onLazyLoad)="loadLogsLazy($event)" [style]="{'width': '100%'}">
+                        <p-column field="logType" header="Log Type" [style]="{'text-align':'left', 'width': '15%'}"></p-column>
+                        <p-column field="createdDate" header="Log Date" [style]="{'text-align':'left', 'width':'15%'}"></p-column>
+                        <p-column field="logMessage" header="Log Text" [style]="{'text-align':'left'}">
+                            <ng-template let-col let-log="rowData" pTemplate="body">
+                                <div>{{log[col.field]}}</div>
+                            </ng-template>
+                        </p-column>
+                    </p-dataTable>
+                </div>
+            </div>          
+
+    </div>
+</div>

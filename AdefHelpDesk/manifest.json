@@ -1,0 +1,6 @@
+{
+ManifestLowestVersion:"04.00.00",
+ManifestHighestVersion:"04.00.00",
+ManifestSuccess:"04.00.00 version loaded. Re-navigate to the website in your web browser to continue upgrade.",
+ManifestFailure:"04.00.00 is the highest version that can be upgraded with this package. This install is being cancelled."
+}

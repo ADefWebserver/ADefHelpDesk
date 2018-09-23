@@ -1,0 +1,5 @@
+Hello [strFullName], <br>A New Help Desk ticket has been created. 
+<br><br>Ticket #: [objTask.taskId.Value]
+<br>Description: [objTask.description]
+<br>Status: [objTask.status] <br>Priority: [objTask.priority]
+<br><br>To view this ticket, go to: [CurrentHostLocation]?ticketnumber=[objTask.taskId] 

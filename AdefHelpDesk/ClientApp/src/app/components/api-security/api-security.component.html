@@ -1,0 +1,118 @@
+<h4>API Security (for use with <a href="https://adefhelpdesk.com/Premium/tabid/123/Default.aspx"><u>ADefHelpDesk Premium Services</u>)</a></h4>
+<p-dataTable [value]="SearchResults" [responsive]="true" [lazy]="true" (onLazyLoad)="loadUsersLazy($event)" selectionMode="single"
+             (onRowSelect)="onUserSelect($event)">
+    <p-column field="username" header="Username" [style]="{'text-align':'left'}"></p-column>
+    <p-column field="contactName" header="Name" [style]="{'text-align':'left'}"></p-column>
+    <p-column field="contactCompany" header="Company" [style]="{'text-align':'left'}"></p-column>
+    <p-column field="contactPhone" header="Phone" [style]="{'text-align':'left'}"></p-column>
+    <p-column field="isActive" header="isActive" [style]="{'text-align':'left'}"></p-column>
+    <p-footer>
+        <div class="ui-helper-clearfix" style="width:100%">
+            <button type="button" pButton icon="fa fa-plus" style="float:left" (click)="showDialogToAdd()" label="Add"></button>
+        </div>
+    </p-footer>
+</p-dataTable>
+<!-- DIALOG -->
+<p-dialog header="Edit Web API Account" [(visible)]="displayDialog" width="500" [responsive]="true" showEffect="fade" [modal]="true">
+    <div class="spinner" *ngIf='showWaitGraphic'>
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+    </div>
+    <div *ngIf='!showWaitGraphic'>
+        <p-tabView [activeIndex]="EditUserIndex" (onChange)="editUserTabChange($event)">
+            <p-tabPanel header="Details">
+                <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="user">
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="userName">User Name</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="userName" [(ngModel)]="user.username" *ngIf="user.id == -1" />
+                            <span *ngIf="user.id > -1">{{user.username}}</span>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="password">Password</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="password" [(ngModel)]="user.password" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="contactName">Name</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="contactName" [(ngModel)]="user.contactName" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="contactCompany">Company</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="contactCompany" [(ngModel)]="user.contactCompany" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="contactWebsite">Website</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="contactWebsite" [(ngModel)]="user.contactWebsite" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="contactEmail">Email</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="contactEmail" [(ngModel)]="user.contactEmail" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="contactPhone">Phone</label></div>
+                        <div class="ui-grid-col-8">
+                            <input pInputText id="contactPhone" [(ngModel)]="user.contactPhone" />
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="isActive">Active</label></div>
+                        <div class="ui-grid-col-8">
+                            <p-checkbox id="isActive" [(ngModel)]="user.isActive" binary="true"></p-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
+            <p-tabPanel header="Connection Information">
+                <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="!user">
+                    <p>Must save first</p>
+                </div>
+                <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="user">
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="swaggerWebAddress">API Web Address</label></div>
+                        <div class="ui-grid-col-8">
+                            <span *ngIf="swaggerWebAddress != ''">{{swaggerWebAddress}}</span>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="applicationGUID">Application GUID</label></div>
+                        <div class="ui-grid-col-8">
+                            <span *ngIf="applicationGUID != ''">{{applicationGUID}}</span>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="userName">User Name</label></div>
+                        <div class="ui-grid-col-8">
+                            <span *ngIf="user.username != ''">{{user.username}}</span>
+                        </div>
+                    </div>
+                    <div class="ui-grid-row">
+                        <div class="ui-grid-col-4"><label for="password">Password</label></div>
+                        <div class="ui-grid-col-8">
+                            <span *ngIf="user.password != ''">{{user.password}}</span>
+                        </div>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+        <p-footer>
+          <div class="ui-dialog-buttonpane ui-helper-clearfix" style="text-align:right">
+            <button type="button" pButton icon="fa fa-check" (click)="save()" label="Save"></button>
+            <button type="button" class="ui-button-danger" pButton icon="fa fa-trash" (click)="delete()" label="Delete"></button>
+          </div>
+        </p-footer>
+    </div>
+</p-dialog>
