@@ -1,7 +1,0 @@
-Hello [strFullName], <br>A Help Desk ticket has been updated. 
-<br><br>Ticket #: [objTask.taskId.Value] (Comment #: [objTask.colDTOTaskDetail.FirstOrDefault().detailId])
-<br>Description: [objTask.description]
-<br>Status: [objTask.status] <br>Priority: [objTask.priority]
-<br>Date: [objTask.colDTOTaskDetail.FirstOrDefault().insertDate]<br>
-<br>Details: [objTask.colDTOTaskDetail.FirstOrDefault().description]
-<br><br>To view this ticket, go to: [CurrentHostLocation]?ticketnumber=[objTask.taskId]&code=[objTask.ticketPassword]
