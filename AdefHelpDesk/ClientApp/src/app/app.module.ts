@@ -158,7 +158,8 @@ import { TaskVisibilityService } from './components/services/internal/taskVisibi
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
-    RouterModule.forRoot([
+    RouterModule.forRoot(
+      [
       { path: '', redirectTo: 'installwizard', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
       { path: 'tickets', component: TicketsComponent },
@@ -174,7 +175,9 @@ import { TaskVisibilityService } from './components/services/internal/taskVisibi
       { path: 'systemlogs', component: SystemLogComponent },
       { path: 'apisecurity', component: ApiSecurityComponent },
       { path: '**', redirectTo: 'home' }
-    ]),
+      ],
+      { useHash: true }
+    ),
     BrowserAnimationsModule,
     ChartModule,
     FormsModule,
