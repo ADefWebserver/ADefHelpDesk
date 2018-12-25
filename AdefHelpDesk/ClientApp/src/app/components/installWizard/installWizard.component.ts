@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -252,7 +252,7 @@ export class InstallWizardComponent implements OnInit {
                 });
         }
         else {
-            this._dialogService.setMessage('password [ ' + password + ' ] is not strong enough');
+            alert('password [ ' + password + ' ] is not strong enough');
         }
     }
 

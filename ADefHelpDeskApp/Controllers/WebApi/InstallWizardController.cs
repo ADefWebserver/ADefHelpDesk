@@ -209,6 +209,14 @@ namespace AdefHelpDeskBase.Controllers
             objRegisterStatus.status = "Registration Failure";
             objRegisterStatus.isSuccessful = false;
 
+            // Test for a strong password
+            if(!UtilitySecurity.IsPasswordStrong(objRegister.password))
+            {
+                objRegisterStatus.status = "The password is not strong enough.";
+                objRegisterStatus.isSuccessful = false;
+                return objRegisterStatus;
+            }            
+
             // Do not run if we can connect to the current database
             if (CurrentVersion().isNewDatabase == false)
             {

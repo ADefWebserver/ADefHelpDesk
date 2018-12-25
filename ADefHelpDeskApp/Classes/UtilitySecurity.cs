@@ -310,5 +310,50 @@ namespace ADefHelpDeskApp.Classes
             return response;
         }
         #endregion
+
+        #region public static bool IsPasswordStrong(string paramPassword)
+        public static bool IsPasswordStrong(string paramPassword)
+        {
+            bool hasUpperCase = false;
+            bool hasLowercase = false;
+            bool hasSpecialCharacter = false;
+            bool hasNumberCharacter = false;
+
+            if (paramPassword == null)
+            {
+                return false;
+            }
+
+            if (paramPassword.Length < 9)
+            {
+                return false;
+            }
+
+            foreach (var character in paramPassword.ToCharArray())
+            {
+                if (Char.IsUpper(character))
+                {
+                    hasUpperCase = true;
+                }
+
+                if (Char.IsLower(character))
+                {
+                    hasLowercase = true;
+                }
+
+                if (!Char.IsLetterOrDigit(character))
+                {
+                    hasSpecialCharacter = true;
+                }
+
+                if (Char.IsNumber(character))
+                {
+                    hasNumberCharacter = true;
+                }
+            }
+
+            return (hasUpperCase && hasLowercase && hasSpecialCharacter && hasNumberCharacter);
+        }
+        #endregion
     }
 }
