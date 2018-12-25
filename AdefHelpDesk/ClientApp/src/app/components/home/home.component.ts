@@ -69,7 +69,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public showManualUser: boolean = true;
     public bShowCategory: boolean = false;
     public isAdmin: boolean = false;
-    public showWaitGraphic: boolean = false;
+  public showWaitGraphic: boolean = false;
+  public showSaveTicketWaitGraphic: boolean = false;
     public displayDialog: boolean = false;
 
     searchString: string = "";
@@ -410,7 +411,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // SAVE
 
     Save() {
-
         // Get the form values
         let formData = this.newtaskForm.value;
         let nameValue = formData.name;
@@ -503,6 +503,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         // This is triggered when we call this.fileInput.upload() (below)
 
         // Start file upload
+        this.showSaveTicketWaitGraphic = true;
         this.fileInput.upload();
     }
 
@@ -541,8 +542,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         event.formData.append("task", JSON.stringify(this.newtask));
     }
 
-    public onUploadHandler(event) {
-        this.showWaitGraphic = false;
+  public onUploadHandler(event) {
+    this.showSaveTicketWaitGraphic = false;
         // The .Net controller will return the results
         // as xhr.responseText
         this.UploadResponse = JSON.parse(event.xhr.responseText);
