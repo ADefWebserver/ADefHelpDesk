@@ -7,5 +7,7 @@ https://adefhelpdesk.com/Download/tabid/60/Default.aspx
 https://adefhelpdesk.com/Documentation/tabid/57/Default.aspx
 # Support and Issues
 https://adefhelpdesk.com/Forums/tabid/58/aff/1/Default.aspx
-# Extensibility: Creating a .Net Core Web Application to Create a Ticket
+## Extensibility: Creating a .Net Core Web Application to Create a Ticket
 http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4320/Calling-a-REST-API-from-Net-Core-Including-Uploading-Files.aspx
+## Extensibility: Retrieve Emails Using Azure Functions And Create Help Desk Tickets Using API
+http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4321/Retrieve-Emails-Using-Azure-Functions-And-Create-Help-Desk-Tickets-Using-API.aspx
