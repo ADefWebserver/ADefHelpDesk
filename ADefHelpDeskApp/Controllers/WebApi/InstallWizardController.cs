@@ -53,7 +53,7 @@ namespace AdefHelpDeskBase.Controllers
         // the version that the current code requires
         // ** Each upgrade will set this value and it will be
         // ** read when the appication starts up each time
-        string TargetDatabaseVersion = "04.00.00";
+        string TargetDatabaseVersion = "04.10.00";
 
         private string _DefaultConnection;
         private string _DefaultFilesPath;
@@ -570,6 +570,7 @@ namespace AdefHelpDeskBase.Controllers
             ColScripts.Add(ConvertVersionToInteger("03.20.00.sql"), "03.20.00.sql");
             ColScripts.Add(ConvertVersionToInteger("03.30.00.sql"), "03.30.00.sql");
             ColScripts.Add(ConvertVersionToInteger("04.00.00.sql"), "04.00.00.sql");
+            ColScripts.Add(ConvertVersionToInteger("04.10.00.sql"), "04.10.00.sql");
 
             return ColScripts;
         }

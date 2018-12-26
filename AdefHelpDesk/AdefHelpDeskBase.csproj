@@ -60,6 +60,9 @@
     <None Update="SQLScripts\03.30.00.Sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\04.10.00.Sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\04.00.00.Sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
