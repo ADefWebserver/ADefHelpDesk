@@ -11,3 +11,5 @@ https://adefhelpdesk.com/Forums/tabid/58/aff/1/Default.aspx
 http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4320/Calling-a-REST-API-from-Net-Core-Including-Uploading-Files.aspx
 ## Extensibility: Retrieve Emails Using Azure Functions And Create Help Desk Tickets Using API
 http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4321/Retrieve-Emails-Using-Azure-Functions-And-Create-Help-Desk-Tickets-Using-API.aspx
+## Extensibility: Creating a Bot to Search Help Desk Tickets
+http://aihelpwebsite.com/Blog/EntryId/2037/Creating-A-Bot-Using-ChoiceFlow-for-Bot-Builder-v4-NET-SDK
