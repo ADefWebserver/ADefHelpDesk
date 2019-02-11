@@ -78,7 +78,7 @@ export class MenuService {
     }
 
     if (user.userRoles !== undefined) {
-      if (user.userRoles.length > 0) {
+      if (user.userRoles.length > 0 || user.isSuperUser) {
         BaseItems = BaseItems.concat(AdminItems);
       }
     }
