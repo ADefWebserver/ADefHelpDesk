@@ -15,3 +15,5 @@ http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4321/Retrieve-Emails-Usi
 http://aihelpwebsite.com/Blog/EntryId/2037/Creating-A-Bot-Using-ChoiceFlow-for-Bot-Builder-v4-NET-SDK
 ## Extensibility: Creating A Microsoft Flow Custom Connector
 http://lightswitchhelpwebsite.com/Blog/tabid/61/EntryId/4327/Creating-A-Microsoft-Flow-Custom-Connector.aspx
+## Support the project - - Buy the book:
+<a href="http://adefhelpdesk.com/Book/tabid/59/Default.aspx"><img alt="" src="http://adefhelpdesk.com/ADefHelpDeskDocumentation/images/ADefHelpDesk_Box_Large.png"></a>
