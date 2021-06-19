@@ -1,0 +1,32 @@
+﻿@using System.IO;
+@using System.Runtime.Loader;
+@using ADefHelpDeskApp.Data;
+<CascadingAuthenticationState>
+    <Router AppAssembly="ADefHelpDeskAppAssembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="ADefHelpDeskAppMainLayout" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="ADefHelpDeskAppMainLayout">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+@code {
+    System.Reflection.Assembly ADefHelpDeskAppAssembly;
+    Type ADefHelpDeskAppMainLayout;
+
+    protected override void OnInitialized()
+    {
+        string path =
+            Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.dll");
+
+        ADefHelpDeskAppAssembly =
+            AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+
+        ADefHelpDeskAppMainLayout =
+            ADefHelpDeskAppAssembly
+            .GetType("ADefHelpDeskApp.Shared.MainLayout");
+    }
+}
