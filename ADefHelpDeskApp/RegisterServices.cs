@@ -4,6 +4,8 @@ using ADefHelpDeskApp;
 using ADefHelpDeskApp.Areas.Identity;
 using ADefHelpDeskApp.Data;
 using ADefHelpDeskApp.Data.Models;
+using AdefHelpDeskBase.Models;
+using AdefHelpDeskBase.Models.DataContext;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Toolbelt.Blazor.Extensions.DependencyInjection;
 using WilderMinds.MetaWeblog;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -27,13 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             }
 
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(
-            //        configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddDbContext<ADefHelpDeskAppContext>(options =>
-            //options.UseSqlServer(
-            //    configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ADefHelpDeskContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>(
                   options => options.SignIn.RequireConfirmedAccount = true)
@@ -62,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
-            services.AddHeadElementHelper();
+            //services.AddHeadElementHelper();
 
             return services;
         }        

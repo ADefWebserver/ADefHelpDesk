@@ -79,11 +79,11 @@ namespace ADefHelpDeskWebApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var ADefHelpDeskAppViewsPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.Views.dll");
+            //var ADefHelpDeskAppViewsPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.Views.dll");
 
-            var ADefHelpDeskAppViewsAssembly =
-                AssemblyLoadContext
-                .Default.LoadFromAssemblyPath(ADefHelpDeskAppViewsPath);
+            //var ADefHelpDeskAppViewsAssembly =
+            //    AssemblyLoadContext
+            //    .Default.LoadFromAssemblyPath(ADefHelpDeskAppViewsPath);
 
             var ADefHelpDeskAppPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.dll");
 
@@ -96,7 +96,7 @@ namespace ADefHelpDeskWebApp
                 .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
-                .AddApplicationPart(ADefHelpDeskAppViewsAssembly)
+                //.AddApplicationPart(ADefHelpDeskAppViewsAssembly)
                 .AddApplicationPart(ADefHelpDeskAppAssembly);
 
             ADefHelpDeskAppType.GetMethod("AddADefHelpDeskAppServices")
@@ -128,7 +128,7 @@ namespace ADefHelpDeskWebApp
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMetaWeblog("/MetaWeblog");
+            //app.UseMetaWeblog("/MetaWeblog");
 
             app.UseEndpoints(endpoints =>
             {
