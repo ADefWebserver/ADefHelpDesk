@@ -7,8 +7,6 @@
 @using AdefHelpDeskBase.Models.DataContext;
 @using ADefHelpDeskApp.Classes;
 @inject IConfiguration _configuration
-@inject GeneralSettings _GeneralSettings
-@inject ADefHelpDeskContext _ADefHelpDeskService
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject NavigationManager NavigationManager
 @inherits OwningComponentBase
@@ -44,14 +42,14 @@ else
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
 
-        _GeneralSettings = (GeneralSettings)ScopedServices.GetService(typeof(GeneralSettings));
-        _ADefHelpDeskService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
         // Get the version Number
         try
         {
-            var GeneralSettings = await _GeneralSettings.GetGeneralSettingsAsync();
-            VersionNumber = GeneralSettings.VersionNumber;
+            // Get database conection string
+            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+            var GeneralSettings = new GeneralSettings(strDefaultConnection);
+            //VersionNumber = GeneralSettings.VersionNumber;
         }
         catch
         {
@@ -84,10 +82,10 @@ else
                     {
                         string strSQLScript = GetSQLScript(sqlScript.Value);
 
-                        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskAppContext>();
+                        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
                         optionsBuilder.UseSqlServer(strDefaultConnection);
 
-                        using (var context = new ADefHelpDeskAppContext(optionsBuilder.Options))
+                        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
                         {
                             try
                             {

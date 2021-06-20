@@ -66,13 +66,13 @@
         // Don't allow this to be used if an Administrator already exists
         // Get database conection string
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-        var AdminExists = await _ADefHelpDeskService.AdminExistsAsync(strDefaultConnection);
+        //var AdminExists = await _ADefHelpDeskService.AdminExistsAsync(strDefaultConnection);
 
-        if (AdminExists)
-        {
-            ErrorMessage = "Administrator Already Exists";
-            return;
-        }
+        //if (AdminExists)
+        //{
+        //    ErrorMessage = "Administrator Already Exists";
+        //    return;
+        //}
     }
 
     #region private async void CreateAdministrator()
