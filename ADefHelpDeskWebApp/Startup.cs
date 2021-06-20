@@ -57,19 +57,14 @@ namespace ADefHelpDeskWebApp
 
                 // Delete current 
                 System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.dll");
-                //System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.Views.dll");
 
                 // Copy new 
                 System.IO.File.Copy(
                     env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.dll",
                     env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.dll");
-                //System.IO.File.Copy(
-                //    env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.Views.dll",
-                //    env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.Views.dll");
 
                 // Delete Upgrade - so it wont be processed again
                 System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.dll");
-                //System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.Views.dll");
             }
         }
 
@@ -79,12 +74,6 @@ namespace ADefHelpDeskWebApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //var ADefHelpDeskAppViewsPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.Views.dll");
-
-            //var ADefHelpDeskAppViewsAssembly =
-            //    AssemblyLoadContext
-            //    .Default.LoadFromAssemblyPath(ADefHelpDeskAppViewsPath);
-
             var ADefHelpDeskAppPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.dll");
 
             var ADefHelpDeskAppAssembly =
@@ -96,7 +85,6 @@ namespace ADefHelpDeskWebApp
                 .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
 
             services.AddMvc(options => options.EnableEndpointRouting = false)
-                //.AddApplicationPart(ADefHelpDeskAppViewsAssembly)
                 .AddApplicationPart(ADefHelpDeskAppAssembly);
 
             ADefHelpDeskAppType.GetMethod("AddADefHelpDeskAppServices")

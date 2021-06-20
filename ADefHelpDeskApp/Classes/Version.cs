@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace BlazorBlogs
+namespace ADefHelpDeskApp
 {
     public class Version
     {

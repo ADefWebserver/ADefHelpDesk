@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ADefHelpDeskApp.Classes;
 using WilderMinds.MetaWeblog;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -52,18 +53,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
             services.AddSingleton<IConfiguration>(configuration);
 
-            //services.AddScoped<BlogsService>();
-            //services.AddScoped<GeneralSettingsService>();
-            //services.AddScoped<EmailService>();
-            //services.AddTransient<IEmailSender, EmailSender>();
-            //services.AddScoped<SearchState>();
-            //services.AddScoped<InstallUpdateState>();
-            //services.AddMetaWeblog<ADefHelpDeskApp.MetaWeblogService>();
+            services.AddScoped<GeneralSettings>();
+            services.AddScoped<InstallUpdateState>();            
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
-            //services.AddHeadElementHelper();
+            //services.AddMetaWeblog<ADefHelpDeskApp.MetaWeblogService>();
 
             return services;
         }        
