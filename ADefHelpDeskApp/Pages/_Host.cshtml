@@ -10,14 +10,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ADefHelpDeskApp</title>
+    <title>ADefHelpDesk</title>
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <meta name="revised" content="Sunday, June 20th, 2021, 5:00 pm" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
+    <link href="_content/Blazored.Toast/blazored-toast.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="ADefHelpDeskApp.styles.css" rel="stylesheet" />
 </head>
 <body>
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
+    <component type="typeof(ADefHelpDeskApp.App)" render-mode="ServerPrerendered" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -31,5 +33,6 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>
 </html>

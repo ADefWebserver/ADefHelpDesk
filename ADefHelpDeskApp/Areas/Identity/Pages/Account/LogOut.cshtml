@@ -1,7 +1,10 @@
 ﻿@page
 @using Microsoft.AspNetCore.Identity
+@using ADefHelpDeskApp.Data.Models;
+@using AdefHelpDeskBase.Models;
+
 @attribute [IgnoreAntiforgeryToken]
-@inject SignInManager<IdentityUser> SignInManager
+@inject SignInManager<ApplicationUser> SignInManager
 @functions {
     public async Task<IActionResult> OnPost()
     {
