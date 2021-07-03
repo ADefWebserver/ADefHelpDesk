@@ -47,13 +47,13 @@ namespace AdefHelpDeskBase.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
         private IConfigurationRoot _configRoot { get; set; }
 
         public LoginController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             IConfigurationRoot configRoot)
         {
             _userManager = userManager;

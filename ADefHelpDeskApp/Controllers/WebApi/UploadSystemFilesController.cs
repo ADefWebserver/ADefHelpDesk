@@ -43,12 +43,12 @@ namespace AdefHelpDeskBase.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class UploadSystemFilesController : Controller
     {
-        private readonly IHostingEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;        
         private string _SystemFiles;
         private IConfigurationRoot _configRoot { get; set; }
 
         public UploadSystemFilesController(
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             IConfigurationRoot configRoot)
         {
             _configRoot = configRoot;

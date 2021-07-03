@@ -47,12 +47,12 @@ namespace AdefHelpDeskBase.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class FilesController : Controller
     {
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
         private string _SystemFiles;
         private IConfigurationRoot _configRoot { get; set; }
 
         public FilesController(
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             IConfigurationRoot configRoot)
         {
             _configRoot = configRoot;
@@ -119,7 +119,7 @@ namespace AdefHelpDeskBase.Controllers
         // Methods
 
         #region public static DTONode SystemFilesMethod(IHostingEnvironment _hostEnvironment, string _SystemFiles)
-        public static DTONode SystemFilesMethod(IHostingEnvironment _hostEnvironment, string _SystemFiles)
+        public static DTONode SystemFilesMethod(IWebHostEnvironment _hostEnvironment, string _SystemFiles)
         {
             // Create Root Node
             DTONode objDTONode = new DTONode();

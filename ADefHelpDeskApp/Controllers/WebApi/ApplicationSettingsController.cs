@@ -47,12 +47,12 @@ namespace ADefHelpDeskApp.Controllers
     public class ApplicationSettingsController : Controller
     {        
         private string _DefaultFilesPath;
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
         private IConfigurationRoot _configRoot { get; set; }
 
         public ApplicationSettingsController(
-            IConfigurationRoot configRoot, 
-            IHostingEnvironment hostEnvironment)
+            IConfigurationRoot configRoot,
+            IWebHostEnvironment hostEnvironment)
         {
             _configRoot = configRoot;
 

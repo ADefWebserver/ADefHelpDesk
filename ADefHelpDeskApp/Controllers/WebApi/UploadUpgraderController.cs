@@ -48,12 +48,12 @@ namespace AdefHelpDeskBase.Controllers
     public class UploadUpgraderController : Controller
     {
         private string _UpgradeProcessDirectory;
-        private readonly IHostingEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;        
         private string _SystemFiles;
         private IConfigurationRoot _configRoot { get; set; }
 
         public UploadUpgraderController(
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             IConfigurationRoot configRoot)
         {
             _configRoot = configRoot;

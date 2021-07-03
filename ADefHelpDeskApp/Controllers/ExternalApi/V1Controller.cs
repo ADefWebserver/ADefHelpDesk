@@ -57,7 +57,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
     {
         static HttpClient client = new HttpClient();
         private IMemoryCache _cache;
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private string _SystemFiles;
@@ -73,7 +73,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="memoryCache"></param>
         public V1Controller(
             IConfigurationRoot configRoot,
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IMemoryCache memoryCache

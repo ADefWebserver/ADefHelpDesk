@@ -49,11 +49,11 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfigurationRoot _configRoot { get; set; }
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
         public RegisterController(
             IConfigurationRoot configRoot,
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
@@ -98,7 +98,7 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public static RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
-        public static RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
+        public static RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();

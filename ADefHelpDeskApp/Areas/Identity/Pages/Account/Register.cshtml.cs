@@ -73,56 +73,34 @@ namespace ADefHelpDeskApp.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            //var GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
+            returnUrl = returnUrl ?? Url.Content("~/");
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, NewsletterSubscriber = true };
+                var result = await _userManager.CreateAsync(user, Input.Password);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
 
-            //if (GeneralSettings.AllowRegistration)
-            //{
-            //    returnUrl = returnUrl ?? Url.Content("~/");
-            //    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            //    if (ModelState.IsValid)
-            //    {
-            //        var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, NewsletterSubscriber = true };
-            //        var result = await _userManager.CreateAsync(user, Input.Password);
-            //        if (result.Succeeded)
-            //        {
-            //            _logger.LogInformation("User created a new account with password.");
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = user.Id, code = code },
+                        protocol: Request.Scheme);
 
-            //            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            //            var callbackUrl = Url.Page(
-            //                "/Account/ConfirmEmail",
-            //                pageHandler: null,
-            //                values: new { area = "Identity", userId = user.Id, code = code },
-            //                protocol: Request.Scheme);
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-            //            await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-            //                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-            //            if (GeneralSettings.VerifiedRegistration)
-            //            {
-            //                return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
-            //            }
-            //            else
-            //            {
-            //                // Set confirm Email for user
-            //                user.EmailConfirmed = true;
-            //                await _userManager.UpdateAsync(user);
-
-            //                // Log user in
-            //                await _signInManager.SignInAsync(user, isPersistent: false);
-            //                return LocalRedirect(returnUrl);
-            //            }
-            //        }
-            //        foreach (var error in result.Errors)
-            //        {
-            //            ModelState.AddModelError(string.Empty, error.Description);
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    ModelState.AddModelError(string.Empty, "Registration Not Allowed in Administration Settings");
-            //}
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
 
             // If we got this far, something failed, redisplay form
             return Page();

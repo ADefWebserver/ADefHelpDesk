@@ -42,11 +42,11 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfigurationRoot _configRoot { get; set; }
-        private readonly IHostingEnvironment _hostEnvironment;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
         public UserManagerController(
             IConfigurationRoot configRoot,
-            IHostingEnvironment hostEnvironment,
+            IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
@@ -524,7 +524,7 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public static DTOStatus CreateUserMethod(DTOUser DTOUser, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
-        public static DTOStatus CreateUserMethod(DTOUser DTOUser, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
+        public static DTOStatus CreateUserMethod(DTOUser DTOUser, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();

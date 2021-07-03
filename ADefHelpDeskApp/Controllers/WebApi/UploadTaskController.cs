@@ -50,12 +50,12 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class UploadTaskController : Controller
     {
-        private readonly IHostingEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;        
         private IConfigurationRoot _configRoot { get; set; }
 
         public UploadTaskController(
             IConfigurationRoot configRoot,
-            IHostingEnvironment hostEnvironment)
+            IWebHostEnvironment hostEnvironment)
         {
             _configRoot = configRoot;
             _hostEnvironment = hostEnvironment;

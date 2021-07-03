@@ -68,7 +68,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_Attachments");
 
                 entity.HasIndex(e => e.DetailId)
-                    .HasName("IX_ADefHelpDesk_Attachments");
+                    .HasDatabaseName("IX_ADefHelpDesk_Attachments");
 
                 entity.Property(e => e.AttachmentId).HasColumnName("AttachmentID");
 
@@ -102,7 +102,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_Categories");
 
                 entity.HasIndex(e => e.PortalId)
-                    .HasName("IX_ADefHelpDesk_Categories");
+                    .HasDatabaseName("IX_ADefHelpDesk_Categories");
 
                 entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
 
@@ -118,7 +118,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_LastSearch");
 
                 entity.HasIndex(e => new { e.UserId, e.PortalId })
-                    .HasName("IX_ADefHelpDesk_LastSearch");
+                    .HasDatabaseName("IX_ADefHelpDesk_LastSearch");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -148,7 +148,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_Log");
 
                 entity.HasIndex(e => e.TaskId)
-                    .HasName("IX_ADefHelpDesk_Log");
+                    .HasDatabaseName("IX_ADefHelpDesk_Log");
 
                 entity.Property(e => e.LogId).HasColumnName("LogID");
 
@@ -197,7 +197,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_Roles");
 
                 entity.HasIndex(e => e.PortalId)
-                    .HasName("IX_ADefHelpDesk_Roles");
+                    .HasDatabaseName("IX_ADefHelpDesk_Roles");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -236,7 +236,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_SystemLog");
 
                 entity.HasIndex(e => e.LogType)
-                    .HasName("IX_ADefHelpDesk_SystemLog");
+                    .HasDatabaseName("IX_ADefHelpDesk_SystemLog");
 
                 entity.Property(e => e.LogId).HasColumnName("LogId");
 
@@ -260,7 +260,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_TaskAssociations");
 
                 entity.HasIndex(e => e.TaskId)
-                    .HasName("IX_ADefHelpDesk_TaskAssociations");
+                    .HasDatabaseName("IX_ADefHelpDesk_TaskAssociations");
 
                 entity.Property(e => e.TaskRelationId).HasColumnName("TaskRelationID");
 
@@ -280,7 +280,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_TaskCategories");
 
                 entity.HasIndex(e => e.TaskId)
-                    .HasName("IX_ADefHelpDesk_TaskCategories");
+                    .HasDatabaseName("IX_ADefHelpDesk_TaskCategories");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -308,7 +308,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.ToTable("ADefHelpDesk_TaskDetails");
 
                 entity.HasIndex(e => e.TaskId)
-                    .HasName("IX_ADefHelpDesk_TaskDetails");
+                    .HasDatabaseName("IX_ADefHelpDesk_TaskDetails");
 
                 entity.Property(e => e.DetailId).HasColumnName("DetailID");
 
@@ -423,7 +423,7 @@ namespace AdefHelpDeskBase.Models.DataContext
                     .IsUnique();
 
                 entity.HasIndex(e => e.Username)
-                    .HasName("IX_ADefHelpDesk_Users");
+                    .HasDatabaseName("IX_ADefHelpDesk_Users");
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
@@ -480,7 +480,7 @@ namespace AdefHelpDeskBase.Models.DataContext
             modelBuilder.Entity<AspNetRoles>(entity =>
             {
                 entity.HasIndex(e => e.NormalizedName)
-                    .HasName("RoleNameIndex");
+                    .HasDatabaseName("RoleNameIndex");
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
@@ -533,10 +533,10 @@ namespace AdefHelpDeskBase.Models.DataContext
             modelBuilder.Entity<AspNetUsers>(entity =>
             {
                 entity.HasIndex(e => e.NormalizedEmail)
-                    .HasName("EmailIndex");
+                    .HasDatabaseName("EmailIndex");
 
                 entity.HasIndex(e => e.NormalizedUserName)
-                    .HasName("UserNameIndex")
+                    .HasDatabaseName("UserNameIndex")
                     .IsUnique()
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
 
