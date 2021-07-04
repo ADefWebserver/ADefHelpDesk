@@ -4,6 +4,7 @@
 @using AdefHelpDeskBase.Models;
 @using AdefHelpDeskBase.Models.DataContext;
 @using ADefHelpDeskApp.Classes;
+@using Microsoft.EntityFrameworkCore
 @inject IConfiguration _configuration
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
@@ -66,13 +67,13 @@
         // Don't allow this to be used if an Administrator already exists
         // Get database conection string
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-        //var AdminExists = await _ADefHelpDeskService.AdminExistsAsync(strDefaultConnection);
 
-        //if (AdminExists)
-        //{
-        //    ErrorMessage = "Administrator Already Exists";
-        //    return;
-        //}
+        var AdminExists = await AdminExistsAsync(strDefaultConnection);
+        if (AdminExists)
+        {
+            ErrorMessage = "Administrator Already Exists";
+            return;
+        }
     }
 
     #region private async void CreateAdministrator()
@@ -124,6 +125,40 @@
             ErrorMessage = ex.Message;
             StateHasChanged();
             return;
+        }
+    }
+    #endregion
+
+    #region public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            // Get Admin Role
+            var AdminRoleList = await context.AspNetRoles
+                    // Use AsNoTracking to disable EF change tracking
+                    .AsNoTracking()
+                     .Where(x => x.Name.ToLower() == "Administrators")
+                     .ToListAsync();
+
+            if (AdminRoleList.Count == 0)
+            {
+                return false;
+            }
+
+            var AdminRole = AdminRoleList.FirstOrDefault();
+
+            // Get number of users in that role
+            var UsersInAdminRole = await context.AspNetUserRoles
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking()
+                .Where(x => x.RoleId == AdminRole.Id)
+                .CountAsync();
+
+            return (UsersInAdminRole > 0);
         }
     }
     #endregion
