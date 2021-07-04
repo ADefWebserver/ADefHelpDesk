@@ -49,6 +49,7 @@ namespace ADefHelpDeskApp.Classes
         bool _VerifiedRegistration;
         string _ApplicationName;
         string _ApplicationGUID;
+        string _VersionNumber;
 
         #region Public Properties
         public string SMTPServer
@@ -120,6 +121,11 @@ namespace ADefHelpDeskApp.Classes
         {
             get { return _ApplicationGUID; }
         }
+
+        public string VersionNumber
+        {
+            get { return _VersionNumber; }
+        }
         #endregion
 
         public GeneralSettings() { }
@@ -152,6 +158,21 @@ namespace ADefHelpDeskApp.Classes
 
                 _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
                 _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
+
+                // Database Version
+                var result = context.AdefHelpDeskVersion
+                        // Use AsNoTracking to disable EF change tracking
+                        .AsNoTracking()
+                        .FirstOrDefault();
+
+                if (result == null)
+                {
+                    _VersionNumber = "00.00.00";
+                }
+                else
+                {
+                    _VersionNumber = result.VersionNumber;
+                }
             }
         }
         #endregion

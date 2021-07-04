@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
     <PackageReference Include="Blazored.Toast" Version="3.1.2" />
-    <PackageReference Include="Radzen.Blazor" Version="2.17.7" />
+    <PackageReference Include="Radzen.Blazor" Version="3.6.3" />
     <PackageReference Include="Toolbelt.Blazor.HeadElement" Version="5.0.0" />
     <PackageReference Include="Toolbelt.Blazor.HeadElement.ServerPrerendering" Version="1.2.2" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="5.0.0" />

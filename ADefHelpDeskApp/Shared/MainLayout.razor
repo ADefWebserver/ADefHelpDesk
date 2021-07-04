@@ -94,13 +94,11 @@
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
                 // If we can get Version Number database is set up
-                var VersionNumber = await context.AdefHelpDeskVersion
+                var result = context.AdefHelpDeskVersion
                         // Use AsNoTracking to disable EF change tracking
-                        .AsNoTracking()
-                         .Where(x => x.VersionNumber.ToLower() == "versionnumber")
-                         .FirstOrDefaultAsync();
+                        .AsNoTracking().FirstOrDefault();
 
-                if (VersionNumber == null)
+                if (result == null)
                 {
                     return false;
                 }
