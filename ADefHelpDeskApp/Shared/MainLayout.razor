@@ -1,4 +1,12 @@
 ﻿@inherits LayoutComponentBase
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject InstallUpdateState _InstallUpdateState
+@inject NavigationManager NavigationManager
 <BlazoredToasts />
 <div class="page">
     <div class="sidebar">
@@ -17,3 +25,153 @@
         </div>
     </div>
 </div>
+@code {
+    // ********************************
+    string CurrentVersion = "04.20.00";
+    // ********************************
+
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check for Install/Upgrade
+        // The Index.razor page will detect this and load the
+        // Install/Upgrade Wizard
+        try
+        {
+            if (!context.Database.CanConnect())
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // The database connection may be good,
+        // but the database tables are missing
+        try
+        {
+            var DatabaseSetUp = await IsDatabaseSetUpAsync(strDefaultConnection);
+            if (!DatabaseSetUp)
+            {
+                NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+        }
+
+        // The database connection may be good,
+        // but the Administrator account may not exist
+        try
+        {
+            var AdminExists = await AdminExistsAsync(strDefaultConnection);
+            if (!AdminExists)
+            {
+                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+        }
+    }
+
+    #region public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+    public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        try
+        {
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // If we can get Version Number database is set up
+                var VersionNumber = await context.AdefHelpDeskVersion
+                        // Use AsNoTracking to disable EF change tracking
+                        .AsNoTracking()
+                         .Where(x => x.VersionNumber.ToLower() == "versionnumber")
+                         .FirstOrDefaultAsync();
+
+                if (VersionNumber == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    #endregion
+
+    #region public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            // Get Admin Role
+            var AdminRoleList = await context.AspNetRoles
+                    // Use AsNoTracking to disable EF change tracking
+                    .AsNoTracking()
+                     .Where(x => x.Name.ToLower() == "Administrators")
+                     .ToListAsync();
+
+            if (AdminRoleList.Count == 0)
+            {
+                return false;
+            }
+
+            var AdminRole = AdminRoleList.FirstOrDefault();
+
+            // Get number of users in that role
+            var UsersInAdminRole = await context.AspNetUserRoles
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking()
+                .Where(x => x.RoleId == AdminRole.Id)
+                .CountAsync();
+
+            return (UsersInAdminRole > 0);
+        }
+    }
+    #endregion
+
+    #region private int ConvertToInteger(string strParamVersion)
+    private int ConvertToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+        string strVersion = strParamVersion;
+
+        // Split into parts seperated by periods
+        char[] splitchar = { '.' };
+        var strSegments = strVersion.Split(splitchar);
+
+        // Process the segments
+        int i = 0;
+        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+        foreach (var strSegment in strSegments)
+        {
+            int intSegmentNumber = Convert.ToInt32(strSegment);
+            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+            i++;
+        }
+
+        return intVersionNumber;
+    }
+    #endregion
+}
