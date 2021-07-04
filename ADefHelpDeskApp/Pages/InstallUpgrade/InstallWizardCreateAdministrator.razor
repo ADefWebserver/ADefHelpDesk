@@ -83,6 +83,7 @@
         {
             // ensure there is a ADMINISTRATION_ROLE
             var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+
             if (RoleResult == null)
             {
                 // Create ADMINISTRATION_ROLE Role
