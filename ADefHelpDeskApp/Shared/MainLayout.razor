@@ -43,8 +43,9 @@
                 NavigationManager.NavigateTo("installwizard/INSTALL", true);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            string error = ex.Message;
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
 
@@ -55,14 +56,16 @@
         // but the database tables are missing
         try
         {
-            var DatabaseSetUp = await IsDatabaseSetUpAsync(strDefaultConnection);
+            var DatabaseSetUp = await IsDatabaseSetUpOrUpgradeAsync(strDefaultConnection);
+
             if (!DatabaseSetUp)
             {
                 NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            string error = ex.Message;
             NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
         }
 
@@ -71,19 +74,20 @@
         try
         {
             var AdminExists = await AdminExistsAsync(strDefaultConnection);
+
             if (!AdminExists)
             {
                 NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            string error = ex.Message;
             NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
         }
     }
 
-    #region public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
-    public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+    public async Task<bool> IsDatabaseSetUpOrUpgradeAsync(string strDefaultConnection)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
         optionsBuilder.UseSqlServer(strDefaultConnection);
@@ -93,9 +97,9 @@
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
                 // If we can get Version Number database is set up
-                var result = context.AdefHelpDeskVersion
-                        // Use AsNoTracking to disable EF change tracking
-                        .AsNoTracking().FirstOrDefault();
+                var result = await context.AdefHelpDeskVersion
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking().FirstOrDefaultAsync();
 
                 if (result == null)
                 {
@@ -103,18 +107,31 @@
                 }
                 else
                 {
+                    // Do we need to perform an upgrade
+                    if (ConvertToInteger(CurrentVersion) > ConvertToInteger(result.VersionNumber))
+                    {
+                        try
+                        {
+                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                        }
+                        catch (Exception ex)
+                        {
+                            string error = ex.Message;
+                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                        }
+                    }
+
                     return true;
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            string error = ex.Message;
             return false;
         }
     }
-    #endregion
 
-    #region public async Task<bool> AdminExistsAsync(string strDefaultConnection)
     public async Task<bool> AdminExistsAsync(string strDefaultConnection)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
@@ -146,9 +163,7 @@
             return (UsersInAdminRole > 0);
         }
     }
-    #endregion
 
-    #region private int ConvertToInteger(string strParamVersion)
     private int ConvertToInteger(string strParamVersion)
     {
         int intVersionNumber = 0;
@@ -170,5 +185,4 @@
 
         return intVersionNumber;
     }
-    #endregion
 }
