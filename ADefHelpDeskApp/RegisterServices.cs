@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using ADefHelpDeskApp;
-using ADefHelpDeskApp.Areas.Identity;
 using ADefHelpDeskApp.Data;
 using ADefHelpDeskApp.Data.Models;
 using AdefHelpDeskBase.Models;
@@ -36,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<ApplicationUser>(
+            services.AddIdentityCore<ApplicationUser>(
                 options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -44,9 +43,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddRazorPages();
             services.AddServerSideBlazor()
                 .AddCircuitOptions(options => { options.DetailedErrors = true; });
-
-            services.AddScoped<AuthenticationStateProvider,
-                RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             // Allows appsettings.json to be updated programatically
             services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
