@@ -15,7 +15,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using WilderMinds.MetaWeblog;
 
 namespace ADefHelpDeskWebApp
 {
@@ -115,8 +114,6 @@ namespace ADefHelpDeskWebApp
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            //app.UseMetaWeblog("/MetaWeblog");
 
             app.UseEndpoints(endpoints =>
             {

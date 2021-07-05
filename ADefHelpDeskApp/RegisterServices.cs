@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ADefHelpDeskApp.Classes;
-using WilderMinds.MetaWeblog;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -38,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>(
-                  options => options.SignIn.RequireConfirmedAccount = true)
+                options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -59,7 +58,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
-            //services.AddMetaWeblog<ADefHelpDeskApp.MetaWeblogService>();
 
             return services;
         }        
