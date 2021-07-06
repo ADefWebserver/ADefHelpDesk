@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31410.414
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADefHelpDeskWebApp", "ADefHelpDeskWebApp\ADefHelpDeskWebApp.csproj", "{CF0E0893-4520-4C72-BC88-9FFDBEA8C3F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADefHelpDeskWebApp", "ADefHelpDeskWebApp\ADefHelpDeskWebApp.csproj", "{CF0E0893-4520-4C72-BC88-9FFDBEA8C3F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADefHelpDeskApp", "ADefHelpDeskApp\ADefHelpDeskApp.csproj", "{66850E5B-15A6-40E3-90AA-9AE96661F3AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADefHelpDeskApp", "ADefHelpDeskApp\ADefHelpDeskApp.csproj", "{66850E5B-15A6-40E3-90AA-9AE96661F3AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

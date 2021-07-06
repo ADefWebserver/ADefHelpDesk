@@ -1,12 +1,25 @@
 ﻿<AuthorizeView>
     <Authorized>
-        <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
-        <form method="post" action="Identity/Account/LogOut">
+        Hello, @context.User.Identity.Name!
+        <form method="post" action="LogOut">
             <button type="submit" class="nav-link btn btn-link">Log out</button>
         </form>
     </Authorized>
     <NotAuthorized>
-        <a href="Identity/Account/Register">Register</a>
-        <a href="Identity/Account/Login">Log in</a>
+        <form method="post" action="LogIn">
+            <input type="text"
+                   name="Email"
+                   placeholder="Email"
+                   @bind="@Username" />
+            <input type="password"
+                   name="Password"
+                   placeholder="Password"
+                   @bind="@Password" />
+            <button type="submit" class="nav-link btn btn-link">Log In</button>
+        </form>
     </NotAuthorized>
 </AuthorizeView>
+@code {
+    string Username = "";
+    string Password = "";
+}
