@@ -1,0 +1,23 @@
+﻿@page "/logincontrol"
+<h3>Login</h3>
+<AuthorizeView>
+    <NotAuthorized>
+            <form method="post" action="LogIn">
+            <input type="text"
+                   name="Email"
+                   placeholder="Email"
+                   @bind="@Username" />
+            <input type="password"
+                   name="Password"
+                   placeholder="Password"
+                   @bind="@Password" />
+
+            <button type="submit" class="btn btn-primary">Log In</button>
+        </form>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    string Username = "";
+    string Password = "";
+}

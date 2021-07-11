@@ -1,4 +1,5 @@
-﻿<AuthorizeView>
+﻿@inject NavigationManager NavigationManager
+<AuthorizeView>
     <Authorized>
         Hello, @context.User.Identity.Name!
         <form method="post" action="LogOut">
@@ -6,20 +7,18 @@
         </form>
     </Authorized>
     <NotAuthorized>
-        <form method="post" action="LogIn">
-            <input type="text"
-                   name="Email"
-                   placeholder="Email"
-                   @bind="@Username" />
-            <input type="password"
-                   name="Password"
-                   placeholder="Password"
-                   @bind="@Password" />
-            <button type="submit" class="nav-link btn btn-link">Log In</button>
-        </form>
+    <button class="btn btn-primary" @onclick="Register">Register</button>
+    <button class="btn btn-secondary" @onclick="LogIn">Log In</button>
     </NotAuthorized>
 </AuthorizeView>
 @code {
-    string Username = "";
-    string Password = "";
+    private void Register()
+    {
+
+    }
+
+    private void LogIn()
+    {
+      NavigationManager.NavigateTo("logincontrol", true);
+    }
 }
