@@ -208,7 +208,7 @@ namespace AdefHelpDeskBase.Controllers
                             if (objAdefHelpDeskUser.Password ==
                                 ComputeHash.GetSwcMD5(paramUserName.Trim().ToLower() + paramPassword.Trim()))
                             {
-                                // This database must be upgraded to ass the AspNetUseers table (for anything else to work)
+                                // This database must be upgraded - the AspNetUsers table (for anything else to work)
                                 //InstallWizardController.RunUpdateScripts("00.00.00", _hostEnvironment, GetConnectionString());
 
                                 // Return that this account can be migrated
