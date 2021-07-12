@@ -5,7 +5,7 @@ END
 
 IF COL_LENGTH('dbo.AspNetUsers', 'NewsletterSubscriber') IS NULL
 BEGIN
-ALTER TABLE dbo.AspNetUsers ADD	NewsletterSubscriber nvarchar(256) NULL
+ALTER TABLE dbo.AspNetUsers ADD	NewsletterSubscriber [bit] NULL
 END
 
 /** Update Version **/

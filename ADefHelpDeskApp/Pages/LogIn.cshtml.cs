@@ -17,11 +17,11 @@ namespace ADefHelpDeskApp.Pages
 {
     public class LogInModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public LogInModel(SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager)
+        public LogInModel(SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
