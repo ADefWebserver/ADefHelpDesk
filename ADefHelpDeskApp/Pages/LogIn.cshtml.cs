@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using AdefHelpDeskBase.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace ADefHelpDeskApp.Pages
 {
@@ -19,12 +21,18 @@ namespace ADefHelpDeskApp.Pages
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private IConfiguration _configRoot { get; set; }
 
         public LogInModel(SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment hostEnvironment,
+            IConfiguration configRoot)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _hostEnvironment = hostEnvironment;
+            _configRoot = configRoot;
         }
 
         [BindProperty]
@@ -63,17 +71,23 @@ namespace ADefHelpDeskApp.Pages
 
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(Input.Email);
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, false, lockoutOnFailure: false);
-                if (result.Succeeded)
+                AdefHelpDeskBase.Controllers.LoginController objLoginController =
+                    new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _configRoot);
+
+                DTOAuthentication objDTOAuthentication = new DTOAuthentication();
+                objDTOAuthentication.userName = Input.Email;
+                objDTOAuthentication.password = Input.Password;
+
+                OkObjectResult result = (OkObjectResult)objLoginController.Index(objDTOAuthentication);
+                LoginStatus objLoginStatus = (LoginStatus)result.Value;
+
+                if (objLoginStatus.isLoggedIn)
                 {
                     return LocalRedirect(returnUrl);
-                }                
+                }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError("CustomError", objLoginStatus.status);
                     return Page();
                 }
             }

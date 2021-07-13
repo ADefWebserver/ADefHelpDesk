@@ -48,13 +48,13 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _configRoot { get; set; }
 
         public LoginController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IWebHostEnvironment hostEnvironment,
-            IConfigurationRoot configRoot)
+            IConfiguration configRoot)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -151,11 +151,14 @@ namespace AdefHelpDeskBase.Controllers
 
             if ((paramUserName != null) && (paramPassword != null))
             {
-                // First log the user out
-                if (this.User.Identity.IsAuthenticated)
+                if (this.User != null)
                 {
-                    // Log user out
-                    _signInManager.SignOutAsync().Wait();
+                    // First log the user out
+                    if (this.User.Identity.IsAuthenticated)
+                    {
+                        // Log user out
+                        _signInManager.SignOutAsync().Wait();
+                    }
                 }
 
                 var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();

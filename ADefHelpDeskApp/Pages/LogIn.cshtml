@@ -2,4 +2,6 @@
 @attribute [IgnoreAntiforgeryToken]
 @model ADefHelpDeskApp.Pages.LogInModel
 @{
+    @Html.ValidationMessage("CustomError")
+    @Html.ValidationSummary(true)
 }
