@@ -56,7 +56,7 @@ namespace ADefHelpDeskApp.Pages
             public string Password { get; set; }
 
             [Display(Name = "Remember me?")]
-            public bool RememberMe { get; set; }
+            public string RememberMe { get; set; }
         }
 
         public void OnGet()
@@ -77,6 +77,7 @@ namespace ADefHelpDeskApp.Pages
                 DTOAuthentication objDTOAuthentication = new DTOAuthentication();
                 objDTOAuthentication.userName = Input.Email;
                 objDTOAuthentication.password = Input.Password;
+                objDTOAuthentication.rememberMe = (Input.RememberMe == "on");
 
                 OkObjectResult result = (OkObjectResult)objLoginController.Index(objDTOAuthentication);
                 LoginStatus objLoginStatus = (LoginStatus)result.Value;

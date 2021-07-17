@@ -148,6 +148,7 @@ namespace AdefHelpDeskBase.Controllers
             // Get values passed
             var paramUserName = Authentication.userName;
             var paramPassword = Authentication.password;
+            var paramRememberMe = Authentication.rememberMe;
 
             if ((paramUserName != null) && (paramPassword != null))
             {
@@ -208,17 +209,8 @@ namespace AdefHelpDeskBase.Controllers
                         {
                             // User is in the Legacy table and the password is not null
                             // Check their password 
-                            if (objAdefHelpDeskUser.Password ==
+                            if (objAdefHelpDeskUser.Password !=
                                 ComputeHash.GetSwcMD5(paramUserName.Trim().ToLower() + paramPassword.Trim()))
-                            {
-                                // This database must be upgraded - the AspNetUsers table (for anything else to work)
-                                //InstallWizardController.RunUpdateScripts("00.00.00", _hostEnvironment, GetConnectionString());
-
-                                // Return that this account can be migrated
-                                objLoginStatus.status = "Migrate";
-                                return Ok(objLoginStatus);
-                            }
-                            else
                             {
                                 objLoginStatus.status = "Error: Account needs to be migrated, but account cannot be migrated because the password is incorrect";
                                 return Ok(objLoginStatus);
@@ -248,7 +240,8 @@ namespace AdefHelpDeskBase.Controllers
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = _signInManager.PasswordSignInAsync(
                     paramUserName,
-                    paramPassword, false,
+                    paramPassword, 
+                    paramRememberMe,
                     lockoutOnFailure: false).Result;
 
                 if (result.Succeeded)
