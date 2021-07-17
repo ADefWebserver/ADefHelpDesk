@@ -45,19 +45,19 @@ namespace AdefHelpDeskBase.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class RegisterController : Controller
     {
-        
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
 
         public RegisterController(
-            IConfigurationRoot configRoot,
+            IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
-            _configRoot = configRoot;
+            _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -70,7 +70,7 @@ namespace AdefHelpDeskBase.Controllers
         #region public IActionResult Index([FromBody]RegisterDTO Register)
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Index([FromBody]RegisterDTO Register)
+        public IActionResult Index([FromBody] RegisterDTO Register)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -90,15 +90,16 @@ namespace AdefHelpDeskBase.Controllers
             else
             {
                 string strCurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                objRegisterStatus = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, strCurrentHostLocation, false, true);
+                var result = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, strCurrentHostLocation, false, true);
+                objRegisterStatus.status = result.Result.status;
             }
 
             return Ok(objRegisterStatus);
         }
         #endregion
 
-        #region public static RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
-        public static RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
+        #region public async RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
+        public async Task<RegisterStatus> RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -188,43 +189,57 @@ namespace AdefHelpDeskBase.Controllers
                 return objRegisterStatus;
             }
 
-            // Membership API
-
-            var user = new ApplicationUser { UserName = paramUserName, Email = paramEmail };
-            var result = _userManager.CreateAsync(user, paramPassword).Result;
-
-            if (!result.Succeeded)
+            try
             {
-                // Create user failed
-                try
-                {
-                    // Delete user from the User table
-                    using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-                    {
-                        var objAdefHelpDeskUser = (from AdefHelpDeskUsers in context.AdefHelpDeskUsers
-                                                   where AdefHelpDeskUsers.Username == paramUserName
-                                                   select AdefHelpDeskUsers).FirstOrDefault();
+                // Membership API
+                ApplicationUser objApplicationUser = new ApplicationUser();
+                objApplicationUser.UserName = paramUserName;
+                objApplicationUser.DisplayName = paramFirstName + " " + paramLastName;
+                objApplicationUser.Email = paramEmail;
+                objApplicationUser.EmailConfirmed = true;
 
-                        if (objAdefHelpDeskUser != null)
+                var result = await _userManager.CreateAsync(objApplicationUser, paramPassword);
+
+                if (!result.Succeeded)
+                {
+                    // Create user failed
+                    try
+                    {
+                        // Delete user from the User table
+                        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
                         {
-                            context.AdefHelpDeskUsers.Remove(objAdefHelpDeskUser);
-                            context.SaveChanges();
+                            var objAdefHelpDeskUser = (from AdefHelpDeskUsers in context.AdefHelpDeskUsers
+                                                       where AdefHelpDeskUsers.Username == paramUserName
+                                                       select AdefHelpDeskUsers).FirstOrDefault();
+
+                            if (objAdefHelpDeskUser != null)
+                            {
+                                context.AdefHelpDeskUsers.Remove(objAdefHelpDeskUser);
+                                context.SaveChanges();
+                            }
                         }
                     }
-                }
-                catch
-                {
-                    // Do nothing if this fails               
-                }
+                    catch
+                    {
+                        // Do nothing if this fails               
+                    }
 
-                // Return the errors from the Memberhip API Creation
-                string strErrors = "";
-                foreach (var Error in result.Errors)
-                {
-                    strErrors = strErrors + "\n" + Error.Description;
-                }
+                    // Return the errors from the Memberhip API Creation
+                    string strErrors = "";
+                    foreach (var Error in result.Errors)
+                    {
+                        strErrors = strErrors + "\n" + Error.Description;
+                    }
 
-                objRegisterStatus.status = strErrors;
+                    objRegisterStatus.status = strErrors;
+                    objRegisterStatus.isSuccessful = false;
+                    return objRegisterStatus;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Return the error
+                objRegisterStatus.status = ex.GetBaseException().Message;
                 objRegisterStatus.isSuccessful = false;
                 return objRegisterStatus;
             }
@@ -297,23 +312,6 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterStatus.status = objRegisterStatus.status + $"However, registration is verified. ";
                 objRegisterStatus.status = objRegisterStatus.status + $"You have been emailed a verification code that must be used to complete your registration.";
             }
-            else
-            {
-                if (SignUserIn)
-                {
-                    // Sign the User in
-                    var SignInResult = _signInManager.PasswordSignInAsync(
-                        paramUserName, paramPassword, false, lockoutOnFailure: false).Result;
-
-                    if (!SignInResult.Succeeded)
-                    {
-                        // Return the error
-                        objRegisterStatus.status = $"Could not sign user {paramUserName} in.";
-                        objRegisterStatus.isSuccessful = false;
-                        return objRegisterStatus;
-                    }
-                }
-            }
 
             return objRegisterStatus;
         }
@@ -343,7 +341,7 @@ namespace AdefHelpDeskBase.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _configuration["ConnectionStrings:DefaultConnection"];
             }
             catch
             {

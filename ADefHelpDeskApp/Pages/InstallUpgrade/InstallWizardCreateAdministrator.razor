@@ -1,14 +1,23 @@
-﻿@using Microsoft.AspNetCore.Identity;
+﻿@using ADefHelpDeskApp.Controllers
+@using AdefHelpDeskBase.Controllers
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.AspNetCore.Hosting;
 @using ADefHelpDeskApp.Data;
 @using ADefHelpDeskApp.Data.Models;
 @using AdefHelpDeskBase.Models;
 @using AdefHelpDeskBase.Models.DataContext;
 @using ADefHelpDeskApp.Classes;
-@using Microsoft.EntityFrameworkCore
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Http;
+@using System.IO
 @inject IConfiguration _configuration
+@inject IWebHostEnvironment _HostEnvironment
 @inject UserManager<ApplicationUser> _UserManager
+@inject SignInManager<ApplicationUser> _SignInManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject ADefHelpDeskContext _ADefHelpDeskService
+@inject IHttpContextAccessor httpContextAccessor
+@inject HttpClient Http
 
 <h3>Create Administrator</h3>
 <br />
@@ -20,6 +29,22 @@
 
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
+            </td>
+            <td>
+                <input type="email" id="FirstName" class="form-control" @bind="strAdministratorFirstName" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Last Name: </label>
+            </td>
+            <td>
+                <input type="email" id="LastName" class="form-control" @bind="strAdministratorLastName" />
+            </td>
+        </tr>
         <tr>
             <td>
                 <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
@@ -57,18 +82,23 @@
     // notify the parent component CreateAdministrator Is complete
     [Parameter] public EventCallback<bool> CreateAdministratorChanged { get; set; }
 
+    string strDefaultConnection = "";
+    string _DefaultFilesPath = "";
+
     string ErrorMessage = "";
-    string ADMINISTRATION_ROLE = "Administrators";
     string strAdministratorUserName = "";
+    string strAdministratorFirstName = "";
+    string strAdministratorLastName = "";
     string strAdministratorPassword = "";
 
     protected override async Task OnInitializedAsync()
     {
         // Don't allow this to be used if an Administrator already exists
         // Get database conection string
-        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
-        var AdminExists = await AdminExistsAsync(strDefaultConnection);
+        var AdminExists = await Task.Run(() => AdminExistsAsync());
+
         if (AdminExists)
         {
             ErrorMessage = "Administrator Already Exists";
@@ -76,46 +106,62 @@
         }
     }
 
-    #region private async void CreateAdministrator()
     private async void CreateAdministrator()
     {
         try
         {
-            // ensure there is a ADMINISTRATION_ROLE
-            var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
-
-            if (RoleResult == null)
-            {
-                // Create ADMINISTRATION_ROLE Role
-                await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
-            }
-
             // Create the user
-            ApplicationUser objApplicationUser = new ApplicationUser();
-            objApplicationUser.UserName = strAdministratorUserName;
-            objApplicationUser.DisplayName = strAdministratorUserName;
-            objApplicationUser.Email = strAdministratorUserName;
-            objApplicationUser.EmailConfirmed = true;
+            RegisterDTO objRegister = new RegisterDTO();
+            objRegister.email = strAdministratorUserName;
+            objRegister.userName = strAdministratorUserName;
+            objRegister.firstName = strAdministratorFirstName;
+            objRegister.lastName = strAdministratorLastName;
+            objRegister.password = strAdministratorPassword;
 
-            var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+            // RegisterStatus to return
+            RegisterStatus objRegisterStatus = new RegisterStatus();
+            objRegisterStatus.status = "Registration Failure";
+            objRegisterStatus.isSuccessful = false;
 
-            if (!UserResult.Succeeded)
+            // Create the Administrator
+            string strCurrentHostLocation = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
+
+            RegisterController objRegisterController = new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager);
+
+            objRegisterStatus = await objRegisterController.RegisterUser(
+                objRegister, strDefaultConnection, _HostEnvironment, _UserManager, _SignInManager, strCurrentHostLocation, true, true);
+
+            if (!objRegisterStatus.isSuccessful)
             {
                 ErrorMessage = "";
-                foreach (var item in UserResult.Errors)
+                if (objRegisterStatus.requiresVerification)
                 {
-                    ErrorMessage = ErrorMessage + " " + item.Description;
+                    ErrorMessage = "Account requires verification";
+                }
+                else
+                {
+                    ErrorMessage = objRegisterStatus.status;
                 }
                 StateHasChanged();
                 return;
             }
 
-            var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+            // Update the created user to be a SuperUser
+            DTOStatus objDTOStatus = MakeUserASuperUser(objRegister.userName);
 
-            if (user != null)
+            try
             {
-                // Put admin in Administrator role
-                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+                string strDefaultFilesPath =
+                ApplicationSettingsController.GetFilesPath(_DefaultFilesPath, strDefaultConnection);
+
+                // Get GeneralSettings
+                GeneralSettings objGeneralSettings = new GeneralSettings(strDefaultConnection);
+                objGeneralSettings.UpdateFileUploadPath(strDefaultConnection, strDefaultFilesPath);
+            }
+            catch
+            {
+                // Do nothing if this fails
+                // Admin can set the file path manually
             }
 
             // Notify parent component
@@ -128,39 +174,102 @@
             return;
         }
     }
-    #endregion
 
-    #region public async Task<bool> AdminExistsAsync(string strDefaultConnection)
-    public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    public bool AdminExistsAsync()
     {
+        bool result = false;
+
         var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
         optionsBuilder.UseSqlServer(strDefaultConnection);
 
         using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
         {
-            // Get Admin Role
-            var AdminRoleList = await context.AspNetRoles
-                    // Use AsNoTracking to disable EF change tracking
-                    .AsNoTracking()
-                     .Where(x => x.Name.ToLower() == "Administrators")
-                     .ToListAsync();
-
-            if (AdminRoleList.Count == 0)
+            try
             {
-                return false;
+                // Get the user
+                var objUser = (from user in context.AdefHelpDeskUsers
+                               where user.IsSuperUser == true
+                               select user).FirstOrDefault();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
             }
+            catch
+            {
+                result = false;
+            }
+        }
 
-            var AdminRole = AdminRoleList.FirstOrDefault();
+        return result;
+    }
 
-            // Get number of users in that role
-            var UsersInAdminRole = await context.AspNetUserRoles
-                // Use AsNoTracking to disable EF change tracking
-                .AsNoTracking()
-                .Where(x => x.RoleId == AdminRole.Id)
-                .CountAsync();
+    private DTOStatus MakeUserASuperUser(string UserName)
+    {
+        DTOStatus objDTOStatus = new DTOStatus();
+        objDTOStatus.Success = true;
+        objDTOStatus.StatusMessage = "";
 
-            return (UsersInAdminRole > 0);
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            try
+            {
+                // Get the user
+                var objUser = (from user in context.AdefHelpDeskUsers
+                               where user.Username == UserName
+                               select user).FirstOrDefault();
+
+                if (objUser != null)
+                {
+                    // Update them
+                    objUser.IsSuperUser = true;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    objDTOStatus.Success = false;
+                    objDTOStatus.StatusMessage = $"Cound not find {UserName} in database";
+                }
+            }
+            catch (Exception ex)
+            {
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+            }
+        }
+
+        return objDTOStatus;
+    }
+
+    private void CreateDefaultFolder()
+    {
+        // Set WebRootPath to wwwroot\Files directory
+        _HostEnvironment.WebRootPath =
+            System.IO.Path.Combine(
+                Directory.GetCurrentDirectory(),
+                @"wwwroot");
+
+        // We need to create a Files directory if none exists
+        // This will be used if the Administrator does not set a Files directory
+        // Set WebRootPath to wwwroot\Files directory
+        _DefaultFilesPath =
+            System.IO.Path.Combine(
+                Directory.GetCurrentDirectory(),
+                @"wwwroot\Files");
+
+        // Create wwwroot\Files directory if needed
+        if (!Directory.Exists(_DefaultFilesPath))
+        {
+            DirectoryInfo di =
+                Directory.CreateDirectory(_DefaultFilesPath);
         }
     }
-    #endregion
 }

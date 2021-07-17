@@ -806,25 +806,25 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         #endregion
 
         #region public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
-        /// <summary>
-        /// Create User
-        /// </summary>
-        /// <param name="DTOUser"></param>
-        /// <returns></returns>
-        // JwtBearerDefaults means this method will only work if a Jwt is being passed
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("CreateUser")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
-        {
-            // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            string strConnectionString = GetConnectionString();
+        ///// <summary>
+        ///// Create User
+        ///// </summary>
+        ///// <param name="DTOUser"></param>
+        ///// <returns></returns>
+        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[HttpPost("CreateUser")]
+        //[ApiExplorerSettings(GroupName = "external")]
+        //public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
+        //{
+        //    // Get Settings
+        //    string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+        //    string ContentRootPath = _hostEnvironment.ContentRootPath;
+        //    string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+        //    string strConnectionString = GetConnectionString();
 
-            return UserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser);
-        }
+        //    return UserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser);
+        //}
         #endregion
 
         #region public DTOStatus UpdateUser([FromBody]DTOUser DTOUser)

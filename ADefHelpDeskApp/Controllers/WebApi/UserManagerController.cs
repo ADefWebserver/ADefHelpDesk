@@ -41,16 +41,16 @@ namespace AdefHelpDeskBase.Controllers
     {        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
 
         public UserManagerController(
-            IConfigurationRoot configRoot,
+            IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
-            _configRoot = configRoot;
+            _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -524,7 +524,7 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public static DTOStatus CreateUserMethod(DTOUser DTOUser, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
-        public static DTOStatus CreateUserMethod(DTOUser DTOUser, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
+        public async Task<DTOStatus> CreateUserMethod(DTOUser DTOUser, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -541,7 +541,10 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterDTO.lastName = DTOUser.lastName;
                 objRegisterDTO.password = DTOUser.password;
 
-                var objRegisterStatus = RegisterController.RegisterUser(objRegisterDTO,
+                RegisterController objRegisterController = 
+                    new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager);
+
+                var objRegisterStatus = await objRegisterController.RegisterUser(objRegisterDTO,
                     ConnectionString, _hostEnvironment, _userManager, _signInManager, CurrentHostLocation, true, false);
 
                 if (!objRegisterStatus.isSuccessful)
@@ -661,7 +664,7 @@ namespace AdefHelpDeskBase.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _configuration.GetConnectionString("DefaultConnection");
             }
             catch
             {

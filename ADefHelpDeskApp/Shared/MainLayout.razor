@@ -132,34 +132,36 @@
 
     public async Task<bool> AdminExistsAsync(string strDefaultConnection)
     {
+        bool result = false;
+
         var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
         optionsBuilder.UseSqlServer(strDefaultConnection);
 
         using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
         {
-            // Get Admin Role
-            var AdminRoleList = await context.AspNetRoles
-                    // Use AsNoTracking to disable EF change tracking
-                    .AsNoTracking()
-                     .Where(x => x.Name.ToLower() == "Administrators")
-                     .ToListAsync();
-
-            if (AdminRoleList.Count == 0)
+            try
             {
-                return false;
+                // Get the user
+                var objUser = await (from user in context.AdefHelpDeskUsers
+                                     where user.IsSuperUser == true
+                                     select user).FirstOrDefaultAsync();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
             }
-
-            var AdminRole = AdminRoleList.FirstOrDefault();
-
-            // Get number of users in that role
-            var UsersInAdminRole = await context.AspNetUserRoles
-                // Use AsNoTracking to disable EF change tracking
-                .AsNoTracking()
-                .Where(x => x.RoleId == AdminRole.Id)
-                .CountAsync();
-
-            return (UsersInAdminRole > 0);
+            catch
+            {
+                result = false;
+            }
         }
+
+        return result;
     }
 
     private int ConvertToInteger(string strParamVersion)
