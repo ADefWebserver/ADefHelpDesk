@@ -1,4 +1,10 @@
 ﻿@page "/"
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
 
 <h1>Hello, world!</h1>
 
@@ -6,13 +12,53 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    string ADMINISTRATION_ROLE = "Administrators";    
-
-    bool UserIsAnAdmin = false;
+    bool IsAdmin = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
+    string strDefaultConnection = "";
 
     protected override async Task OnInitializedAsync()
     {
-        
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        IsAdmin = await IsAdminAsync();
+    }
+
+    public async Task<bool> IsAdminAsync()
+    {
+        bool result = false;
+
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            try
+            {
+                // Get the user
+                var objUser = await (from user in context.AdefHelpDeskUsers
+                                     where user.Username.ToLower() == CurrentUser.Identity.Name.ToLower()
+                                     where user.IsSuperUser == true
+                                     select user).FirstOrDefaultAsync();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+        }
+
+        return result;
     }
 }

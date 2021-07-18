@@ -31,6 +31,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
         // Check for Install/Upgrade
         // The Index.razor page will detect this and load the
         // Install/Upgrade Wizard
@@ -46,9 +49,6 @@
             string error = ex.Message;
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
-
-        // Get database conection string
-        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
         // The database connection may be good,
         // but the database tables are missing

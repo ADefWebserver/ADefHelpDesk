@@ -22,10 +22,6 @@
 <h3>Create Administrator</h3>
 <br />
 <br />
-@if (@ErrorMessage != "")
-{
-    <h4>@ErrorMessage</h4>
-}
 
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
@@ -73,6 +69,10 @@
     </tbody>
 </table>
 
+@if (@ErrorMessage != "")
+{
+    <h4 style="color:red">@ErrorMessage</h4>
+}
 
 @code {
     [CascadingParameter]
@@ -110,6 +110,8 @@
     {
         try
         {
+            ErrorMessage = "";
+
             // Create the user
             RegisterDTO objRegister = new RegisterDTO();
             objRegister.email = strAdministratorUserName;
@@ -117,6 +119,17 @@
             objRegister.firstName = strAdministratorFirstName;
             objRegister.lastName = strAdministratorLastName;
             objRegister.password = strAdministratorPassword;
+
+            // Validate
+            if ((objRegister.email.Trim().Length < 1) ||
+            (objRegister.userName.Trim().Length < 1) ||
+            (objRegister.firstName.Trim().Length < 1) ||
+            (objRegister.lastName.Trim().Length < 1) ||
+            (objRegister.password.Trim().Length < 1))
+            {
+                ErrorMessage = "All fields are required";
+                return;
+            }
 
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
