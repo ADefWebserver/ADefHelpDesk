@@ -1,8 +1,15 @@
 ﻿@layout InstallWizardLayout
 @page "/installwizard/{WizardMode}"
 @using System.Security.Claims;
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@using ADefHelpDeskApp.Pages.Authentication
 @inject InstallUpdateState InstallUpdateState
 @inject NavigationManager NavigationManager
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
 
 <h3>Install Upgrade Wizard</h3>
 <br />
@@ -42,7 +49,7 @@
 {
     @if (WizardStage == "VerifyAdministrator")
     {
-        <InstallWizardLoginAdministrator />
+        <LoginControl />
     }
 
     @if (WizardStage == "RunScripts")
@@ -75,13 +82,14 @@
 
     [Parameter] public string WizardMode { get; set; }
 
-    string ADMINISTRATION_ROLE = "Administrators";
+    string strDefaultConnection = "";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     public string WizardStage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        //await Task.FromResult(
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
@@ -98,7 +106,7 @@
 
         if (WizardMode == "UPGRADE")
         {
-            if (!CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+            if (await IsAdminAsync())
             {
                 WizardStage = "VerifyAdministrator";
             }
@@ -144,5 +152,42 @@
     {
         string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
         NavigationManager.NavigateTo(url, true);
+    }
+
+    // Utility
+
+    public async Task<bool> IsAdminAsync()
+    {
+        bool result = false;
+
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            try
+            {
+                // Get the user
+                var objUser = await (from user in context.AdefHelpDeskUsers
+                                     where user.Username.ToLower() == CurrentUser.Identity.Name.ToLower()
+                                     where user.IsSuperUser == true
+                                     select user).FirstOrDefaultAsync();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+        }
+
+        return result;
     }
 }

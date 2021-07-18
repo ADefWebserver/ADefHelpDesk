@@ -112,7 +112,9 @@ public static class FileStreamingHelper
         var hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out mediaType);
         // UTF-7 is insecure and should not be honored. UTF-8 will succeed in 
         // most cases.
+#pragma warning disable SYSLIB0001 // Type or member is obsolete
         if (!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding))
+#pragma warning restore SYSLIB0001 // Type or member is obsolete
         {
             return Encoding.UTF8;
         }

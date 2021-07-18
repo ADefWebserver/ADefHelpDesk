@@ -38,7 +38,7 @@ namespace AdefHelpDeskBase.Controllers
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "internal")]
     public class UserManagerController : Controller
-    {        
+    {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
@@ -76,9 +76,9 @@ namespace AdefHelpDeskBase.Controllers
 
         // api/UserManager/SearchUsers
         [Authorize]
-        [HttpPost("[action]")]        
+        [HttpPost("[action]")]
         #region public UserSearchResult SearchUsers([FromBody]SearchParameters searchData)
-        public UserSearchResult SearchUsers([FromBody]SearchParameters searchData)
+        public UserSearchResult SearchUsers([FromBody] SearchParameters searchData)
         {
             UserSearchResult objUserSearchResult = new UserSearchResult();
 
@@ -154,7 +154,7 @@ namespace AdefHelpDeskBase.Controllers
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = "Failure";
             objDTOStatus.Success = false;
-            
+
             // Must be a Super Administrator to call this Method
             if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
             {
@@ -230,7 +230,7 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public static UserSearchResult SearchUsersMethod(SearchParameters searchData, string ConnectionString)
-        public static UserSearchResult SearchUsersMethod(SearchParameters searchData, string ConnectionString) 
+        public static UserSearchResult SearchUsersMethod(SearchParameters searchData, string ConnectionString)
         {
             UserSearchResult objUserSearchResult = new UserSearchResult();
             objUserSearchResult.userList = new List<DTOUser>();
@@ -541,7 +541,7 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterDTO.lastName = DTOUser.lastName;
                 objRegisterDTO.password = DTOUser.password;
 
-                RegisterController objRegisterController = 
+                RegisterController objRegisterController =
                     new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager);
 
                 var objRegisterStatus = await objRegisterController.RegisterUser(objRegisterDTO,
@@ -601,59 +601,52 @@ namespace AdefHelpDeskBase.Controllers
         #region public static string DeleteUser(int id, UserManager<ApplicationUser> _userManager, string ConnectionString, string strCurrentUser)
         public static string DeleteUser(int id, UserManager<ApplicationUser> _userManager, string ConnectionString, string strCurrentUser)
         {
-            try
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-                optionsBuilder.UseSqlServer(ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(ConnectionString);
 
-                using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // Get User  
+                var objDTOUser = (from objuser in context.AdefHelpDeskUsers
+                                   .Include(role => role.AdefHelpDeskUserRoles)
+                                  where objuser.UserId == id
+                                  select objuser).FirstOrDefault();
+
+                if (objDTOUser == null)
                 {
-                    // Get User  
-                    var objDTOUser = (from objuser in context.AdefHelpDeskUsers
-                                       .Include(role => role.AdefHelpDeskUserRoles)
-                                      where objuser.UserId == id
-                                      select objuser).FirstOrDefault();
-
-                    if (objDTOUser == null)
-                    {
-                        return "NotFound";
-                    }
-
-                    // Cannot delete yourself
-                    if (objDTOUser.Username == strCurrentUser)
-                    {
-                        return "You cannot delete your own account";
-                    }
-
-                    // Get user in UserManager
-                    var objUser = _userManager.FindByNameAsync(objDTOUser.Username).Result;
-
-                    // Delete all roles
-                    foreach (var itemRole in objDTOUser.AdefHelpDeskUserRoles)
-                    {
-                        var objUserRole = context.AdefHelpDeskUserRoles.SingleOrDefaultAsync(x => x.UserRoleId == itemRole.UserRoleId).Result;
-                        context.AdefHelpDeskUserRoles.Remove(objUserRole);
-                    }
-
-                    context.SaveChanges();
-
-                    // Delete User in AdefHelpDeskUsers
-                    context.AdefHelpDeskUsers.Remove(objDTOUser);
-                    context.SaveChanges();
-
-                    // Delete the User in UserManager              
-                    _userManager.DeleteAsync(objUser);
+                    return "NotFound";
                 }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+
+                // Cannot delete yourself
+                if (objDTOUser.Username == strCurrentUser)
+                {
+                    return "You cannot delete your own account";
+                }
+
+                // Get user in UserManager
+                var objUser = _userManager.FindByNameAsync(objDTOUser.Username).Result;
+
+                // Delete all roles
+                foreach (var itemRole in objDTOUser.AdefHelpDeskUserRoles)
+                {
+                    var objUserRole = context.AdefHelpDeskUserRoles.SingleOrDefaultAsync(x => x.UserRoleId == itemRole.UserRoleId).Result;
+                    context.AdefHelpDeskUserRoles.Remove(objUserRole);
+                }
+
+                context.SaveChanges();
+
+                // Delete User in AdefHelpDeskUsers
+                context.AdefHelpDeskUsers.Remove(objDTOUser);
+                context.SaveChanges();
+
+                // Delete the User in UserManager              
+                _userManager.DeleteAsync(objUser);
             }
 
             return "";
-        } 
+        }
         #endregion
-        
+
         // Utility
 
         #region private string GetConnectionString()
