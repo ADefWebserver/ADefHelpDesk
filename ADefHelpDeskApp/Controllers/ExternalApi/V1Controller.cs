@@ -61,7 +61,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private string _SystemFiles;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _configuration { get; set; }
 
         /// <summary>
         /// 
@@ -72,14 +72,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="signInManager"></param>
         /// <param name="memoryCache"></param>
         public V1Controller(
-            IConfigurationRoot configRoot,
+            IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IMemoryCache memoryCache
             )
         {
-            _configRoot = configRoot;
+            _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -806,25 +806,27 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         #endregion
 
         #region public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
-        ///// <summary>
-        ///// Create User
-        ///// </summary>
-        ///// <param name="DTOUser"></param>
-        ///// <returns></returns>
-        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        //[HttpPost("CreateUser")]
-        //[ApiExplorerSettings(GroupName = "external")]
-        //public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
-        //{
-        //    // Get Settings
-        //    string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //    string ContentRootPath = _hostEnvironment.ContentRootPath;
-        //    string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-        //    string strConnectionString = GetConnectionString();
+        /// <summary>
+        /// Create User
+        /// </summary>
+        /// <param name="DTOUser"></param>
+        /// <returns></returns>
+        // JwtBearerDefaults means this method will only work if a Jwt is being passed
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("CreateUser")]
+        [ApiExplorerSettings(GroupName = "external")]
+        public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
+        {
+            // Get Settings
+            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string ContentRootPath = _hostEnvironment.ContentRootPath;
+            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            string strConnectionString = GetConnectionString();
 
-        //    return UserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser);
-        //}
+            UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager);
+
+            return objUserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser).Result;
+        }
         #endregion
 
         #region public DTOStatus UpdateUser([FromBody]DTOUser DTOUser)
@@ -1121,7 +1123,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _configuration.GetConnectionString("DefaultConnection");
             }
             catch
             {
