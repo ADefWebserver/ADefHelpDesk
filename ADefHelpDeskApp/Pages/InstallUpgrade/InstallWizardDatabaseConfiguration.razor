@@ -133,12 +133,12 @@
 
         try
         {
-            //var settings = await
-            //    _GeneralSettings.GetGeneralSettingsAsync();
-
             // If we can connect then do not proceed
             // Notify parent component 
-            await DatabaseConfigurationChanged.InvokeAsync(true);
+            if (context.Database.CanConnect())
+            {
+                await DatabaseConfigurationChanged.InvokeAsync(true);
+            }
         }
         catch
         {

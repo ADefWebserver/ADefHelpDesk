@@ -106,7 +106,7 @@
 
         if (WizardMode == "UPGRADE")
         {
-            if (await IsAdminAsync())
+            if (!(await IsAdminAsync()))
             {
                 WizardStage = "VerifyAdministrator";
             }
