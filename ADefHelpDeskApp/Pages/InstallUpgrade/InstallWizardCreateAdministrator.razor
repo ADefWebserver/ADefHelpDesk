@@ -142,7 +142,7 @@
             RegisterController objRegisterController = new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager);
 
             objRegisterStatus = await objRegisterController.RegisterUser(
-                objRegister, strDefaultConnection, _HostEnvironment, _UserManager, _SignInManager, strCurrentHostLocation, true, true);
+                objRegister, strDefaultConnection, _HostEnvironment, _UserManager, _SignInManager, strCurrentHostLocation, true);
 
             if (!objRegisterStatus.isSuccessful)
             {

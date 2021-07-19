@@ -48,7 +48,6 @@ namespace ADefHelpDeskApp.Pages
         public class InputModel
         {
             [Required]
-            [EmailAddress]
             public string Email { get; set; }
 
             [Required]
@@ -69,15 +68,14 @@ namespace ADefHelpDeskApp.Pages
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (ModelState.IsValid)
-            {
+
                 AdefHelpDeskBase.Controllers.LoginController objLoginController =
                     new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _configRoot);
 
                 DTOAuthentication objDTOAuthentication = new DTOAuthentication();
                 objDTOAuthentication.userName = Input.Email;
                 objDTOAuthentication.password = Input.Password;
-                objDTOAuthentication.rememberMe = (Input.RememberMe == "on");
+                objDTOAuthentication.rememberMe = (Input.RememberMe != null) ? (Input.RememberMe == "on"):false;
 
                 OkObjectResult result = (OkObjectResult)objLoginController.Index(objDTOAuthentication);
                 LoginStatus objLoginStatus = (LoginStatus)result.Value;
@@ -91,10 +89,7 @@ namespace ADefHelpDeskApp.Pages
                     ModelState.AddModelError("CustomError", objLoginStatus.status);
                     return Page();
                 }
-            }
 
-            // If we got this far, something failed, redisplay form
-            return Page();
-        }
+        }       
     }
 }

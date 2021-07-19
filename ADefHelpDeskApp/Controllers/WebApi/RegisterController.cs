@@ -90,7 +90,7 @@ namespace AdefHelpDeskBase.Controllers
             else
             {
                 string strCurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                var result = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, strCurrentHostLocation, false, true);
+                var result = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, strCurrentHostLocation, false);
                 objRegisterStatus.status = result.Result.status;
             }
 
@@ -98,8 +98,8 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        #region public async RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
-        public async Task<RegisterStatus> RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify, bool SignUserIn)
+        #region public async RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify)
+        public async Task<RegisterStatus> RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();

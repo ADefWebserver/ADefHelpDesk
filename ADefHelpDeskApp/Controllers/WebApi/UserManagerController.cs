@@ -545,7 +545,7 @@ namespace AdefHelpDeskBase.Controllers
                     new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager);
 
                 var objRegisterStatus = await objRegisterController.RegisterUser(objRegisterDTO,
-                    ConnectionString, _hostEnvironment, _userManager, _signInManager, CurrentHostLocation, true, false);
+                    ConnectionString, _hostEnvironment, _userManager, _signInManager, CurrentHostLocation, true);
 
                 if (!objRegisterStatus.isSuccessful)
                 {
