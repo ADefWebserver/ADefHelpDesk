@@ -25,6 +25,14 @@
 
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
+         <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+            </td>
+            <td>
+                <input type="email" id="Username" class="form-control" @bind="strAdministratorUserName" />
+            </td>
+        </tr>
         <tr>
             <td>
                 <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
@@ -46,7 +54,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
             </td>
             <td>
-                <input type="email" id="Username" class="form-control" @bind="strAdministratorUserName" />
+                <input type="email" id="Username" class="form-control" @bind="strAdministratorEmail" />
             </td>
         </tr>
         <tr>
@@ -89,6 +97,7 @@
     string strAdministratorUserName = "";
     string strAdministratorFirstName = "";
     string strAdministratorLastName = "";
+    string strAdministratorEmail = "";
     string strAdministratorPassword = "";
 
     protected override async Task OnInitializedAsync()
@@ -114,7 +123,7 @@
 
             // Create the user
             RegisterDTO objRegister = new RegisterDTO();
-            objRegister.email = strAdministratorUserName;
+            objRegister.email = strAdministratorEmail;
             objRegister.userName = strAdministratorUserName;
             objRegister.firstName = strAdministratorFirstName;
             objRegister.lastName = strAdministratorLastName;

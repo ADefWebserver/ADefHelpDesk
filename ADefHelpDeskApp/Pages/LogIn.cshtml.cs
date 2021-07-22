@@ -68,28 +68,26 @@ namespace ADefHelpDeskApp.Pages
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
+            AdefHelpDeskBase.Controllers.LoginController objLoginController =
+                new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _configRoot);
 
-                AdefHelpDeskBase.Controllers.LoginController objLoginController =
-                    new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _configRoot);
+            DTOAuthentication objDTOAuthentication = new DTOAuthentication();
+            objDTOAuthentication.userName = Input.Email;
+            objDTOAuthentication.password = Input.Password;
+            objDTOAuthentication.rememberMe = (Input.RememberMe != null) ? (Input.RememberMe == "on") : false;
 
-                DTOAuthentication objDTOAuthentication = new DTOAuthentication();
-                objDTOAuthentication.userName = Input.Email;
-                objDTOAuthentication.password = Input.Password;
-                objDTOAuthentication.rememberMe = (Input.RememberMe != null) ? (Input.RememberMe == "on"):false;
+            OkObjectResult result = (OkObjectResult)objLoginController.Index(objDTOAuthentication);
+            LoginStatus objLoginStatus = (LoginStatus)result.Value;
 
-                OkObjectResult result = (OkObjectResult)objLoginController.Index(objDTOAuthentication);
-                LoginStatus objLoginStatus = (LoginStatus)result.Value;
-
-                if (objLoginStatus.isLoggedIn)
-                {
-                    return LocalRedirect(returnUrl);
-                }
-                else
-                {
-                    ModelState.AddModelError("CustomError", objLoginStatus.status);
-                    return Page();
-                }
-
-        }       
+            if (objLoginStatus.isLoggedIn)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                ModelState.AddModelError("CustomError", objLoginStatus.status);
+                return Page();
+            }
+        }
     }
 }
