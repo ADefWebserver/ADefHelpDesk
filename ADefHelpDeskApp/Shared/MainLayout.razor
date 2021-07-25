@@ -7,27 +7,51 @@
 @inject ADefHelpDeskContext context
 @inject InstallUpdateState _InstallUpdateState
 @inject NavigationManager NavigationManager
-<div class="page">
-    <div class="sidebar">
+<RadzenDialog />
+<RadzenNotification />
+<RadzenTooltip />
+<RadzenContextMenu />
+<RadzenHeader>
+    <ChildContent>
+        <div class="row justify-content-start align-items-center">
+            <div class="col-6 d-flex align-items-center">
+                <a href="">ADefHelpDeskApp</a>
+            </div>
+            <div class="col-6 d-flex align-items-center justify-content-end">
+                <div class="d-none d-md-inline-flex align-items-center">
+                    <LoginDisplay />
+                </div>
+            </div>
+        </div>
         <NavMenu />
-    </div>
-
-    <div class="main">
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
-        </div>
-
-        <div class="content px-4">
-            @Body
-        </div>
-    </div>
+    </ChildContent>
+</RadzenHeader>
+<div style="width:100%">
+    <br />
+    <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+        <ChildContent>
+            <RadzenContentContainer Name="main">
+                @Body
+            </RadzenContentContainer>
+        </ChildContent>
+    </RadzenBody>
 </div>
+<RadzenFooter>
+    <ChildContent>
+        <RadzenLabel Text="AdefHelpDesk, Copyright &copy; 2021">
+        </RadzenLabel>
+        <RadzenLink Text="ADefHelpDesk" Path="https://github.com/ADefWebserver/ADefHelpDesk" Target="_blank" Style="margin-left:5px;vertical-align:bottom;" />
+    </ChildContent>
+</RadzenFooter>
 @code {
     // ********************************
     string CurrentVersion = "04.30.00";
     // ********************************
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
+
+    RadzenBody body0;
+    bool bodyExpanded = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,4 +209,4 @@
 
         return intVersionNumber;
     }
-}
+        }

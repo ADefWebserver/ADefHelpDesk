@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ADefHelpDeskApp.Classes;
+using Radzen;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -52,6 +53,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
+
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
 
             return services;
         }        
