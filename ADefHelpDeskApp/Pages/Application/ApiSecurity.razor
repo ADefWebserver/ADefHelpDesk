@@ -1,6 +1,20 @@
 ﻿@page "/apisecurity"
+@inherits OwningComponentBase
+@using AdefHelpDeskBase.Controllers
+@inject UserManagerController _UserManagerController
 <h3>ApiSecurity</h3>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
+    }
 }

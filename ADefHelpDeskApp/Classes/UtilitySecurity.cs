@@ -277,7 +277,7 @@ namespace ADefHelpDeskApp.Classes
         {
             bool response = false;
 
-            // Fist see if his is a Super User
+            // First see if this is a Super User
             if (IsSuperUser(CurrentUser, DefaultConnection))
             {
                 return response = true;

@@ -1,6 +1,33 @@
 ﻿@page "/usermanager"
-<h3>UserManager</h3>
+@inherits OwningComponentBase
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@inject UserManagerController _UserManagerController
+<h3>User Manager</h3>
+<ul>
+@foreach (DTOUser user in _userSearchResult.userList)
+{
+  <li>
+    @user.userId @user.userName @user.email
+  </li>
+}
+</ul>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    UserSearchResult _userSearchResult = new UserSearchResult();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
+
+        _userSearchResult = _UserManagerController.SearchUsers(new SearchParameters() { searchString = "", rowsPerPage = 10, pageNumber = 1 });
+    }
 }

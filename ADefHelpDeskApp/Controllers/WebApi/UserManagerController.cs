@@ -23,6 +23,7 @@ using AdefHelpDeskBase.Models;
 using AdefHelpDeskBase.Models.DataContext;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,17 +44,20 @@ namespace AdefHelpDeskBase.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserManagerController(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/UserManager/GetUser
@@ -65,7 +69,7 @@ namespace AdefHelpDeskBase.Controllers
             DTOUser objDTOUser = new DTOUser();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return objDTOUser;
             }
@@ -83,7 +87,7 @@ namespace AdefHelpDeskBase.Controllers
             UserSearchResult objUserSearchResult = new UserSearchResult();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objUserSearchResult.errorMessage = "Must be a Administrator to call this Method";
                 return objUserSearchResult;

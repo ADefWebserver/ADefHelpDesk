@@ -62,6 +62,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private readonly SignInManager<ApplicationUser> _signInManager;
         private string _SystemFiles;
         private IConfiguration _configuration { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         /// <summary>
         /// 
@@ -76,7 +77,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IMemoryCache memoryCache
+            IMemoryCache memoryCache,
+            IHttpContextAccessor httpContextAccessor
             )
         {
             _configuration = configuration;
@@ -84,6 +86,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             _userManager = userManager;
             _signInManager = signInManager;
             _cache = memoryCache;
+            _httpContextAccessor = httpContextAccessor;
 
             // Set _SystemFiles 
             _SystemFiles =
@@ -823,7 +826,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
-            UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager);
+            UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager, _httpContextAccessor);
 
             return objUserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser).Result;
         }

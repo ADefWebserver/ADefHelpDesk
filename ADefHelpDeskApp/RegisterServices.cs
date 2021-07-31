@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using ADefHelpDeskApp.Classes;
 using Radzen;
 using ADefHelpDeskApp.Controllers;
+using AdefHelpDeskBase.Controllers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -54,6 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<HttpClient>();
 
             services.AddScoped<ApplicationSettingsController>();
+            services.AddScoped<UserManagerController>();
 
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();
