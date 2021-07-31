@@ -25,7 +25,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0-preview.6.21352.12" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0-preview.6.21362.1" />
     <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
-    <PackageReference Include="Blazored.Toast" Version="3.1.2" />
     <PackageReference Include="Radzen.Blazor" Version="3.6.8" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0-preview.6.21352.12" />

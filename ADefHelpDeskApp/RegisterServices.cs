@@ -5,7 +5,6 @@ using ADefHelpDeskApp.Data;
 using ADefHelpDeskApp.Data.Models;
 using AdefHelpDeskBase.Models;
 using AdefHelpDeskBase.Models.DataContext;
-using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -53,7 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
-            services.AddBlazoredToast();
 
             services.AddScoped<ApplicationSettingsController>();
 
