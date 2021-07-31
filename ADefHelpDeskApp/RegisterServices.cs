@@ -14,13 +14,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ADefHelpDeskApp.Classes;
 using Radzen;
+using ADefHelpDeskApp.Controllers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RegisterServices
     {
         public static IServiceCollection AddADefHelpDeskAppServices(
-            this IServiceCollection services, 
+            this IServiceCollection services,
             IConfiguration configuration)
         {
             if (services is null)
@@ -48,11 +49,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IConfiguration>(configuration);
 
             services.AddScoped<GeneralSettings>();
-            services.AddScoped<InstallUpdateState>();            
+            services.AddScoped<InstallUpdateState>();
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
             services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
+
+            services.AddScoped<ApplicationSettingsController>();
 
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();
@@ -60,6 +63,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ContextMenuService>();
 
             return services;
-        }        
+        }
     }
 }

@@ -45,13 +45,13 @@ namespace ADefHelpDeskApp.Controllers
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "internal")]
     public class ApplicationSettingsController : Controller
-    {        
+    {
         private string _DefaultFilesPath;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _configRoot { get; set; }
 
         public ApplicationSettingsController(
-            IConfigurationRoot configRoot,
+            IConfiguration configRoot,
             IWebHostEnvironment hostEnvironment)
         {
             _configRoot = configRoot;
@@ -193,7 +193,7 @@ namespace ADefHelpDeskApp.Controllers
                 {
                     objDTOApplicationSetting.verifiedRegistration = objGeneralSettings.VerifiedRegistration;
                     objDTOApplicationSetting.applicationGUID = objGeneralSettings.ApplicationGUID;
-                                        
+
                     objDTOApplicationSetting.storagefiletype = objGeneralSettings.StorageFileType;
                     objDTOApplicationSetting.azurestorageconnection = objGeneralSettings.AzureStorageConnection;
 
@@ -216,7 +216,7 @@ namespace ADefHelpDeskApp.Controllers
         [HttpPut("[action]")]
         [Authorize]
         #region public DTOApplicationSetting SetSettings([FromBody]DTOFileUploadSetting FileUploadSetting)
-        public DTOApplicationSetting SetSettings([FromBody]DTOApplicationSetting FileUploadSetting)
+        public DTOApplicationSetting SetSettings([FromBody] DTOApplicationSetting FileUploadSetting)
         {
             DTOApplicationSetting objDTOApplicationSetting = new DTOApplicationSetting();
             objDTOApplicationSetting.valid = true;
@@ -233,7 +233,7 @@ namespace ADefHelpDeskApp.Controllers
             // Get GeneralSettings
             GeneralSettings objGeneralSettings = new GeneralSettings(GetConnectionString());
 
-            if(FileUploadSetting.uploadPermission == null)
+            if (FileUploadSetting.uploadPermission == null)
             {
                 FileUploadSetting.uploadPermission = "False";
             }
