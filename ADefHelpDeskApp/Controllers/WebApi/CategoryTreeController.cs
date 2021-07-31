@@ -40,14 +40,14 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     [ApiExplorerSettings(GroupName = "internal")]
     public class CategoryTreeController : Controller
     {        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
         private IMemoryCache _cache;
 
         public CategoryTreeController(
-            IConfigurationRoot configRoot,
+            IConfiguration config,
             IMemoryCache memoryCache)
         {
-            _configRoot = configRoot;
+            _config = config;
             _cache = memoryCache;
         }
 
@@ -235,7 +235,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

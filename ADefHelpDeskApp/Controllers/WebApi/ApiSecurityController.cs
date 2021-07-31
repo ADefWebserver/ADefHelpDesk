@@ -40,11 +40,11 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     [ApiExplorerSettings(GroupName = "internal")]
     public class ApiSecurityController : Controller
     {
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public ApiSecurityController(IConfigurationRoot configRoot)
+        public ApiSecurityController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // GET: api/ApiSecurity/Get
@@ -336,7 +336,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

@@ -47,14 +47,14 @@ namespace AdefHelpDeskBase.Controllers
     {        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public ProfileController(
-            IConfigurationRoot configRoot,
+            IConfiguration config,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager)
         {
-            _configRoot = configRoot;
+            _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
         }
@@ -204,7 +204,7 @@ namespace AdefHelpDeskBase.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

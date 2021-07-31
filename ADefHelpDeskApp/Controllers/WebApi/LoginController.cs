@@ -48,18 +48,18 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private IConfiguration _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public LoginController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IWebHostEnvironment hostEnvironment,
-            IConfiguration configRoot)
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _hostEnvironment = hostEnvironment;
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // ********************************************************
@@ -277,7 +277,7 @@ namespace AdefHelpDeskBase.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

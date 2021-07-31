@@ -46,11 +46,11 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class EmailAdminController : Controller
     {        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public EmailAdminController(IConfigurationRoot configRoot)
+        public EmailAdminController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // api/EmailAdmin/SMTPSettings
@@ -207,7 +207,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

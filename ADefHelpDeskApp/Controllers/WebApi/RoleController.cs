@@ -40,11 +40,11 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     [ApiExplorerSettings(GroupName = "internal")]
     public class RoleController : Controller
     {        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public RoleController(IConfigurationRoot configRoot)
+        public RoleController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // GET: api/Role/GetRoles
@@ -255,7 +255,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

@@ -48,13 +48,13 @@ namespace ADefHelpDeskApp.Controllers
     {
         private string _DefaultFilesPath;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private IConfiguration _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public ApplicationSettingsController(
-            IConfiguration configRoot,
+            IConfiguration config,
             IWebHostEnvironment hostEnvironment)
         {
-            _configRoot = configRoot;
+            _config = config;
 
             // We need to create a Files directory if none exists
             // This will be used if the Administrator does not set a Files directory
@@ -305,7 +305,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

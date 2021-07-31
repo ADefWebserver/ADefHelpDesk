@@ -46,11 +46,11 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class DashboardController : Controller
     {
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public DashboardController(IConfigurationRoot configRoot)
+        public DashboardController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // api/Dashboard/DashboardValues
@@ -138,7 +138,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

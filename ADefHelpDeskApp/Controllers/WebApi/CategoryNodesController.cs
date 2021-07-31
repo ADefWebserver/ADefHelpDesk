@@ -39,11 +39,11 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     [ApiExplorerSettings(GroupName = "internal")]
     public class CategoryNodesController : Controller
     {        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public CategoryNodesController(IConfigurationRoot configRoot)
+        public CategoryNodesController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // GET: api/CategoryNodes/GetCategoryNodes
@@ -202,7 +202,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

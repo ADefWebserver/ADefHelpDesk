@@ -47,16 +47,16 @@ namespace AdefHelpDeskBase.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public RefreshController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfigurationRoot configRoot)
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // ********************************************************

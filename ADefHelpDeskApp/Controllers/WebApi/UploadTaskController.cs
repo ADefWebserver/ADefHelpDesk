@@ -51,13 +51,13 @@ namespace ADefHelpDeskApp.Controllers
     public class UploadTaskController : Controller
     {
         private readonly IWebHostEnvironment _hostEnvironment;        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public UploadTaskController(
-            IConfigurationRoot configRoot,
+            IConfiguration config,
             IWebHostEnvironment hostEnvironment)
         {
-            _configRoot = configRoot;
+            _config = config;
             _hostEnvironment = hostEnvironment;
 
             #region Settings
@@ -1534,7 +1534,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

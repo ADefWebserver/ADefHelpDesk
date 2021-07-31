@@ -45,13 +45,13 @@ namespace AdefHelpDeskBase.Controllers
     {
         private readonly IWebHostEnvironment _hostEnvironment;        
         private string _SystemFiles;
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public UploadSystemFilesController(
             IWebHostEnvironment hostEnvironment,
-            IConfigurationRoot configRoot)
+            IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
             _hostEnvironment = hostEnvironment;
 
             // Set _SystemFiles 
@@ -123,7 +123,7 @@ namespace AdefHelpDeskBase.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

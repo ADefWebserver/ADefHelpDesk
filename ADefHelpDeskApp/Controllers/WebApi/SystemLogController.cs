@@ -46,11 +46,11 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class SystemLogController : Controller
     {        
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public SystemLogController(IConfigurationRoot configRoot)
+        public SystemLogController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // api/SystemLog/SystemLogs
@@ -124,7 +124,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

@@ -46,11 +46,11 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class SearchParametersController : Controller
     {
-        private IConfigurationRoot _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
-        public SearchParametersController(IConfigurationRoot configRoot)
+        public SearchParametersController(IConfiguration config)
         {
-            _configRoot = configRoot;
+            _config = config;
         }
 
         // api/SearchParameters
@@ -199,7 +199,7 @@ namespace ADefHelpDeskApp.Controllers
 
             try
             {
-                strConnectionString = _configRoot.GetConnectionString("DefaultConnection");
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
             }
             catch
             {

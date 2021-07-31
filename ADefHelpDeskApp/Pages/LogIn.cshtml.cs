@@ -22,17 +22,17 @@ namespace ADefHelpDeskApp.Pages
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private IConfiguration _configRoot { get; set; }
+        private IConfiguration _config { get; set; }
 
         public LogInModel(SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment hostEnvironment,
-            IConfiguration configRoot)
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _hostEnvironment = hostEnvironment;
-            _configRoot = configRoot;
+            _config = config;
         }
 
         [BindProperty]
@@ -69,7 +69,7 @@ namespace ADefHelpDeskApp.Pages
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             AdefHelpDeskBase.Controllers.LoginController objLoginController =
-                new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _configRoot);
+                new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _config);
 
             DTOAuthentication objDTOAuthentication = new DTOAuthentication();
             objDTOAuthentication.userName = Input.Email;

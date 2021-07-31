@@ -66,7 +66,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="configRoot"></param>
+        /// <param name="config"></param>
         /// <param name="hostEnvironment"></param>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
