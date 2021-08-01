@@ -80,9 +80,7 @@ namespace ADefHelpDeskApp.Pages
             objDTOAuthentication.password = Input.Password;
             objDTOAuthentication.rememberMe = (Input.RememberMe != null) ? (Input.RememberMe == "on") : false;
 
-            OkObjectResult result = (OkObjectResult)GetLoginStatus(objDTOAuthentication);
-
-            LoginStatus objLoginStatus = (LoginStatus)result.Value;
+            LoginStatus objLoginStatus = GetLoginStatus(objDTOAuthentication);
 
             if (objLoginStatus.isLoggedIn)
             {
@@ -97,7 +95,7 @@ namespace ADefHelpDeskApp.Pages
 
         // Utility
 
-        public IActionResult GetLoginStatus(DTOAuthentication Authentication)
+        public LoginStatus GetLoginStatus(DTOAuthentication Authentication)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -145,7 +143,7 @@ namespace ADefHelpDeskApp.Pages
                                 {
                                     // Return that this account can be migrated
                                     objLoginStatus.status = "Migrate";
-                                    return (IActionResult)objLoginStatus;
+                                    return objLoginStatus;
                                 }
                             }
                         }
@@ -171,7 +169,7 @@ namespace ADefHelpDeskApp.Pages
                                 ComputeHash.GetSwcMD5(paramUserName.Trim().ToLower() + paramPassword.Trim()))
                             {
                                 objLoginStatus.status = "Error: Account needs to be migrated, but account cannot be migrated because the password is incorrect";
-                                return (IActionResult)objLoginStatus;
+                                return objLoginStatus;
                             }
                         }
                     }
@@ -189,7 +187,7 @@ namespace ADefHelpDeskApp.Pages
                         if (objAdefHelpDeskUser.VerificationCode != null)
                         {
                             objLoginStatus.status = "Verify";
-                            return (IActionResult)objLoginStatus;
+                            return objLoginStatus;
                         }
                     }
                 }
@@ -206,23 +204,23 @@ namespace ADefHelpDeskApp.Pages
                 {
                     objLoginStatus.status = "Success";
                     objLoginStatus.isLoggedIn = true;
-                    return (IActionResult)objLoginStatus;
+                    return objLoginStatus;
                 }
                 if (result.RequiresTwoFactor)
                 {
                     objLoginStatus.status = "RequiresVerification";
-                    return (IActionResult)objLoginStatus;
+                    return objLoginStatus;
                 }
                 if (result.IsLockedOut)
                 {
                     objLoginStatus.status = "IsLockedOut";
-                    return (IActionResult)objLoginStatus;
+                    return objLoginStatus;
                 }
             }
 
             objLoginStatus.status = "Authentication Failure";
 
-            return (IActionResult)objLoginStatus;
+            return objLoginStatus;
         }
 
         #region private string GetConnectionString()
