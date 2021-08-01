@@ -39,6 +39,7 @@ using ADefHelpDeskApp.Classes;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
@@ -47,10 +48,13 @@ namespace ADefHelpDeskApp.Controllers
     public class LogController : Controller
     {
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LogController(IConfiguration config)
+        public LogController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/Log/Logs
@@ -63,7 +67,7 @@ namespace ADefHelpDeskApp.Controllers
             objLogSearchResult.LogList = new List<DTOLog>();
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objLogSearchResult.errorMessage = "Must be a Super Administrator to call this Method";
                 return objLogSearchResult;

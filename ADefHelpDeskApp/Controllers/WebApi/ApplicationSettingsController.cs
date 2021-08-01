@@ -39,6 +39,7 @@ using ADefHelpDeskApp.Classes;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
@@ -49,12 +50,15 @@ namespace ADefHelpDeskApp.Controllers
         private string _DefaultFilesPath;
         private readonly IWebHostEnvironment _hostEnvironment;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApplicationSettingsController(
             IConfiguration config,
-            IWebHostEnvironment hostEnvironment)
+            IWebHostEnvironment hostEnvironment,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
 
             // We need to create a Files directory if none exists
             // This will be used if the Administrator does not set a Files directory
@@ -189,7 +193,7 @@ namespace ADefHelpDeskApp.Controllers
                 objDTOApplicationSetting.swaggerWebAddress = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/swagger";
 
                 // Only return the following if a SuperUser is calling this method
-                if (UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+                if (UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
                 {
                     objDTOApplicationSetting.verifiedRegistration = objGeneralSettings.VerifiedRegistration;
                     objDTOApplicationSetting.applicationGUID = objGeneralSettings.ApplicationGUID;
@@ -223,7 +227,7 @@ namespace ADefHelpDeskApp.Controllers
             objDTOApplicationSetting.status = "";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOApplicationSetting.valid = false;
                 objDTOApplicationSetting.status = "Must be a Super Administrator to call this Method";

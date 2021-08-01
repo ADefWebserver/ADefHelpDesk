@@ -43,13 +43,16 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     {
         private IConfiguration _config { get; set; }
         private IMemoryCache _cache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CategoryController(
             IConfiguration config,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _cache = memoryCache;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // PUT: api/Category/1
@@ -59,7 +62,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Put([FromRoute] int id, [FromBody] CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -85,7 +88,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Post([FromBody] CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -106,7 +109,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Delete([FromRoute] int id)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }

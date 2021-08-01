@@ -37,6 +37,7 @@ using System.Text;
 using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
@@ -50,17 +51,20 @@ namespace AdefHelpDeskBase.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RegisterController(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // ********************************************************
@@ -82,7 +86,7 @@ namespace AdefHelpDeskBase.Controllers
 
             if (
                 (!objGeneralSettings.AllowRegistration) &&
-                (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString())))
+                (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString())))
             {
                 objRegisterStatus.status = "Registration is not allowed for non-Administrators.";
                 objRegisterStatus.isSuccessful = false;

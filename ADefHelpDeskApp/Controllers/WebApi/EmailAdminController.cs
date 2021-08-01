@@ -39,6 +39,7 @@ using ADefHelpDeskApp.Classes;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
@@ -47,10 +48,13 @@ namespace ADefHelpDeskApp.Controllers
     public class EmailAdminController : Controller
     {        
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public EmailAdminController(IConfiguration config)
+        public EmailAdminController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/EmailAdmin/SMTPSettings
@@ -65,7 +69,7 @@ namespace ADefHelpDeskApp.Controllers
             objDTOSMTPSetting.smtpStatus = "";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOSMTPSetting.smtpValid = false;
                 objDTOSMTPSetting.smtpStatus = "";
@@ -98,7 +102,7 @@ namespace ADefHelpDeskApp.Controllers
             objDTOSMTPSetting.smtpStatus = "Settings Updated";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOSMTPSetting.smtpValid = false;
                 objDTOSMTPSetting.smtpStatus = "";

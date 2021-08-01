@@ -109,7 +109,7 @@ namespace AdefHelpDeskBase.Controllers
             objDTOStatus.Success = false;
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOStatus.StatusMessage = "Must be a Super Administrator to call this method.";
                 return Ok(objDTOStatus);
@@ -120,7 +120,7 @@ namespace AdefHelpDeskBase.Controllers
                 return BadRequest();
             }
 
-            return Ok(UpdateUser(id, DTOUser, _userManager, GetConnectionString(), this.User.Identity.Name));
+            return Ok(UpdateUser(id, DTOUser, _userManager, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name));
         }
         #endregion
 
@@ -136,7 +136,7 @@ namespace AdefHelpDeskBase.Controllers
             objDTOStatus.Success = false;
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOStatus.StatusMessage = "Must be a Super Administrator to call this method.";
                 return Ok(objDTOStatus);
@@ -144,7 +144,7 @@ namespace AdefHelpDeskBase.Controllers
 
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
 
-            return Ok(CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), CurrentHostLocation, this.User.Identity.Name));
+            return Ok(CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), CurrentHostLocation, _httpContextAccessor.HttpContext.User.Identity.Name));
         }
         #endregion
 
@@ -160,11 +160,11 @@ namespace AdefHelpDeskBase.Controllers
             objDTOStatus.Success = false;
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
-            var result = DeleteUser(id, _userManager, GetConnectionString(), this.User.Identity.Name);
+            var result = DeleteUser(id, _userManager, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
 
             if (result != "")
             {
@@ -546,7 +546,7 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterDTO.password = DTOUser.password;
 
                 RegisterController objRegisterController =
-                    new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager);
+                    new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager, _httpContextAccessor);
 
                 var objRegisterStatus = await objRegisterController.RegisterUser(objRegisterDTO,
                     ConnectionString, _hostEnvironment, _userManager, _signInManager, CurrentHostLocation, true);

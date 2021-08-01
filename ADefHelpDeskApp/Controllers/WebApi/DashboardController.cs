@@ -39,6 +39,7 @@ using ADefHelpDeskApp.Classes;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
@@ -47,10 +48,13 @@ namespace ADefHelpDeskApp.Controllers
     public class DashboardController : Controller
     {
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DashboardController(IConfiguration config)
+        public DashboardController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/Dashboard/DashboardValues
@@ -64,7 +68,7 @@ namespace ADefHelpDeskApp.Controllers
             string strConnectionString = GetConnectionString();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return objDTODashboard;
             }

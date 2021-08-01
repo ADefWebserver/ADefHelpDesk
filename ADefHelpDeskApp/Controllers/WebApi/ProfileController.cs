@@ -37,6 +37,7 @@ using System.Text;
 using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
@@ -48,15 +49,18 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ProfileController(
             IConfiguration config,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // ********************************************************
@@ -98,7 +102,7 @@ namespace AdefHelpDeskBase.Controllers
 
             // Update User ****************************
 
-            string CurrentUser = this.User.Identity.Name;
+            string CurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
 
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
             optionsBuilder.UseSqlServer(GetConnectionString());

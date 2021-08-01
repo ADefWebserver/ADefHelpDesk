@@ -148,7 +148,7 @@
             // Create the Administrator
             string strCurrentHostLocation = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
 
-            RegisterController objRegisterController = new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager);
+            RegisterController objRegisterController = new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager, httpContextAccessor);
 
             objRegisterStatus = await objRegisterController.RegisterUser(
                 objRegister, strDefaultConnection, _HostEnvironment, _UserManager, _SignInManager, strCurrentHostLocation, true);

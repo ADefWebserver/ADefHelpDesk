@@ -15,7 +15,7 @@
     <ChildContent>
         <div class="row justify-content-start align-items-center px-2 pt-2">
             <div class="col-6 d-flex align-items-center">
-                <a href="">ADefHelpDeskApp</a>
+                <a href=""><RadzenImage Path="images/logo.png" /></a>
             </div>
             <div class="col-6 d-flex align-items-center justify-content-end">
                 <div class="d-none d-md-inline-flex align-items-center">
@@ -26,16 +26,15 @@
         <NavMenu />
     </ChildContent>
 </RadzenHeader>
-<div style="width:100%" class="p-2">
-    <br />
-    <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
-        <ChildContent>
-            <RadzenContentContainer Name="main">
+<RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+    <ChildContent>
+        <RadzenContentContainer Name="main">
+            <div style="width:100%" class="my-5">
                 @Body
-            </RadzenContentContainer>
-        </ChildContent>
-    </RadzenBody>
-</div>
+            </div>
+        </RadzenContentContainer>
+    </ChildContent>
+</RadzenBody>
 <RadzenFooter>
     <ChildContent>
         <FooterControl />

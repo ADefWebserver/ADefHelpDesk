@@ -39,6 +39,7 @@ using ADefHelpDeskApp.Classes;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
@@ -47,10 +48,13 @@ namespace ADefHelpDeskApp.Controllers
     public class SearchParametersController : Controller
     {
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SearchParametersController(IConfiguration config)
+        public SearchParametersController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/SearchParameters
@@ -69,10 +73,10 @@ namespace ADefHelpDeskApp.Controllers
             objSearchTaskParameters.rowsPerPage = 10;
 
             // See if the user is logged in
-            if (this.User.Identity.IsAuthenticated)
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 // Get UserId
-                int UserId = UtilitySecurity.UserIdFromUserName(this.User.Identity.Name, GetConnectionString());
+                int UserId = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
 
                 // Get the LastSearch
                 var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
@@ -129,10 +133,10 @@ namespace ADefHelpDeskApp.Controllers
             // See if the user is logged in
             try
             {
-                if (this.User.Identity.IsAuthenticated)
+                if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
                 {
                     // Get UserId
-                    int UserId = UtilitySecurity.UserIdFromUserName(this.User.Identity.Name, GetConnectionString());
+                    int UserId = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
 
                     var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
                     optionsBuilder.UseSqlServer(GetConnectionString());

@@ -46,13 +46,16 @@ namespace AdefHelpDeskBase.Controllers
         private readonly IWebHostEnvironment _hostEnvironment;        
         private string _SystemFiles;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UploadSystemFilesController(
             IWebHostEnvironment hostEnvironment,
-            IConfiguration config)
+            IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _hostEnvironment = hostEnvironment;
+            _httpContextAccessor = httpContextAccessor;
 
             // Set _SystemFiles 
             _SystemFiles =
@@ -74,7 +77,7 @@ namespace AdefHelpDeskBase.Controllers
         public IActionResult Index([FromForm] ICollection<IFormFile> files)
         {
             // Must be a Super User to proceed
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return Ok();
             }

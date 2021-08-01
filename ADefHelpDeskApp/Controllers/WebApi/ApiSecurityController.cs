@@ -41,10 +41,13 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     public class ApiSecurityController : Controller
     {
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ApiSecurityController(IConfiguration config)
+        public ApiSecurityController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: api/ApiSecurity/Get
@@ -57,7 +60,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
             List<ApiSecurityDTO> colApiSecurityDTOs = new List<ApiSecurityDTO>();
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return colApiSecurityDTOs;
             }
@@ -95,7 +98,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ApiSecurityDTO ApiSecurityDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -181,8 +184,8 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                 Log.InsertSystemLog(
                     GetConnectionString(),
                     Constants.WebAPIAccountUpdated,
-                    this.User.Identity.Name,
-                    $"({this.User.Identity.Name}) Updated Username: {ApiSecurityDTO.username}");
+                    _httpContextAccessor.HttpContext.User.Identity.Name,
+                    $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Updated Username: {ApiSecurityDTO.username}");
             }
 
             objDTOStatus.StatusMessage = "";
@@ -199,7 +202,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public async Task<IActionResult> Post([FromBody] ApiSecurityDTO ApiSecurityDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -269,8 +272,8 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                     Log.InsertSystemLog(
                         GetConnectionString(),
                         Constants.WebAPIAccountCreated,
-                        this.User.Identity.Name,
-                        $"({this.User.Identity.Name}) Created Username: {newApiSecurityDTO.Username}");
+                        _httpContextAccessor.HttpContext.User.Identity.Name,
+                        $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Created Username: {newApiSecurityDTO.Username}");
                 }
 
                 objDTOStatus.StatusMessage = "";
@@ -294,7 +297,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -318,8 +321,8 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                 Log.InsertSystemLog(
                     GetConnectionString(),
                     Constants.WebAPIAccountDeleted,
-                    this.User.Identity.Name,
-                    $"({this.User.Identity.Name}) Deleted Username: {objApiSecurity.Username}");
+                    _httpContextAccessor.HttpContext.User.Identity.Name,
+                    $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Deleted Username: {objApiSecurity.Username}");
             }
 
             return NoContent();

@@ -37,6 +37,7 @@ using System.Text;
 using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
@@ -49,17 +50,20 @@ namespace AdefHelpDeskBase.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _hostEnvironment;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LoginController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IWebHostEnvironment hostEnvironment,
-            IConfiguration config)
+            IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _hostEnvironment = hostEnvironment;
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // ********************************************************
@@ -75,10 +79,10 @@ namespace AdefHelpDeskBase.Controllers
             User objUser = new User();
 
             // See if the user is logged in
-            if (this.User.Identity.IsAuthenticated)
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 // They are logged in
-                objUser.userName = this.User.Identity.Name;
+                objUser.userName = _httpContextAccessor.HttpContext.User.Identity.Name;
                 objUser.isLoggedIn = true;
 
                 // Get the Roles
@@ -155,7 +159,7 @@ namespace AdefHelpDeskBase.Controllers
                 if (this.User != null)
                 {
                     // First log the user out
-                    if (this.User.Identity.IsAuthenticated)
+                    if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
                     {
                         // Log user out
                         _signInManager.SignOutAsync().Wait();

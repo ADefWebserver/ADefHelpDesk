@@ -38,6 +38,7 @@ using MessageReader;
 using System.Threading;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
@@ -50,13 +51,16 @@ namespace AdefHelpDeskBase.Controllers
         private readonly IWebHostEnvironment _hostEnvironment;
         private string _SystemFiles;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public FilesController(
             IWebHostEnvironment hostEnvironment,
-            IConfiguration config)
+            IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _hostEnvironment = hostEnvironment;
+            _httpContextAccessor = httpContextAccessor;
 
             // Set _SystemFiles 
             _SystemFiles =
@@ -78,7 +82,7 @@ namespace AdefHelpDeskBase.Controllers
         public DTONode SystemFiles()
         {
             // Must be a Super User to proceed
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return new DTONode();
             }
@@ -95,7 +99,7 @@ namespace AdefHelpDeskBase.Controllers
             DTOResponse objDTOResponse = new DTOResponse();
 
             // Must be a Super User to proceed
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 objDTOResponse.isSuccess = false;
                 objDTOResponse.message = "Must be a Super User to proceed";

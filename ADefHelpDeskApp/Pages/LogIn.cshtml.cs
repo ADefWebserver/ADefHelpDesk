@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using AdefHelpDeskBase.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Pages
 {
@@ -23,16 +24,19 @@ namespace ADefHelpDeskApp.Pages
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _hostEnvironment;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public LogInModel(SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment hostEnvironment,
-            IConfiguration config)
+            IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _hostEnvironment = hostEnvironment;
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [BindProperty]
@@ -69,7 +73,7 @@ namespace ADefHelpDeskApp.Pages
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             AdefHelpDeskBase.Controllers.LoginController objLoginController =
-                new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _config);
+                new AdefHelpDeskBase.Controllers.LoginController(_userManager, _signInManager, _hostEnvironment, _config, _httpContextAccessor);
 
             DTOAuthentication objDTOAuthentication = new DTOAuthentication();
             objDTOAuthentication.userName = Input.Email;

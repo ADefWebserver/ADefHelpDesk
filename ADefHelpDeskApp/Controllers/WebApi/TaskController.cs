@@ -39,6 +39,7 @@ using MessageReader;
 using MimeKit;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
@@ -50,15 +51,18 @@ namespace AdefHelpDeskBase.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TaskController(
             IConfiguration config,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/Task/RetrieveTask
@@ -66,9 +70,9 @@ namespace AdefHelpDeskBase.Controllers
         #region public DTOTask RetrieveTask([FromBody]DTOTask paramDTOTask)
         public DTOTask RetrieveTask([FromBody]DTOTask paramDTOTask)
         {
-            int intUserID = UtilitySecurity.UserIdFromUserName(this.User.Identity.Name, GetConnectionString());
-            bool IsAdministrator = UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString());
-            return GetTask(paramDTOTask, intUserID, IsAdministrator, GetConnectionString(), this.User.Identity.Name, this.User.Identity.IsAuthenticated);
+            int intUserID = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
+            bool IsAdministrator = UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
+            return GetTask(paramDTOTask, intUserID, IsAdministrator, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name, _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated);
         }
         #endregion
 
@@ -78,10 +82,10 @@ namespace AdefHelpDeskBase.Controllers
         public TaskSearchResult SearchTasks([FromBody]SearchTaskParameters searchData)
         {
             // Get UserID
-            int intUserId = UtilitySecurity.UserIdFromUserName(this.User.Identity.Name, GetConnectionString());
+            int intUserId = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
 
             // Determine if user is an Admin 
-            int iSAdministrator = (UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString())) ? 1 : 0;
+            int iSAdministrator = (UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString())) ? 1 : 0;
 
             return SearchTasks(searchData, intUserId, iSAdministrator, GetConnectionString());
         }
@@ -94,12 +98,12 @@ namespace AdefHelpDeskBase.Controllers
         public IActionResult Delete([FromRoute] int id)
         {
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest("Must be a Administrator to call this Method");
             }
 
-            string strResponse = DeleteTask(id, GetConnectionString(), this.User.Identity.Name);
+            string strResponse = DeleteTask(id, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
 
             if(strResponse != "")
             {
@@ -119,12 +123,12 @@ namespace AdefHelpDeskBase.Controllers
         public IActionResult DeleteTaskDetail([FromRoute] int id)
         {
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
 
-            string strResponse = DeleteTaskDetail(id, GetConnectionString(), this.User.Identity.Name);
+            string strResponse = DeleteTaskDetail(id, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
 
             if (strResponse != "")
             {

@@ -158,7 +158,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         {
             string CurrentUser = "[Not Logged In]";
 
-            if (this.User.Identity.IsAuthenticated)
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 CurrentUser = this.User.Claims.FirstOrDefault().Value;
             }

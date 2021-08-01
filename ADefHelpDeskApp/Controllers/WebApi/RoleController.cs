@@ -41,10 +41,13 @@ namespace ADefHelpDeskApp.Controllers.WebApi
     public class RoleController : Controller
     {        
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RoleController(IConfiguration config)
+        public RoleController(IConfiguration config,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: api/Role/GetRoles
@@ -64,7 +67,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Put([FromRoute] int id, [FromBody] RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -90,7 +93,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Post([FromBody] RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }
@@ -111,7 +114,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         public IActionResult Delete([FromRoute] int id)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(this.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
             {
                 return BadRequest();
             }

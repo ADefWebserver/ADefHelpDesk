@@ -130,7 +130,7 @@
             string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
             RegisterController objRegisterController =
-            new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager);
+            new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager, httpContextAccessor);
 
             objRegisterStatus = await objRegisterController.RegisterUser(
                 objRegister, strDefaultConnection, _HostEnvironment, _UserManager,

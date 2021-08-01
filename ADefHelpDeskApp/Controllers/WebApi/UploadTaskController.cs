@@ -52,13 +52,16 @@ namespace ADefHelpDeskApp.Controllers
     {
         private readonly IWebHostEnvironment _hostEnvironment;        
         private IConfiguration _config { get; set; }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UploadTaskController(
             IConfiguration config,
-            IWebHostEnvironment hostEnvironment)
+            IWebHostEnvironment hostEnvironment,
+            IHttpContextAccessor httpContextAccessor)
         {
             _config = config;
             _hostEnvironment = hostEnvironment;
+            _httpContextAccessor = httpContextAccessor;
 
             #region Settings
             // Set FileUploadPath
@@ -96,12 +99,12 @@ namespace ADefHelpDeskApp.Controllers
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Identity.Name;
+            string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
             string strConnectionString = GetConnectionString();
             int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
             bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
             bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
-            bool IsAuthenticated = this.User.Identity.IsAuthenticated;
+            bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
 
             // Get file data (if any)      
             IFormFile objFile = null;
@@ -128,12 +131,12 @@ namespace ADefHelpDeskApp.Controllers
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Identity.Name;
+            string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
             string strConnectionString = GetConnectionString();
             int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
             bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
             bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
-            bool IsAuthenticated = this.User.Identity.IsAuthenticated;
+            bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
 
             // Must be a Administrator to call this Method
             if (!UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString))
@@ -158,12 +161,12 @@ namespace ADefHelpDeskApp.Controllers
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
             string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Identity.Name;
+            string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
             string strConnectionString = GetConnectionString();
             int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
             bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
             bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
-            bool IsAuthenticated = this.User.Identity.IsAuthenticated;
+            bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
             string strLogUserName = (IsAuthenticated) ? strCurrentUser : "[Unauthenticated]";
             
             // Get file data (if any)      
