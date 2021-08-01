@@ -34,25 +34,17 @@ using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
 
-namespace ADefHelpDeskApp.Controllers.WebApi
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class RoleController : Controller
+    public class RoleController
     {        
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RoleController(IConfiguration config,
-            IHttpContextAccessor httpContextAccessor)
+        public RoleController(IConfiguration config)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // GET: api/Role/GetRoles
-        [AllowAnonymous]
-        [HttpGet("[action]")]
         #region public List<RoleDTO> GetRoles()
         public List<RoleDTO> GetRoles()
         {
@@ -60,66 +52,27 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         }
         #endregion
 
-        // PUT: api/Role/1
-        [Authorize]
-        [HttpPut("{id}")]
-        #region public IActionResult Put([FromRoute] int id, [FromBody] RoleDTO RoleDTO)
-        public IActionResult Put([FromRoute] int id, [FromBody] RoleDTO RoleDTO)
+        #region public IActionResult Put(int id, RoleDTO RoleDTO)
+        public IActionResult Put(int id, RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != RoleDTO.iD)
-            {
-                return BadRequest();
-            }
-
-            return Ok(UpdateRole(id, RoleDTO, GetConnectionString()));
+            return (IActionResult)UpdateRole(id, RoleDTO, GetConnectionString());
         }
         #endregion
 
-        // POST: api/Role
-        [Authorize]
-        [HttpPost]
-        #region public IActionResult Post([FromBody] RoleDTO RoleDTO)
-        public IActionResult Post([FromBody] RoleDTO RoleDTO)
+        #region public IActionResult Post(RoleDTO RoleDTO)
+        public IActionResult Post(RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok(CreateRole(RoleDTO, GetConnectionString()));
+            return (IActionResult)CreateRole(RoleDTO, GetConnectionString());
         }
         #endregion
 
-        // DELETE: api/Role/1
-        [Authorize]
-        [HttpDelete("{id}")]
-        #region public IActionResult Delete([FromRoute] int id)
-        public IActionResult Delete([FromRoute] int id)
+        #region public IActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            return Ok(DeleteRole(id, GetConnectionString()));
+            return (IActionResult)DeleteRole(id, GetConnectionString());
         }
         #endregion
 

@@ -34,33 +34,26 @@ using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
 
-namespace ADefHelpDeskApp.Controllers.WebApi
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class ApiSecurityController : Controller
+    public class ApiSecurityController
     {
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ApiSecurityController(IConfiguration config,
-            IHttpContextAccessor httpContextAccessor)
+        public ApiSecurityController(IConfiguration config)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET: api/ApiSecurity/Get
-        [Authorize]
-        [HttpGet("[action]")]
-        #region public List<ApiSecurityDTO> Get()
-        public List<ApiSecurityDTO> Get()
+        #region public List<ApiSecurityDTO> Get(string CurrentUserName)
+        public List<ApiSecurityDTO> Get(string CurrentUserName)
         {
             // Collection to hold ApiSecuritys
             List<ApiSecurityDTO> colApiSecurityDTOs = new List<ApiSecurityDTO>();
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
             {
                 return colApiSecurityDTOs;
             }
@@ -92,26 +85,12 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         #endregion
 
         // PUT: api/ApiSecurity/1
-        [Authorize]
-        [HttpPut("{id}")]
-        #region public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ApiSecurityDTO ApiSecurityDTO)
-        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ApiSecurityDTO ApiSecurityDTO)
+
+
+        #region public async Task<IActionResult> Put( int id,  ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        public async Task<IActionResult> Put( int id,  ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != ApiSecurityDTO.id)
-            {
-                return BadRequest();
-            }
 
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -123,14 +102,14 @@ namespace ADefHelpDeskApp.Controllers.WebApi
             {
                 objDTOStatus.StatusMessage = $"Error: A Password is required.";
                 objDTOStatus.Success = false;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
 
             if (ApiSecurityDTO.password.Trim().Length < 5)
             {
                 objDTOStatus.StatusMessage = $"Error: A password longer than 5 characters is required.";
                 objDTOStatus.Success = false;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
             #endregion
 
@@ -142,7 +121,9 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                 var existingApiSecurity = await context.AdefHelpDeskApiSecurity.SingleOrDefaultAsync(x => x.Id == id);
                 if (existingApiSecurity == null)
                 {
-                    return NotFound();
+                    objDTOStatus.StatusMessage = $"Not Found";
+                    objDTOStatus.Success = false;
+                    return (IActionResult)objDTOStatus;
                 }
 
                 // Update the ApiSecurity 
@@ -171,46 +152,37 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                 {
                     objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                     objDTOStatus.Success = false;
-                    return Ok(objDTOStatus);
+                    return (IActionResult)objDTOStatus;
                 }
                 catch (Exception ex)
                 {
                     objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                     objDTOStatus.Success = false;
-                    return Ok(objDTOStatus);
+                    return (IActionResult)objDTOStatus;
                 }
 
                 // Log to the System Log
                 Log.InsertSystemLog(
                     GetConnectionString(),
                     Constants.WebAPIAccountUpdated,
-                    _httpContextAccessor.HttpContext.User.Identity.Name,
-                    $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Updated Username: {ApiSecurityDTO.username}");
+                    CurrentUserName,
+                    $"({CurrentUserName}) Updated Username: {ApiSecurityDTO.username}");
             }
 
             objDTOStatus.StatusMessage = "";
             objDTOStatus.Success = true;
 
-            return Ok(objDTOStatus);
+            return (IActionResult)objDTOStatus;
         }
         #endregion
 
         // POST: api/ApiSecurity
-        [Authorize]
-        [HttpPost]
-        #region public async Task<IActionResult> Post([FromBody] ApiSecurityDTO ApiSecurityDTO)
-        public async Task<IActionResult> Post([FromBody] ApiSecurityDTO ApiSecurityDTO)
+
+
+        #region public async Task<IActionResult> Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        public async Task<IActionResult> Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -225,14 +197,14 @@ namespace ADefHelpDeskApp.Controllers.WebApi
             {
                 objDTOStatus.StatusMessage = $"Error: A Username and Password are required.";
                 objDTOStatus.Success = false;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
 
             if (ApiSecurityDTO.password.Trim().Length < 5)
             {
                 objDTOStatus.StatusMessage = $"Error: A password longer than 5 characters is required.";
                 objDTOStatus.Success = false;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             } 
             #endregion
 
@@ -249,7 +221,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                     {
                         objDTOStatus.StatusMessage = $"Error: The username {ApiSecurityDTO.username} is already used";
                         objDTOStatus.Success = false;
-                        return Ok(objDTOStatus);
+                        return (IActionResult)objDTOStatus;
                     }
 
                     var newApiSecurityDTO = new AdefHelpDeskApiSecurity();
@@ -272,8 +244,8 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                     Log.InsertSystemLog(
                         GetConnectionString(),
                         Constants.WebAPIAccountCreated,
-                        _httpContextAccessor.HttpContext.User.Identity.Name,
-                        $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Created Username: {newApiSecurityDTO.Username}");
+                        CurrentUserName,
+                        $"({CurrentUserName}) Created Username: {newApiSecurityDTO.Username}");
                 }
 
                 objDTOStatus.StatusMessage = "";
@@ -283,24 +255,21 @@ namespace ADefHelpDeskApp.Controllers.WebApi
             {
                 objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                 objDTOStatus.Success = false;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
 
-            return Ok(objDTOStatus);
+            return (IActionResult)objDTOStatus;
         }
         #endregion
 
         // DELETE: api/ApiSecurity/1
-        [Authorize]
-        [HttpDelete("{id}")]
-        #region public async Task<IActionResult> Delete([FromRoute] int id)
-        public async Task<IActionResult> Delete([FromRoute] int id)
+
+
+        #region public async Task<IActionResult> Delete(int id, string CurrentUserName)
+        public async Task<IActionResult> Delete(int id, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
+            DTOStatus objDTOStatus = new DTOStatus();
 
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
             optionsBuilder.UseSqlServer(GetConnectionString());
@@ -311,7 +280,9 @@ namespace ADefHelpDeskApp.Controllers.WebApi
 
                 if (objApiSecurity == null)
                 {
-                    return NotFound();
+                    objDTOStatus.StatusMessage = $"Not Found";
+                    objDTOStatus.Success = false;
+                    return (IActionResult)objDTOStatus;
                 }
 
                 context.AdefHelpDeskApiSecurity.Remove(objApiSecurity);
@@ -321,11 +292,13 @@ namespace ADefHelpDeskApp.Controllers.WebApi
                 Log.InsertSystemLog(
                     GetConnectionString(),
                     Constants.WebAPIAccountDeleted,
-                    _httpContextAccessor.HttpContext.User.Identity.Name,
-                    $"({_httpContextAccessor.HttpContext.User.Identity.Name}) Deleted Username: {objApiSecurity.Username}");
+                    CurrentUserName,
+                    $"({CurrentUserName}) Deleted Username: {objApiSecurity.Username}");
             }
 
-            return NoContent();
+            objDTOStatus.StatusMessage = "Deleted User";
+            objDTOStatus.Success = false;
+            return (IActionResult)objDTOStatus; 
         }
         #endregion
 

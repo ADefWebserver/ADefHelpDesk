@@ -18,53 +18,21 @@
 // DEALINGS IN THE SOFTWARE.
 //
 //
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using AdefHelpDeskBase.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using System.Security.Cryptography;
-using System.Text;
-using ADefHelpDeskApp.Classes;
-using Microsoft.Extensions.Configuration;
-using AdefHelpDeskBase.Models.DataContext;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/Login
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "internal")]
     public class RefreshController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private IConfiguration _config { get; set; }
-
-        public RefreshController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IConfiguration config)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _config = config;
-        }
+        public RefreshController() { }
 
         // ********************************************************
 
         // (GET) api/Refresh
         #region public IActionResult Index()
-        [HttpGet]
-        [AllowAnonymous]
         public IActionResult Index()
         {
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";

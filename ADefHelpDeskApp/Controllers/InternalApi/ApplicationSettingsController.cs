@@ -43,22 +43,17 @@ using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class ApplicationSettingsController : Controller
+    public class ApplicationSettingsController
     {
         private string _DefaultFilesPath;
         private readonly IWebHostEnvironment _hostEnvironment;
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApplicationSettingsController(
             IConfiguration config,
-            IWebHostEnvironment hostEnvironment,
-            IHttpContextAccessor httpContextAccessor)
+            IWebHostEnvironment hostEnvironment)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
 
             // We need to create a Files directory if none exists
             // This will be used if the Administrator does not set a Files directory
@@ -79,7 +74,7 @@ namespace ADefHelpDeskApp.Controllers
         }
 
         // api/ApplicationSettings/GetTermsOfUse
-        [HttpGet("[action]")]
+
         #region public DTOApplicationSetting GetTermsOfUse()
         public DTOApplicationSetting GetTermsOfUse()
         {
@@ -111,7 +106,7 @@ namespace ADefHelpDeskApp.Controllers
         #endregion
 
         // api/ApplicationSettings/GetPrivacyStatement
-        [HttpGet("[action]")]
+
         #region public DTOApplicationSetting GetPrivacyStatement()
         public DTOApplicationSetting GetPrivacyStatement()
         {
@@ -143,7 +138,7 @@ namespace ADefHelpDeskApp.Controllers
         #endregion
 
         // api/ApplicationSettings/GetApplicationName
-        [HttpGet("[action]")]
+
         #region public DTOApplicationSetting GetApplicationName()
         public DTOApplicationSetting GetApplicationName()
         {
@@ -172,9 +167,9 @@ namespace ADefHelpDeskApp.Controllers
         #endregion
 
         // api/ApplicationSettings/GetSettings
-        [HttpGet("[action]")]
-        #region public DTOApplicationSetting GetSettings()
-        public DTOApplicationSetting GetSettings()
+
+        #region public DTOApplicationSetting GetSettings(string CurrentUserName, string BaseWebAddress)
+        public DTOApplicationSetting GetSettings(string CurrentUserName, string BaseWebAddress)
         {
             // Create DTOApplicationSetting
             DTOApplicationSetting objDTOApplicationSetting = new DTOApplicationSetting();
@@ -190,10 +185,10 @@ namespace ADefHelpDeskApp.Controllers
                 objDTOApplicationSetting.applicationName = objGeneralSettings.ApplicationName;
                 objDTOApplicationSetting.uploadPermission = objGeneralSettings.UploadPermission;
                 objDTOApplicationSetting.allowRegistration = objGeneralSettings.AllowRegistration;
-                objDTOApplicationSetting.swaggerWebAddress = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/swagger";
+                objDTOApplicationSetting.swaggerWebAddress = $"{BaseWebAddress}/swagger";
 
                 // Only return the following if a SuperUser is calling this method
-                if (UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+                if (UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
                 {
                     objDTOApplicationSetting.verifiedRegistration = objGeneralSettings.VerifiedRegistration;
                     objDTOApplicationSetting.applicationGUID = objGeneralSettings.ApplicationGUID;
@@ -217,17 +212,17 @@ namespace ADefHelpDeskApp.Controllers
         #endregion
 
         // api/ApplicationSettings/SetSettings        
-        [HttpPut("[action]")]
-        [Authorize]
-        #region public DTOApplicationSetting SetSettings([FromBody]DTOFileUploadSetting FileUploadSetting)
-        public DTOApplicationSetting SetSettings([FromBody] DTOApplicationSetting FileUploadSetting)
+
+
+        #region public DTOApplicationSetting SetSettings(DTOFileUploadSetting FileUploadSetting,string CurrentUserName)
+        public DTOApplicationSetting SetSettings(DTOApplicationSetting FileUploadSetting, string CurrentUserName)
         {
             DTOApplicationSetting objDTOApplicationSetting = new DTOApplicationSetting();
             objDTOApplicationSetting.valid = true;
             objDTOApplicationSetting.status = "";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
             {
                 objDTOApplicationSetting.valid = false;
                 objDTOApplicationSetting.status = "Must be a Super Administrator to call this Method";

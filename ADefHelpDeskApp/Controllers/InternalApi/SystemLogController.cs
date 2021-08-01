@@ -43,77 +43,68 @@ using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class LogController : Controller
-    {
+    public class SystemLogController
+    {        
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LogController(IConfiguration config,
-            IHttpContextAccessor httpContextAccessor)
+        public SystemLogController(IConfiguration config)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // api/Log/Logs
-        [HttpPost("[action]")]
-        [Authorize]
-        #region public LogSearchResult Logs([FromBody]SearchParameters searchData)
-        public LogSearchResult Logs([FromBody]SearchParameters searchData)
+        #region public SystemLogSearchResult SystemLogs(SearchParameters searchData,string CurrentUserName)
+        public SystemLogSearchResult SystemLogs(SearchParameters searchData, string CurrentUserName)
         {
-            LogSearchResult objLogSearchResult = new LogSearchResult();
-            objLogSearchResult.LogList = new List<DTOLog>();
+            SystemLogSearchResult objSystemLogSearchResult = new SystemLogSearchResult();
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objLogSearchResult.errorMessage = "Must be a Super Administrator to call this Method";
-                return objLogSearchResult;
-            }
 
-            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-            optionsBuilder.UseSqlServer(GetConnectionString());
-
-            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-            {
-                int intTaskId = Convert.ToInt32(searchData.searchString);
-
-                var QueryResult = (from Log in context.AdefHelpDeskLog
-                                   where Log.TaskId == intTaskId
-                                   select Log).OrderByDescending(l => l.LogId)
-                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber - 1))
-                                   .Take(searchData.rowsPerPage).ToList();
-
-                List<DTOLog> colDTOLog = new List<DTOLog>();
-
-                foreach (var item in QueryResult)
-                {
-                    // Get user
-                    DTOUser objDTOUSer = UtilitySecurity.UserFromUserId(item.UserId, GetConnectionString());
-
-                    // Create Log
-                    DTOLog objDTOLog = new DTOLog();
-
-                    objDTOLog.LogID = item.LogId;
-                    objDTOLog.TaskID = item.TaskId;
-                    objDTOLog.LogDescription = item.LogDescription;
-                    objDTOLog.UserName = (objDTOUSer != null) ? objDTOUSer.userName : "[Unauthenticated]";
-                    objDTOLog.DateCreated = item.DateCreated.ToShortDateString() + ' ' + item.DateCreated.ToShortTimeString();
-
-                    colDTOLog.Add(objDTOLog);
-                }
-
-                objLogSearchResult.LogList = colDTOLog;
-                objLogSearchResult.totalRows = context.AdefHelpDeskLog.Where(x => x.TaskId == intTaskId).Count();
-                objLogSearchResult.errorMessage = string.Empty;
-            }
-
-            return objLogSearchResult;
+            return SystemLogsMethod(searchData, CurrentUserName, GetConnectionString());
         }
         #endregion
 
+        // Methods
+
+        #region public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string CurrentUser, string ConnectionString)
+        public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string CurrentUser, string ConnectionString)
+        {
+            SystemLogSearchResult objSystemLogSearchResult = new SystemLogSearchResult();
+            objSystemLogSearchResult.SystemLogList = new List<DTOSystemLog>();
+
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(ConnectionString);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                var QueryResult = (from systemLog in context.AdefHelpDeskSystemLog
+                                   select systemLog).OrderByDescending(l => l.LogId)
+                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber - 1))
+                                   .Take(searchData.rowsPerPage).ToList();
+
+                List<DTOSystemLog> colDTOSystemLog = new List<DTOSystemLog>();
+
+                foreach (var item in QueryResult)
+                {
+                    DTOSystemLog objDTOSystemLog = new DTOSystemLog();
+
+                    objDTOSystemLog.LogID = item.LogId;
+                    objDTOSystemLog.LogType = item.LogType;
+                    objDTOSystemLog.LogMessage = item.LogMessage;
+                    objDTOSystemLog.UserName = item.UserName ?? "";
+                    objDTOSystemLog.CreatedDate = item.CreatedDate.ToShortDateString() + ' ' + item.CreatedDate.ToShortTimeString();
+
+                    colDTOSystemLog.Add(objDTOSystemLog);
+                }
+
+                objSystemLogSearchResult.SystemLogList = colDTOSystemLog;
+                objSystemLogSearchResult.totalRows = context.AdefHelpDeskSystemLog.Count();
+                objSystemLogSearchResult.errorMessage = string.Empty;
+            }
+
+            return objSystemLogSearchResult;
+        } 
+        #endregion
+        
         // Utility
 
         #region private string GetConnectionString()

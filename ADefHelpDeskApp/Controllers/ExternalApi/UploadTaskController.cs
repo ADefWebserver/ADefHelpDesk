@@ -50,7 +50,7 @@ namespace ADefHelpDeskApp.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class UploadTaskController : Controller
     {
-        private readonly IWebHostEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;
         private IConfiguration _config { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -126,7 +126,7 @@ namespace ADefHelpDeskApp.Controllers
         [HttpPost("[action]")]
         [Authorize]
         #region public IActionResult UpdateTask([FromBody]DTOTask objTask)
-        public IActionResult UpdateTask([FromBody]DTOTask objTask)
+        public IActionResult UpdateTask([FromBody] DTOTask objTask)
         {
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
@@ -168,7 +168,7 @@ namespace ADefHelpDeskApp.Controllers
             bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
             bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
             string strLogUserName = (IsAuthenticated) ? strCurrentUser : "[Unauthenticated]";
-            
+
             // Get file data (if any)      
             IFormFile objFile = null;
             if (Request.Form.Files.Count > 0)
@@ -615,7 +615,7 @@ namespace ADefHelpDeskApp.Controllers
                         // Can only be set if the user is an Administrator
                         if (IsAdministrator)
                         {
-                            objAdefHelpDeskTasks.AssignedRoleId = Utility.CastNullableIntegerToPossibleNegativeOneInteger(objTask.assignedRoleId);                            
+                            objAdefHelpDeskTasks.AssignedRoleId = Utility.CastNullableIntegerToPossibleNegativeOneInteger(objTask.assignedRoleId);
                         }
                         else
                         {
@@ -810,7 +810,7 @@ namespace ADefHelpDeskApp.Controllers
 
             // Return the status
             return objDTOStatus;
-        }        
+        }
         #endregion
 
         #region public static DTOStatus UpdateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, string strCurrentUser, int intUserId, bool IsAuthenticated)
@@ -975,7 +975,7 @@ namespace ADefHelpDeskApp.Controllers
             string strUploadedFileName = "";
             bool boolSendTaskEmails = true;
             bool boolSendTaskDetailEmail = true;
-            bool CanUpload = Directory.Exists(objGeneralSettings.FileUploadPath); 
+            bool CanUpload = Directory.Exists(objGeneralSettings.FileUploadPath);
 
             // Set Send Task Emails
             if (objTask.sendEmails.HasValue)
@@ -1010,7 +1010,7 @@ namespace ADefHelpDeskApp.Controllers
                 #endregion
 
                 #region Can files be physically uploaded?
-                if (!CanUpload) 
+                if (!CanUpload)
                 {
                     string strErrorMessage =
                         $"Error: Cannot upload to file path at: {objGeneralSettings.FileUploadPath}";

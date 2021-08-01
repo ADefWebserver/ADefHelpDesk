@@ -33,11 +33,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
 
-namespace ADefHelpDeskApp.Controllers.WebApi
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class CategoryNodesController : Controller
+    public class CategoryNodesController
     {        
         private IConfiguration _config { get; set; }
 
@@ -47,8 +45,7 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         }
 
         // GET: api/CategoryNodes/GetCategoryNodes
-        [AllowAnonymous]
-        [HttpGet("[action]")]
+
         #region public List<CategoryDTO> GetCategoryNodes()
         public List<CategoryDTO> GetCategoryNodes()
         {

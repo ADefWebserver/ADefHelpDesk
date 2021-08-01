@@ -112,7 +112,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <response code="200">JWT token created</response>
         [AllowAnonymous]
         [Route("GetAuthToken")]
-        [HttpPost]
+
         [ApiExplorerSettings(GroupName = "external")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<string> GetAuthToken([FromBody]ApiToken objApiToken)
@@ -826,9 +826,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
-            UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager, _httpContextAccessor);
+            UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager);
 
-            return objUserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation, strCurrentUser).Result;
+            return objUserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation).Result;
         }
         #endregion
 
@@ -905,7 +905,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public List<CategoryDTO> GetCategoryNodes([FromBody]bool UseCache)
         {
-            return ADefHelpDeskApp.Controllers.WebApi.CategoryTreeController.GetNodesMethod(UseCache, _cache, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(UseCache, _cache, GetConnectionString());
         }
         #endregion
 
@@ -924,7 +924,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.WebApi.CategoryController.CreateCategory(categoryNode, strConnectionString);
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.CreateCategory(categoryNode, strConnectionString);
         }
         #endregion
 
@@ -943,7 +943,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.WebApi.CategoryController.UpdateCategory(categoryNode.Id, categoryNode, strConnectionString);
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.UpdateCategory(categoryNode.Id, categoryNode, strConnectionString);
         }
         #endregion
 
@@ -965,7 +965,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.WebApi.CategoryController.DeleteCategory(id, strConnectionString);
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.DeleteCategory(id, strConnectionString);
         }
         #endregion
 
@@ -982,7 +982,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public List<RoleDTO> GetRoles()
         {
-            return ADefHelpDeskApp.Controllers.WebApi.RoleController.GetRolesMethod(GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.GetRolesMethod(GetConnectionString());
         }
         #endregion
 
@@ -998,7 +998,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public DTOStatus UpdateRole([FromBody]RoleDTO RoleDTO)
         {
-            return ADefHelpDeskApp.Controllers.WebApi.RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
         }
         #endregion
 
@@ -1014,7 +1014,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public RoleDTO CreateRole([FromBody]RoleDTO RoleDTO)
         {
-            return ADefHelpDeskApp.Controllers.WebApi.RoleController.CreateRole(RoleDTO, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.CreateRole(RoleDTO, GetConnectionString());
         }
         #endregion
 
@@ -1030,7 +1030,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public DTOStatus DeleteRole([FromBody]int Id)
         {
-            return ADefHelpDeskApp.Controllers.WebApi.RoleController.DeleteRole(Id, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.DeleteRole(Id, GetConnectionString());
         }
         #endregion
 

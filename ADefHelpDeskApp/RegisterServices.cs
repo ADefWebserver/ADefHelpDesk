@@ -15,6 +15,7 @@ using ADefHelpDeskApp.Classes;
 using Radzen;
 using ADefHelpDeskApp.Controllers;
 using AdefHelpDeskBase.Controllers;
+using Microsoft.AspNetCore.Components;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -50,12 +51,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<GeneralSettings>();
             services.AddScoped<InstallUpdateState>();
+            services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
-            services.AddScoped<HttpClient>();
+
+            services.AddScoped<HttpClient>(s =>
+            {
+                var navigationManager = s.GetRequiredService<NavigationManager>();
+                return new HttpClient
+                {
+                    BaseAddress = new Uri(navigationManager.Uri)
+                };
+            });
 
             services.AddScoped<ApplicationSettingsController>();
             services.AddScoped<UserManagerController>();
+            services.AddScoped<RegisterController>();
 
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();

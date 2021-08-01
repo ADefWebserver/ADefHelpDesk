@@ -34,11 +34,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using AdefHelpDeskBase.Models.DataContext;
 
-namespace ADefHelpDeskApp.Controllers.WebApi
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class CategoryTreeController : Controller
+    public class CategoryTreeController
     {        
         private IConfiguration _config { get; set; }
         private IMemoryCache _cache;
@@ -52,10 +50,9 @@ namespace ADefHelpDeskApp.Controllers.WebApi
         }
 
         // GET: api/CategoryTree/true
-        [AllowAnonymous]
-        [HttpGet("{UseCache}")]
-        #region public List<CategoryDTO> GetCategoryTree([FromRoute] bool UseCache)
-        public List<CategoryDTO> GetCategoryTree([FromRoute] bool UseCache)
+
+        #region public List<CategoryDTO> GetCategoryTree( bool UseCache)
+        public List<CategoryDTO> GetCategoryTree( bool UseCache)
         {
             return GetNodesMethod(UseCache, _cache, GetConnectionString());
         }

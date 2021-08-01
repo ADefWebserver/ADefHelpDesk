@@ -41,40 +41,31 @@ using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/Register
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class RegisterController : Controller
+    public class RegisterController
     {
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RegisterController(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+            SignInManager<ApplicationUser> signInManager)
         {
             _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         // ********************************************************
         // Register
 
-        // api/Register
-        #region public IActionResult Index([FromBody]RegisterDTO Register)
-        [HttpPost]
-        [AllowAnonymous]
-        public IActionResult Index([FromBody] RegisterDTO Register)
+        #region public IActionResult Index(RegisterDTO Register,string CurrentUserName, string BaseWebAddress)
+        public IActionResult Index(RegisterDTO Register, string CurrentUserName, string BaseWebAddress)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -86,24 +77,23 @@ namespace AdefHelpDeskBase.Controllers
 
             if (
                 (!objGeneralSettings.AllowRegistration) &&
-                (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString())))
+                (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString())))
             {
                 objRegisterStatus.status = "Registration is not allowed for non-Administrators.";
                 objRegisterStatus.isSuccessful = false;
             }
             else
             {
-                string strCurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-                var result = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, strCurrentHostLocation, false);
+                var result = RegisterUser(Register, GetConnectionString(), _hostEnvironment, _userManager, _signInManager, false, BaseWebAddress);
                 objRegisterStatus.status = result.Result.status;
             }
 
-            return Ok(objRegisterStatus);
+            return (IActionResult)objRegisterStatus;
         }
         #endregion
 
-        #region public async RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify)
-        public async Task<RegisterStatus> RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string CurrentHostLocation, bool BypassVerify)
+        #region public async RegisterStatus RegisterUser(RegisterDTO Register, string _DefaultConnection, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, bool BypassVerify, string BaseWebAddress)
+        public async Task<RegisterStatus> RegisterUser(RegisterDTO Register, string _DefaultConnection, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, bool BypassVerify, string BaseWebAddress)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -280,10 +270,12 @@ namespace AdefHelpDeskBase.Controllers
                 // Send the user the verification email
                 string strFullName = $"{paramFirstName} {paramLastName}";
 
+                string strCurrentHostLocation = BaseWebAddress;
+
                 // Get file and make replacements
                 string strEmailContents = System.IO.File.ReadAllText(_hostEnvironment.ContentRootPath + $@"\SystemFiles\Email-UserVerification.txt");
                 strEmailContents = strEmailContents.Replace("[strFullName]", strFullName);
-                strEmailContents = strEmailContents.Replace("[CurrentHostLocation]", CurrentHostLocation);
+                strEmailContents = strEmailContents.Replace("[CurrentHostLocation]", strCurrentHostLocation);
                 strEmailContents = strEmailContents.Replace("[paramUserName]", paramUserName);
                 strEmailContents = strEmailContents.Replace("[strVerifyCode]", strVerifyCode);
 
@@ -299,7 +291,7 @@ namespace AdefHelpDeskBase.Controllers
                     objGeneralSettings.SMTPFromEmail,
                     "Verification Email",
                     "ADefHelpDesk Registration Verification Email",
-                    $"{strEmailContents} <br><br> This Email was sent from: {CurrentHostLocation}.");
+                    $"{strEmailContents} <br><br> This Email was sent from: {strCurrentHostLocation}.");
 
                 if (smtpStatus != "")
                 {

@@ -43,32 +43,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class DashboardController : Controller
+    public class DashboardController
     {
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DashboardController(IConfiguration config,
-            IHttpContextAccessor httpContextAccessor)
+        public DashboardController(IConfiguration config)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // api/Dashboard/DashboardValues
-        [HttpGet("[action]")]
-        [Authorize]
-        #region public DTODashboard DashboardValues()
-        public DTODashboard DashboardValues()
+        #region public DTODashboard DashboardValues(string CurrentUserName)
+        public DTODashboard DashboardValues(string CurrentUserName)
         {
             // Create DTODashboard
             DTODashboard objDTODashboard = new DTODashboard();
             string strConnectionString = GetConnectionString();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString()))
             {
                 return objDTODashboard;
             }

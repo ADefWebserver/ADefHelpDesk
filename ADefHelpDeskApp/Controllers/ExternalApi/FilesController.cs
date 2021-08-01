@@ -94,7 +94,7 @@ namespace AdefHelpDeskBase.Controllers
         // api/Files/ReturnContent (get File content)
         [HttpPost("[action]")]
         #region public DTOResponse ReturnContent([FromBody]DTONode paramDTONode)
-        public DTOResponse ReturnContent([FromBody]DTONode paramDTONode)
+        public DTOResponse ReturnContent([FromBody] DTONode paramDTONode)
         {
             DTOResponse objDTOResponse = new DTOResponse();
 
@@ -113,7 +113,7 @@ namespace AdefHelpDeskBase.Controllers
         // api/Files/ReturnFile
         [HttpPost("[action]")]
         #region public FileContentResult ReturnFile([FromBody]DTOFileParameter paramDTOFileParameter)
-        public FileContentResult ReturnFile([FromBody]DTOFileParameter paramDTOFileParameter)
+        public FileContentResult ReturnFile([FromBody] DTOFileParameter paramDTOFileParameter)
         {
             var fileResult = ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
             return File(fileResult.Buffer, "application/octet-stream", fileResult.FileName);
@@ -242,7 +242,7 @@ namespace AdefHelpDeskBase.Controllers
                                 }
                             }
                             else
-                            {      
+                            {
                                 if (objGeneralSettings.StorageFileType == "AzureStorage")
                                 {
                                     CloudStorageAccount storageAccount = null;
@@ -258,7 +258,7 @@ namespace AdefHelpDeskBase.Controllers
                                         CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
                                         cloudBlobContainer = cloudBlobClient.GetContainerReference("adefhelpdesk-files");
                                         CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(objAttachment.FileName);
-                                        
+
                                         // Download
                                         cloudBlockBlob.FetchAttributesAsync().Wait();
                                         long fileByteLength = cloudBlockBlob.Properties.Length;

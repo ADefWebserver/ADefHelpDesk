@@ -43,7 +43,7 @@ namespace AdefHelpDeskBase.Controllers
     [ApiExplorerSettings(GroupName = "internal")]
     public class UploadSystemFilesController : Controller
     {
-        private readonly IWebHostEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;
         private string _SystemFiles;
         private IConfiguration _config { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -99,7 +99,7 @@ namespace AdefHelpDeskBase.Controllers
                 // Process file
                 using (var readStream = file.OpenReadStream())
                 {
-                    var filename = file.FileName.Replace("\"","").ToString();
+                    var filename = file.FileName.Replace("\"", "").ToString();
 
                     filename = _SystemFiles + $@"\{SelectedFolder}\{filename}";
 

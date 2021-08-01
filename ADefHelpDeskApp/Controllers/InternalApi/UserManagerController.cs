@@ -35,124 +35,65 @@ using System.Threading.Tasks;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/UserManager
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class UserManagerController : Controller
+    public class UserManagerController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
         private readonly IWebHostEnvironment _hostEnvironment;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserManagerController(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+            SignInManager<ApplicationUser> signInManager)
         {
             _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _signInManager = signInManager;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // api/UserManager/GetUser
-        [Authorize]
-        [HttpGet("{id}")]
-        #region public DTOUser GetUser([FromRoute] int id)
-        public DTOUser GetUser([FromRoute] int id)
+        #region public DTOUser GetUser( int id)
+        public DTOUser GetUser( int id)
         {
             DTOUser objDTOUser = new DTOUser();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return objDTOUser;
-            }
 
             return GetUserMethod(id, GetConnectionString());
         }
         #endregion
 
-        // api/UserManager/SearchUsers
-        [Authorize]
-        [HttpPost("[action]")]
-        #region public UserSearchResult SearchUsers([FromBody]SearchParameters searchData)
-        public UserSearchResult SearchUsers([FromBody] SearchParameters searchData)
+        #region public UserSearchResult SearchUsers(SearchParameters searchData)
+        public UserSearchResult SearchUsers( SearchParameters searchData)
         {
             UserSearchResult objUserSearchResult = new UserSearchResult();
 
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objUserSearchResult.errorMessage = "Must be a Administrator to call this Method";
-                return objUserSearchResult;
-            }
 
             return SearchUsersMethod(searchData, GetConnectionString());
         }
         #endregion
 
-        // PUT: api/UserManager/1
-        [Authorize]
-        [HttpPut("{id}")]
-        #region public IActionResult Put([FromRoute] int id, [FromBody] DTOUser DTOUser)
-        public IActionResult Put([FromRoute] int id, [FromBody] DTOUser DTOUser)
+        #region public IActionResult Put(int id, DTOUser DTOUser,string CurrentUserName)
+        public IActionResult Put(int id, DTOUser DTOUser, string CurrentUserName)
         {
-            // Status to return
-            DTOStatus objDTOStatus = new DTOStatus();
-            objDTOStatus.StatusMessage = "Failure";
-            objDTOStatus.Success = false;
-
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objDTOStatus.StatusMessage = "Must be a Super Administrator to call this method.";
-                return Ok(objDTOStatus);
-            }
 
-            if (id != DTOUser.userId)
-            {
-                return BadRequest();
-            }
-
-            return Ok(UpdateUser(id, DTOUser, _userManager, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name));
+            return (IActionResult)UpdateUser(id, DTOUser, _userManager, GetConnectionString(), CurrentUserName);
         }
         #endregion
 
-        // POST: api/UserManager/CreateUser
-        [Authorize]
-        [HttpPost("[action]")]
-        #region public IActionResult CreateUser([FromBody] DTOUser DTOUser)
-        public IActionResult CreateUser([FromBody] DTOUser DTOUser)
+        #region public IActionResult CreateUser(DTOUser DTOUser, string BaseWebAddress)
+        public IActionResult CreateUser(DTOUser DTOUser, string BaseWebAddress)
         {
-            // Status to return
-            DTOStatus objDTOStatus = new DTOStatus();
-            objDTOStatus.StatusMessage = "Failure";
-            objDTOStatus.Success = false;
-
-            // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objDTOStatus.StatusMessage = "Must be a Super Administrator to call this method.";
-                return Ok(objDTOStatus);
-            }
-
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-
-            return Ok(CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), CurrentHostLocation, _httpContextAccessor.HttpContext.User.Identity.Name));
+            return (IActionResult)CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), BaseWebAddress);
         }
         #endregion
 
-        // DELETE: api/UserManager/1
-        [Authorize]
-        [HttpDelete("{id}")]
-        #region public IActionResult Delete([FromRoute] int id)
-        public IActionResult Delete([FromRoute] int id)
+        #region public IActionResult Delete(int id,string CurrentUserName)
+        public IActionResult Delete(int id, string CurrentUserName)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -160,23 +101,20 @@ namespace AdefHelpDeskBase.Controllers
             objDTOStatus.Success = false;
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-            var result = DeleteUser(id, _userManager, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
+
+            var result = DeleteUser(id, _userManager, GetConnectionString(), CurrentUserName);
 
             if (result != "")
             {
                 objDTOStatus.Success = false;
                 objDTOStatus.StatusMessage = result;
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
             else
             {
                 objDTOStatus.Success = true;
                 objDTOStatus.StatusMessage = "";
-                return Ok(objDTOStatus);
+                return (IActionResult)objDTOStatus;
             }
         }
         #endregion
@@ -527,8 +465,8 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        #region public static DTOStatus CreateUserMethod(DTOUser DTOUser, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
-        public async Task<DTOStatus> CreateUserMethod(DTOUser DTOUser, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation, string strCurrentUser)
+        #region public static DTOStatus CreateUserMethod(DTOUser DTOUser, IHostingEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation)
+        public async Task<DTOStatus> CreateUserMethod(DTOUser DTOUser, IWebHostEnvironment _hostEnvironment, UserManager<ApplicationUser> _userManager, SignInManager<ApplicationUser> _signInManager, string ConnectionString, string CurrentHostLocation)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -546,10 +484,10 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterDTO.password = DTOUser.password;
 
                 RegisterController objRegisterController =
-                    new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager, _httpContextAccessor);
+                    new RegisterController(_configuration, _hostEnvironment, _userManager, _signInManager);
 
                 var objRegisterStatus = await objRegisterController.RegisterUser(objRegisterDTO,
-                    ConnectionString, _hostEnvironment, _userManager, _signInManager, CurrentHostLocation, true);
+                    ConnectionString, _hostEnvironment, _userManager, _signInManager, true, CurrentHostLocation);
 
                 if (!objRegisterStatus.isSuccessful)
                 {

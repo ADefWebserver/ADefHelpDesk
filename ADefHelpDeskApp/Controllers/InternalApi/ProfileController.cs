@@ -41,36 +41,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/Register
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class ProfileController : Controller
+    public class ProfileController
     {        
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ProfileController(
             IConfiguration config,
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+            UserManager<ApplicationUser> userManager)
         {
             _config = config;
             _userManager = userManager;
-            _signInManager = signInManager;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         // ********************************************************
         // Profile
 
-        // api/Profile
-        #region public IActionResult Index([FromBody]ProfileDTO Profile)
-        [HttpPost]
-        [Authorize]
-        public IActionResult Index([FromBody]ProfileDTO Profile)
+        #region public IActionResult Index(ProfileDTO Profile,string CurrentUserName)
+        public IActionResult Index(ProfileDTO Profile, string CurrentUserName)
         {
             ProfileStatus objProfileStatus = new ProfileStatus();
             objProfileStatus.isSuccessful = true;
@@ -82,27 +70,27 @@ namespace AdefHelpDeskBase.Controllers
             {
                 objProfileStatus.status = "This Email is not valid.";
                 objProfileStatus.isSuccessful = false;
-                return Ok(objProfileStatus);
+                return (IActionResult)objProfileStatus;
             }
 
             if ((Profile.firstName == null) || (Profile.firstName.Length < 1))
             {
                 objProfileStatus.status = "This First Name is not long enough.";
                 objProfileStatus.isSuccessful = false;
-                return Ok(objProfileStatus);
+                return (IActionResult)objProfileStatus;
             }
 
             if ((Profile.lastName == null) || (Profile.lastName.Length < 1))
             {
                 objProfileStatus.status = "This Last Name is not long enough.";
                 objProfileStatus.isSuccessful = false;
-                return Ok(objProfileStatus);
+                return (IActionResult)objProfileStatus;
             } 
             #endregion
 
             // Update User ****************************
 
-            string CurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
+            string CurrentUser = CurrentUserName;
 
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
             optionsBuilder.UseSqlServer(GetConnectionString());
@@ -123,7 +111,7 @@ namespace AdefHelpDeskBase.Controllers
                         // User is already taken
                         objProfileStatus.status = "This Email address is already taken.";
                         objProfileStatus.isSuccessful = false;
-                        return Ok(objProfileStatus);
+                        return (IActionResult)objProfileStatus;
                     }
 
                     // Get the user
@@ -155,7 +143,7 @@ namespace AdefHelpDeskBase.Controllers
                                 objProfileStatus.status =
                                     "The original password must be correct to set the new password.";
                                 objProfileStatus.isSuccessful = false;
-                                return Ok(objProfileStatus);
+                                return (IActionResult)objProfileStatus;
                             }
 
                             // First try to update the password in the ASP.NET Membership provider
@@ -173,7 +161,7 @@ namespace AdefHelpDeskBase.Controllers
 
                                 objProfileStatus.status = strErrors;
                                 objProfileStatus.isSuccessful = false;
-                                return Ok(objProfileStatus);
+                                return (IActionResult)objProfileStatus;
                             }
                         } 
                         #endregion
@@ -194,7 +182,7 @@ namespace AdefHelpDeskBase.Controllers
                 }
             }
 
-            return Ok(objProfileStatus);
+            return (IActionResult)objProfileStatus;
         }
         #endregion
 

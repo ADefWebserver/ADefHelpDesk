@@ -1,4 +1,5 @@
 ﻿@page "/registercontrol"
+@inherits OwningComponentBase
 @using ADefHelpDeskApp.Controllers
 @using AdefHelpDeskBase.Controllers
 @using Microsoft.AspNetCore.Identity;
@@ -11,9 +12,11 @@
 @using Microsoft.AspNetCore.Mvc;
 @using Microsoft.EntityFrameworkCore;
 @using Microsoft.AspNetCore.Http;
-@using Newtonsoft.Json;
+@using System.Text.Json
+@using System.Text.Json.Serialization;
 @using System.IO
 @using System.Text
+@inject RegisterController _RegisterController
 @inject IConfiguration _configuration
 @inject IWebHostEnvironment _HostEnvironment
 @inject UserManager<ApplicationUser> _UserManager
@@ -21,6 +24,7 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject ADefHelpDeskContext _ADefHelpDeskService
 @inject IHttpContextAccessor httpContextAccessor
+@inject IHttpClientFactory ClientFactory
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @if(!UserCreated)
@@ -95,6 +99,11 @@
     string strEmail = "";
     string strPassword = "";
 
+    protected override void OnInitialized()
+    {
+        _RegisterController = (RegisterController)ScopedServices.GetService(typeof(RegisterController));
+    }
+
     private async void CreateUser()
     {
         try
@@ -126,15 +135,11 @@
             objRegisterStatus.isSuccessful = false;
 
             // Create the User
-            string strCurrentHostLocation = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
             string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
-            RegisterController objRegisterController =
-            new RegisterController(_configuration, _HostEnvironment, _UserManager, _SignInManager, httpContextAccessor);
-
-            objRegisterStatus = await objRegisterController.RegisterUser(
+            objRegisterStatus = await _RegisterController.RegisterUser(
                 objRegister, strDefaultConnection, _HostEnvironment, _UserManager,
-                _SignInManager, strCurrentHostLocation, false);
+                _SignInManager, false, NavigationManager.BaseUri);
 
             if (!objRegisterStatus.isSuccessful)
             {

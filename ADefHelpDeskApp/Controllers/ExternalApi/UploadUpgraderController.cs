@@ -48,7 +48,7 @@ namespace AdefHelpDeskBase.Controllers
     public class UploadUpgraderController : Controller
     {
         private string _UpgradeProcessDirectory;
-        private readonly IWebHostEnvironment _hostEnvironment;        
+        private readonly IWebHostEnvironment _hostEnvironment;
         private string _SystemFiles;
         private IConfiguration _config { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;

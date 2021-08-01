@@ -40,10 +40,7 @@ using AdefHelpDeskBase.Models.DataContext;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/Verification
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class VerificationController : Controller
+    public class VerificationController
     {        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -63,10 +60,10 @@ namespace AdefHelpDeskBase.Controllers
         // Verification
 
         // (POST) api/Verification
-        #region public IActionResult Index([FromBody]DTOVerification Verification)
-        [HttpPost]
-        [AllowAnonymous]
-        public IActionResult Index([FromBody]DTOVerification Verification)
+        #region public IActionResult Index(DTOVerification Verification)
+
+
+        public IActionResult Index(DTOVerification Verification)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -94,7 +91,7 @@ namespace AdefHelpDeskBase.Controllers
                         // Bad verification code
                         objLoginStatus.isLoggedIn = false;
                         objLoginStatus.status = "Incorrrect Verification Code.";
-                        return Ok(objLoginStatus);
+                        return (IActionResult)objLoginStatus;
                     }
 
                     // Sign the User in
@@ -106,7 +103,7 @@ namespace AdefHelpDeskBase.Controllers
                         // Return the error
                         objLoginStatus.status = $"Could not sign user {paramUserName} in.";
                         objLoginStatus.isLoggedIn = false;
-                        return Ok(objLoginStatus);
+                        return (IActionResult)objLoginStatus;
                     }
                     else
                     {
@@ -117,14 +114,14 @@ namespace AdefHelpDeskBase.Controllers
                         // Return Success
                         objLoginStatus.status = $"User {paramUserName} signed in.";
                         objLoginStatus.isLoggedIn = true;
-                        return Ok(objLoginStatus);
+                        return (IActionResult)objLoginStatus;
                     }
                 }
             }
 
             objLoginStatus.isLoggedIn = false;
             objLoginStatus.status = "Authentication Failure";
-            return Ok(objLoginStatus);
+            return (IActionResult)objLoginStatus;
         }
         #endregion
 

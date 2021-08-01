@@ -43,101 +43,69 @@ using Microsoft.AspNetCore.Http;
 
 namespace AdefHelpDeskBase.Controllers
 {
-    //api/Task
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class TaskController : Controller
+    public class TaskController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TaskController(
             IConfiguration config,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+            SignInManager<ApplicationUser> signInManager)
         {
             _config = config;
             _userManager = userManager;
             _signInManager = signInManager;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // api/Task/RetrieveTask
-        [HttpPost("[action]")]
-        #region public DTOTask RetrieveTask([FromBody]DTOTask paramDTOTask)
-        public DTOTask RetrieveTask([FromBody]DTOTask paramDTOTask)
+        #region public DTOTask RetrieveTask(DTOTask paramDTOTask,string CurrentUserName, bool IsAuthenticated)
+        public DTOTask RetrieveTask(DTOTask paramDTOTask, string CurrentUserName, bool IsAuthenticated)
         {
-            int intUserID = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
-            bool IsAdministrator = UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
-            return GetTask(paramDTOTask, intUserID, IsAdministrator, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name, _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated);
+            int intUserID = UtilitySecurity.UserIdFromUserName(CurrentUserName, GetConnectionString());
+            bool IsAdministrator = UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString());
+            return GetTask(paramDTOTask, intUserID, IsAdministrator, GetConnectionString(), CurrentUserName, IsAuthenticated);
         }
         #endregion
 
-        // api/Task/SearchTasks
-        [HttpPost("[action]")]
-        #region public TaskSearchResult SearchTasks([FromBody]SearchTaskParameters searchData)
-        public TaskSearchResult SearchTasks([FromBody]SearchTaskParameters searchData)
+        #region public TaskSearchResult SearchTasks(SearchTaskParameters searchData,string CurrentUserName)
+        public TaskSearchResult SearchTasks(SearchTaskParameters searchData, string CurrentUserName)
         {
             // Get UserID
-            int intUserId = UtilitySecurity.UserIdFromUserName(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString());
+            int intUserId = UtilitySecurity.UserIdFromUserName(CurrentUserName, GetConnectionString());
 
             // Determine if user is an Admin 
-            int iSAdministrator = (UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString())) ? 1 : 0;
+            int iSAdministrator = (UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString())) ? 1 : 0;
 
             return SearchTasks(searchData, intUserId, iSAdministrator, GetConnectionString());
         }
         #endregion
 
-        // DELETE: api/Task/Delete/1
-        [Authorize]
-        [HttpDelete("Delete/{id}")]
-        #region public Task<IActionResult> Delete([FromRoute] int id)
-        public IActionResult Delete([FromRoute] int id)
+        #region public Task<IActionResult> Delete(int id,string CurrentUserName)
+        public IActionResult Delete(int id, string CurrentUserName)
         {
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest("Must be a Administrator to call this Method");
-            }
 
-            string strResponse = DeleteTask(id, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
+            string strResponse = DeleteTask(id, GetConnectionString(), CurrentUserName);
 
-            if(strResponse != "")
-            {
-                return BadRequest(strResponse);
-            }
-            else
-            {
-                return NoContent();
-            }            
+            DTOStatus objDTOStatus = new DTOStatus();
+            objDTOStatus.StatusMessage = strResponse;
+            objDTOStatus.Success = false;
+            return (IActionResult)objDTOStatus;           
         }
         #endregion
 
-        // DELETE: api/Task/DeleteTaskDetail/1
-        [Authorize]
-        [HttpDelete("DeleteTaskDetail/{id}")]
-        #region public IActionResult DeleteTaskDetail([FromRoute] int id)
-        public IActionResult DeleteTaskDetail([FromRoute] int id)
+        #region public IActionResult DeleteTaskDetail(int id,string CurrentUserName)
+        public IActionResult DeleteTaskDetail(int id, string CurrentUserName)
         {
             // Must be a Administrator to call this Method
-            if (!UtilitySecurity.IsAdministrator(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
 
-            string strResponse = DeleteTaskDetail(id, GetConnectionString(), _httpContextAccessor.HttpContext.User.Identity.Name);
+            string strResponse = DeleteTaskDetail(id, GetConnectionString(), CurrentUserName);
 
-            if (strResponse != "")
-            {
-                return BadRequest(strResponse);
-            }
-            else
-            {
-                return NoContent();
-            }
+            DTOStatus objDTOStatus = new DTOStatus();
+            objDTOStatus.StatusMessage = strResponse;
+            objDTOStatus.Success = false;
+            return (IActionResult)objDTOStatus;
         }
         #endregion
 

@@ -35,86 +35,42 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using AdefHelpDeskBase.Models.DataContext;
 
-namespace ADefHelpDeskApp.Controllers.WebApi
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class CategoryController : Controller
+    public class CategoryController
     {
         private IConfiguration _config { get; set; }
         private IMemoryCache _cache;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CategoryController(
             IConfiguration config,
-            IMemoryCache memoryCache,
-            IHttpContextAccessor httpContextAccessor)
+            IMemoryCache memoryCache)
         {
             _config = config;
             _cache = memoryCache;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        // PUT: api/Category/1
-        [Authorize]
-        [HttpPut("{id}")]
-        #region public IActionResult Put([FromRoute] int id, [FromBody] CategoryNode categoryNode)
-        public IActionResult Put([FromRoute] int id, [FromBody] CategoryNode categoryNode)
+        #region public IActionResult Put(int id, CategoryNode categoryNode)
+        public IActionResult Put(int id, CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != categoryNode.Id)
-            {
-                return BadRequest();
-            }
-
-            return Ok(UpdateCategory(id, categoryNode, GetConnectionString()));
+            return (IActionResult)UpdateCategory(id, categoryNode, GetConnectionString());
         }
         #endregion
 
-        // POST: api/Category
-        [Authorize]
-        [HttpPost]
-        #region public IActionResult Post([FromBody] CategoryNode categoryNode)
-        public IActionResult Post([FromBody] CategoryNode categoryNode)
+        #region public IActionResult Post(CategoryNode categoryNode)
+        public IActionResult Post(CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok(CreateCategory(categoryNode, GetConnectionString()));
+            return (IActionResult)CreateCategory(categoryNode, GetConnectionString());
         }
         #endregion
 
-        // DELETE: api/Category/1
-        [Authorize]
-        [HttpDelete("{id}")]
-        #region public IActionResult Delete([FromRoute] int id)
-        public IActionResult Delete([FromRoute] int id)
+        #region public IActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                return BadRequest();
-            }
-
-            return Ok(DeleteCategory(id, GetConnectionString()));
+            return (IActionResult)DeleteCategory(id, GetConnectionString());
         }
         #endregion
 

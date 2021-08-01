@@ -43,23 +43,18 @@ using Microsoft.AspNetCore.Http;
 
 namespace ADefHelpDeskApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
-    public class EmailAdminController : Controller
+    public class EmailAdminController
     {        
         private IConfiguration _config { get; set; }
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public EmailAdminController(IConfiguration config,
-            IHttpContextAccessor httpContextAccessor)
+        public EmailAdminController(IConfiguration config)
         {
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         // api/EmailAdmin/SMTPSettings
-        [HttpGet("[action]")]
-        [Authorize]        
+
+        
         #region public DTOSMTPSetting SMTPSettings()
         public DTOSMTPSetting SMTPSettings()
         {
@@ -69,12 +64,6 @@ namespace ADefHelpDeskApp.Controllers
             objDTOSMTPSetting.smtpStatus = "";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objDTOSMTPSetting.smtpValid = false;
-                objDTOSMTPSetting.smtpStatus = "";
-                return objDTOSMTPSetting;
-            }
 
             // Get Settings
             GeneralSettings objGeneralSettings = new GeneralSettings(GetConnectionString());
@@ -92,22 +81,16 @@ namespace ADefHelpDeskApp.Controllers
         #endregion
 
         // api/EmailAdmin/SMTPSetting        
-        [HttpPut("[action]")]
-        [Authorize]
-        #region public DTOSMTPSetting SMTPSetting([FromBody]DTOSMTPSetting SMTPSetting)
-        public DTOSMTPSetting SMTPSetting([FromBody]DTOSMTPSetting SMTPSetting)
+
+
+        #region public DTOSMTPSetting SMTPSetting(DTOSMTPSetting SMTPSetting, string BaseWebAddress)
+        public DTOSMTPSetting SMTPSetting(DTOSMTPSetting SMTPSetting, string BaseWebAddress)
         {
             DTOSMTPSetting objDTOSMTPSetting = new DTOSMTPSetting();
             objDTOSMTPSetting.smtpValid = true;
             objDTOSMTPSetting.smtpStatus = "Settings Updated";
 
             // Must be a Super Administrator to call this Method
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
-            {
-                objDTOSMTPSetting.smtpValid = false;
-                objDTOSMTPSetting.smtpStatus = "";
-                return objDTOSMTPSetting;
-            }
 
             // Get Update Type (Save/Test)
             string strUpdateType = SMTPSetting.updateType;
@@ -183,7 +166,7 @@ namespace ADefHelpDeskApp.Controllers
                     SMTPSetting.smtpFromEmail,
                     "SMTP Test",
                     "ADefHelpDesk SMTP Test Email",
-                    $"This is a ADefHelpDesk SMTP Test Email from: {this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}");
+                    $"This is a ADefHelpDesk SMTP Test Email from: {BaseWebAddress}");
 
                 if (objDTOSMTPSetting.smtpStatus != "")
                 {
