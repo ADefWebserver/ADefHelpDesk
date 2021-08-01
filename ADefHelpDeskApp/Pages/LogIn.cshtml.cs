@@ -95,6 +95,7 @@ namespace ADefHelpDeskApp.Pages
 
         // Utility
 
+        #region public LoginStatus GetLoginStatus(DTOAuthentication Authentication)
         public LoginStatus GetLoginStatus(DTOAuthentication Authentication)
         {
             // LoginStatus to return
@@ -221,7 +222,8 @@ namespace ADefHelpDeskApp.Pages
             objLoginStatus.status = "Authentication Failure";
 
             return objLoginStatus;
-        }
+        } 
+        #endregion
 
         #region private string GetConnectionString()
         private string GetConnectionString()

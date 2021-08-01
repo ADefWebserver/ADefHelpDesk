@@ -76,24 +76,24 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        #region public IActionResult Put(int id, DTOUser DTOUser,string CurrentUserName)
-        public IActionResult Put(int id, DTOUser DTOUser, string CurrentUserName)
+        #region public DTOStatus Put(int id, DTOUser DTOUser,string CurrentUserName)
+        public DTOStatus Put(int id, DTOUser DTOUser, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
 
-            return (IActionResult)UpdateUser(id, DTOUser, _userManager, GetConnectionString(), CurrentUserName);
+            return UpdateUser(id, DTOUser, _userManager, GetConnectionString(), CurrentUserName);
         }
         #endregion
 
-        #region public IActionResult CreateUser(DTOUser DTOUser, string BaseWebAddress)
-        public IActionResult CreateUser(DTOUser DTOUser, string BaseWebAddress)
+        #region public Task<DTOStatus> CreateUser(DTOUser DTOUser, string BaseWebAddress)
+        public Task<DTOStatus> CreateUser(DTOUser DTOUser, string BaseWebAddress)
         {
-            return (IActionResult)CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), BaseWebAddress);
+            return CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), BaseWebAddress);
         }
         #endregion
 
-        #region public IActionResult Delete(int id,string CurrentUserName)
-        public IActionResult Delete(int id, string CurrentUserName)
+        #region public DTOStatus Delete(int id,string CurrentUserName)
+        public DTOStatus Delete(int id, string CurrentUserName)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -108,13 +108,13 @@ namespace AdefHelpDeskBase.Controllers
             {
                 objDTOStatus.Success = false;
                 objDTOStatus.StatusMessage = result;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
             else
             {
                 objDTOStatus.Success = true;
                 objDTOStatus.StatusMessage = "";
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
         }
         #endregion
