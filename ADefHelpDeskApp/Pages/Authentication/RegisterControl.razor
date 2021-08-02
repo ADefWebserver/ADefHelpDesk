@@ -38,7 +38,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
             </td>
             <td>
-                <input type="email" id="Username" class="form-control" @bind="strUserName" />
+                <input id="Username" class="form-control" @bind="strUserName" />
             </td>
         </tr>
         <tr>
@@ -46,7 +46,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
             </td>
             <td>
-                <input type="email" id="FirstName" class="form-control" @bind="strFirstName" />
+                <input size="50" id="FirstName" class="form-control" @bind="strFirstName" />
             </td>
         </tr>
         <tr>
@@ -54,7 +54,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Last Name: </label>
             </td>
             <td>
-                <input type="email" id="LastName" class="form-control" @bind="strLastName" />
+                <input size="50" id="LastName" class="form-control" @bind="strLastName" />
             </td>
         </tr>
         <tr>
@@ -62,7 +62,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
             </td>
             <td>
-                <input type="email" id="Username" class="form-control" @bind="strEmail" />
+                <input size="50" type="email" id="Email" class="form-control" @bind="strEmail" />
             </td>
         </tr>
         <tr>
@@ -88,6 +88,8 @@
 @if (@Message != "")
 {
     <h4 style="color:red">@Message</h4>
+    <br />
+    <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
 }
 @code {
     bool UserCreated = false;
@@ -157,7 +159,7 @@
             else
             {
                 UserCreated = true;
-                Message = "User Created";
+                Message = "User Account Created";
                 StateHasChanged();
                 return;
             }
@@ -168,5 +170,11 @@
             StateHasChanged();
             return;
         }
+    }
+
+    void Continue()
+    {
+        string url = NavigationManager.BaseUri;
+        NavigationManager.NavigateTo(url, true);
     }
 }

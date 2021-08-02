@@ -1,7 +1,7 @@
 ﻿@inject NavigationManager NavigationManager
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity.Name!
+        <a href="profilecontrol">Hello, @context.User.Identity.Name!</a>
         <form method="post" action="LogOut">
             <button type="submit" class="nav-link btn btn-link">Log out</button>
         </form>

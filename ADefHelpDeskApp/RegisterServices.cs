@@ -49,12 +49,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
             services.AddSingleton<IConfiguration>(configuration);
 
-            services.AddScoped<GeneralSettings>();
-            services.AddScoped<InstallUpdateState>();
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
-
             services.AddScoped<HttpClient>(s =>
             {
                 var navigationManager = s.GetRequiredService<NavigationManager>();
@@ -64,10 +61,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 };
             });
 
+            // ADefHelpDesk Services
+            services.AddScoped<GeneralSettings>();
+            services.AddScoped<InstallUpdateState>();
+
             services.AddScoped<ApplicationSettingsController>();
             services.AddScoped<UserManagerController>();
             services.AddScoped<RegisterController>();
+            services.AddScoped<ProfileController>();
 
+            // Radzen Services
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();
             services.AddScoped<TooltipService>();

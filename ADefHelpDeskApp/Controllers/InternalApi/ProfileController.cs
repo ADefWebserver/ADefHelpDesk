@@ -57,8 +57,8 @@ namespace AdefHelpDeskBase.Controllers
         // ********************************************************
         // Profile
 
-        #region public IActionResult Index(ProfileDTO Profile,string CurrentUserName)
-        public IActionResult Index(ProfileDTO Profile, string CurrentUserName)
+        #region public async Task<ProfileStatus> UpdateUser(ProfileDTO Profile, string CurrentUserName)
+        public async Task<ProfileStatus> UpdateUser(ProfileDTO Profile, string CurrentUserName)
         {
             ProfileStatus objProfileStatus = new ProfileStatus();
             objProfileStatus.isSuccessful = true;
@@ -70,21 +70,21 @@ namespace AdefHelpDeskBase.Controllers
             {
                 objProfileStatus.status = "This Email is not valid.";
                 objProfileStatus.isSuccessful = false;
-                return (IActionResult)objProfileStatus;
+                return objProfileStatus;
             }
 
             if ((Profile.firstName == null) || (Profile.firstName.Length < 1))
             {
                 objProfileStatus.status = "This First Name is not long enough.";
                 objProfileStatus.isSuccessful = false;
-                return (IActionResult)objProfileStatus;
+                return objProfileStatus;
             }
 
             if ((Profile.lastName == null) || (Profile.lastName.Length < 1))
             {
                 objProfileStatus.status = "This Last Name is not long enough.";
                 objProfileStatus.isSuccessful = false;
-                return (IActionResult)objProfileStatus;
+                return objProfileStatus;
             } 
             #endregion
 
@@ -111,7 +111,7 @@ namespace AdefHelpDeskBase.Controllers
                         // User is already taken
                         objProfileStatus.status = "This Email address is already taken.";
                         objProfileStatus.isSuccessful = false;
-                        return (IActionResult)objProfileStatus;
+                        return objProfileStatus;
                     }
 
                     // Get the user
@@ -128,10 +128,8 @@ namespace AdefHelpDeskBase.Controllers
 
                         #region See if the password will be updated
                         if (
-                            (Profile.orginalpassword != null) && 
-                            (Profile.orginalpassword.Trim().Length > 1) &&
                             (Profile.password != null) &&
-                            (Profile.password.Trim().Length > 1)
+                            (Profile.password.Trim().Length > 0)
                             )
                         {
                             // The original password must be correct
@@ -143,12 +141,12 @@ namespace AdefHelpDeskBase.Controllers
                                 objProfileStatus.status =
                                     "The original password must be correct to set the new password.";
                                 objProfileStatus.isSuccessful = false;
-                                return (IActionResult)objProfileStatus;
+                                return objProfileStatus;
                             }
 
                             // First try to update the password in the ASP.NET Membership provider
-                            var result = _userManager.ChangePasswordAsync(
-                                user, Profile.orginalpassword.Trim(), Profile.password.Trim()).Result;
+                            var result = await _userManager.ChangePasswordAsync(
+                                user, Profile.orginalpassword.Trim(), Profile.password.Trim());
 
                             if (!result.Succeeded)
                             {
@@ -161,7 +159,7 @@ namespace AdefHelpDeskBase.Controllers
 
                                 objProfileStatus.status = strErrors;
                                 objProfileStatus.isSuccessful = false;
-                                return (IActionResult)objProfileStatus;
+                                return objProfileStatus;
                             }
                         } 
                         #endregion
@@ -182,7 +180,7 @@ namespace AdefHelpDeskBase.Controllers
                 }
             }
 
-            return (IActionResult)objProfileStatus;
+            return objProfileStatus;
         }
         #endregion
 

@@ -5,7 +5,7 @@
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
 <RadzenMenu>
-    <RadzenMenuItem Text="Home" Path="/" Icon="home"></RadzenMenuItem>
+    <RadzenMenuItem Text="Home" Path="/index" Icon="home"></RadzenMenuItem>
     @if (IsAuthenticated)
     {
         <RadzenMenuItem Text="Existing Tickets" Path="tickets" Icon="confirmation_number"></RadzenMenuItem>
