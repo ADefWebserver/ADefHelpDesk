@@ -88,8 +88,7 @@ namespace ADefHelpDeskApp.Pages
             }
             else
             {
-                ModelState.AddModelError("CustomError", objLoginStatus.status);
-                return Page();
+                return LocalRedirect("/loginfailedcontrol");
             }
         }
 

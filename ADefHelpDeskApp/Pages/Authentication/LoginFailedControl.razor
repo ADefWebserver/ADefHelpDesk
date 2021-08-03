@@ -1,0 +1,11 @@
+﻿@page "/loginfailedcontrol"
+@inject NavigationManager NavigationManager
+<h3>Login Failed</h3>
+<button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+
+@code {
+    void Continue()
+    {
+        NavigationManager.NavigateTo("logincontrol", true);
+    }
+}
