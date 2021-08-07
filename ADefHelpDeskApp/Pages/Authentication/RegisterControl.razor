@@ -17,6 +17,7 @@
 @using System.IO
 @using System.Text
 @inject RegisterController _RegisterController
+@inject ApplicationSettingsController _ApplicationSettingsController
 @inject IConfiguration _configuration
 @inject IWebHostEnvironment _HostEnvironment
 @inject UserManager<ApplicationUser> _UserManager
@@ -27,63 +28,69 @@
 @inject IHttpClientFactory ClientFactory
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@if(!UserCreated)
+@if (!UserCreated)
 {
-<h4>Register</h4>
-
-<table class="form-group" cellpadding="4" cellspacing="4">
-    <tbody>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
-            </td>
-            <td>
-                <input id="Username" class="form-control" @bind="strUserName" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
-            </td>
-            <td>
-                <input size="50" id="FirstName" class="form-control" @bind="strFirstName" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Last Name: </label>
-            </td>
-            <td>
-                <input size="50" id="LastName" class="form-control" @bind="strLastName" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
-            </td>
-            <td>
-                <input size="50" type="email" id="Email" class="form-control" @bind="strEmail" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
-            </td>
-            <td>
-                <input type="password" id="Password" class="form-control" @bind="strPassword" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button type="button" label="Register"
+    <h4>Register</h4>
+    @if (AllowRegistration)
+    {
+        <table class="form-group" cellpadding="4" cellspacing="4">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                    </td>
+                    <td>
+                        <input id="Username" class="form-control" @bind="strUserName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
+                    </td>
+                    <td>
+                        <input size="50" id="FirstName" class="form-control" @bind="strFirstName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Last Name: </label>
+                    </td>
+                    <td>
+                        <input size="50" id="LastName" class="form-control" @bind="strLastName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
+                    </td>
+                    <td>
+                        <input size="50" type="email" id="Email" class="form-control" @bind="strEmail" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" id="Password" class="form-control" @bind="strPassword" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="button" label="Register"
                         class="btn btn-success"
                         @onclick="CreateUser">
-                    Register
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                            Register
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h4 style="color:red">Registration Not Allowed</h4>
+    }
 }
 @if (@Message != "")
 {
@@ -92,6 +99,7 @@
     <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
 }
 @code {
+    bool AllowRegistration = false;
     bool UserCreated = false;
     string Message = "";
 
@@ -104,6 +112,10 @@
     protected override void OnInitialized()
     {
         _RegisterController = (RegisterController)ScopedServices.GetService(typeof(RegisterController));
+        _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
+
+        var DTOSettings = _ApplicationSettingsController.GetSettings("", NavigationManager.BaseUri);
+        AllowRegistration = DTOSettings.allowRegistration;
     }
 
     private async void CreateUser()
