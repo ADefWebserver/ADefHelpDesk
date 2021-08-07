@@ -1,8 +1,12 @@
 ﻿@page "/applicationsettings"
+@inherits OwningComponentBase
 @using ADefHelpDeskApp.Classes
+@inject IConfiguration _configuration
 <h4>Application Settings</h4>
 <AuthorizeView>
     <Authorized>
+        @if (@IsSuperAdmin)
+        {
         <table class="form-group" cellpadding="4" cellspacing="4">
             <tbody>
                 <tr>
@@ -20,7 +24,7 @@
                     <td>
                         <RadzenDropDown Data=@storageFileTypeDropdown @bind-Value=@storagefiletype
                                         TextProperty="ItemLabel"
-                                        ValueProperty="ItemValue"
+                                        ValueProperty="ItemStringValue"
                                         Style="width:300px" />
                     </td>
                 </tr>
@@ -47,7 +51,7 @@
                     <td>
                         <RadzenDropDown Data=@uploadPermissionDropdown @bind-Value=@selectedPermission
                                         TextProperty="ItemLabel"
-                                        ValueProperty="ItemValue"
+                                        ValueProperty="ItemStringValue"
                                         Style="width:300px" />
                     </td>
                 </tr>
@@ -58,7 +62,7 @@
                     <td>
                         <RadzenDropDown Data=@allowUserRegistrationDropdown @bind-Value=@selectedAllowUserRegistration
                                         TextProperty="ItemLabel"
-                                        ValueProperty="ItemValue"
+                                        ValueProperty="ItemBoolValue"
                                         Style="width:300px" />
                     </td>
                 </tr>
@@ -69,7 +73,7 @@
                     <td>
                         <RadzenDropDown Data=@verifiedRegistrationDropdown @bind-Value=@selectedVerifiedRegistration
                                         TextProperty="ItemLabel"
-                                        ValueProperty="ItemValue"
+                                        ValueProperty="ItemBoolValue"
                                         Style="width:300px" />
                     </td>
                 </tr>
@@ -92,6 +96,11 @@
                 </tr>
             </tbody>
         </table>
+        }
+        else
+        {
+            <p>Must be a Super Administrator</p>
+        }
     </Authorized>
     <NotAuthorized>
         <p>You're not signed in.</p>
@@ -99,7 +108,12 @@
 </AuthorizeView>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    public bool IsSuperAdmin = false;
     public bool showWaitGraphic = false;
     public string errorMessage = "";
     public string applicationName = "";
@@ -118,94 +132,40 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //// Get database conection string
-        //string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
-        //// Get the current user
-        //CurrentUser = (await authenticationStateTask).User;
-        //DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
-
-        //strUserName = objDTOUser.userName;
-        //strFirstName = objDTOUser.firstName;
-        //strLastName = objDTOUser.lastName;
-        //strEmail = objDTOUser.email;
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        IsSuperAdmin = objDTOUser.isSuperUser;
 
         //_ProfileController = (ProfileController)ScopedServices.GetService(typeof(ProfileController));
 
         populateDropdowns();
     }
 
-    private async void populateDropdowns()
+    private void populateDropdowns()
     {
+        // ** Upload Permission
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "All", ItemStringValue = "All" });
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator", ItemStringValue = "Administrator" });
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator/Registered Users", ItemStringValue = "Administrator/Registered Users" });
 
-        //// ** Upload Permission
+        // ** Storage File Type
+        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "File System", ItemStringValue = "File System" });
+        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "Azure Storage", ItemStringValue = "Azure Storage" });
 
-        //// Create a new SelectedItem
-        //let newSelectedItem1: SelectItem = {
-        //    label: "All",
-        //    value: "All"
-        //}
+        // ** Allow User Registration
+        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
+        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
 
-        //// Add Selected Item to the DropDown
-        //this.uploadPermissionDropdown.push(newSelectedItem1);
+        // ** Verified Registration
+        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
+        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
 
-        //// Create a new SelectedItem
-        //let newSelectedItem2: SelectItem = {
-        //    label: "Administrator",
-        //    value: "Administrator"
-        //}
-
-        //// Add Selected Item to the DropDown
-        //this.uploadPermissionDropdown.push(newSelectedItem2);
-
-        //// Create a new SelectedItem
-        //let newSelectedItem3: SelectItem = {
-        //    label: "Administrator/Registered Users",
-        //    value: "Administrator/Registered Users"
-        //}
-
-        //// ** Storage File Type
-
-        //// Create a new SelectedItem
-        //let newSelectedItem4: SelectItem = {
-        //    label: "File System",
-        //    value: "FileSystem"
-        //}
-
-        //// Add Selected Item to the DropDown
-        //this.storageFileTypeDropdown.push(newSelectedItem4);
-
-        //// Create a new SelectedItem
-        //let newSelectedItem5: SelectItem = {
-        //    label: "Azure Storage",
-        //    value: "AzureStorage"
-        //}
-
-        //// Add Selected Item to the DropDown
-        //this.storageFileTypeDropdown.push(newSelectedItem5);
-
-        //// ** Allow User Registration
-
-        //// Create SelectedItems
-        //let TrueItem: SelectItem = {
-        //    label: "True",
-        //    value: true
-        //}
-
-        //let FalseItem: SelectItem = {
-        //    label: "False",
-        //    value: false
-        //}
-
-        //// Add Items to the DropDowns
-        //this.allowUserRegistrationDropdown.push(TrueItem);
-        //this.allowUserRegistrationDropdown.push(FalseItem);
-
-        //this.verifiedRegistrationDropdown.push(TrueItem);
-        //this.verifiedRegistrationDropdown.push(FalseItem);
-
-        //// Get current settings
-        //this.GetCurrentSettings();
+        // Get current settings
+        GetCurrentSettings();
     }
 
     private async void GetCurrentSettings()

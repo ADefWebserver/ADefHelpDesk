@@ -9,6 +9,7 @@ namespace ADefHelpDeskApp.Classes
     public class SelectItem
     {
         public string ItemLabel { get; set; }
-        public string ItemValue { get; set; }
+        public string ItemStringValue { get; set; }
+        public bool ItemBoolValue { get; set; }
     }
 }
