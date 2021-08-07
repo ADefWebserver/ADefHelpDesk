@@ -25,14 +25,14 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0-preview.6.21352.12" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0-preview.6.21362.1" />
     <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
-    <PackageReference Include="Radzen.Blazor" Version="3.6.8" />
+    <PackageReference Include="Radzen.Blazor" Version="3.8.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0-preview.6.21352.12" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="6.0.0-preview.5.21301.9-2" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="6.0.0-preview.6.21352.1-2" />
     <PackageReference Include="NETCore.MailKit" Version="2.0.3" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
   </ItemGroup>
 
   <Target Name="CopyFiles" BeforeTargets="AfterBuild">

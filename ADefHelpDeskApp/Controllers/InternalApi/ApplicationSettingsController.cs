@@ -211,11 +211,10 @@ namespace ADefHelpDeskApp.Controllers
         }
         #endregion
 
-        // api/ApplicationSettings/SetSettings        
+        // api/ApplicationSettings/SetSettings  
 
-
-        #region public DTOApplicationSetting SetSettings(DTOFileUploadSetting FileUploadSetting,string CurrentUserName)
-        public DTOApplicationSetting SetSettings(DTOApplicationSetting FileUploadSetting, string CurrentUserName)
+        #region public DTOApplicationSetting SetSettings(DTOApplicationSetting ApplicationSetting, string CurrentUserName)
+        public DTOApplicationSetting SetSettings(DTOApplicationSetting ApplicationSetting, string CurrentUserName)
         {
             DTOApplicationSetting objDTOApplicationSetting = new DTOApplicationSetting();
             objDTOApplicationSetting.valid = true;
@@ -232,25 +231,25 @@ namespace ADefHelpDeskApp.Controllers
             // Get GeneralSettings
             GeneralSettings objGeneralSettings = new GeneralSettings(GetConnectionString());
 
-            if (FileUploadSetting.uploadPermission == null)
+            if (ApplicationSetting.uploadPermission == null)
             {
-                FileUploadSetting.uploadPermission = "False";
+                ApplicationSetting.uploadPermission = "False";
             }
 
             // Update ****************************       
 
             try
             {
-                objGeneralSettings.UpdateApplicationName(GetConnectionString(), FileUploadSetting.applicationName);
-                objGeneralSettings.UpdateFileUploadPath(GetConnectionString(), FileUploadSetting.fileUploadPath);
-                objGeneralSettings.UpdateStorageFileType(GetConnectionString(), FileUploadSetting.storagefiletype);
-                if (FileUploadSetting.storagefiletype == "AzureStorage")
+                objGeneralSettings.UpdateApplicationName(GetConnectionString(), ApplicationSetting.applicationName);
+                objGeneralSettings.UpdateFileUploadPath(GetConnectionString(), ApplicationSetting.fileUploadPath);
+                objGeneralSettings.UpdateStorageFileType(GetConnectionString(), ApplicationSetting.storagefiletype);
+                if (ApplicationSetting.storagefiletype == "AzureStorage")
                 {
-                    objGeneralSettings.UpdateAzureStorageConnection(GetConnectionString(), FileUploadSetting.azurestorageconnection);
+                    objGeneralSettings.UpdateAzureStorageConnection(GetConnectionString(), ApplicationSetting.azurestorageconnection);
                 }
-                objGeneralSettings.UpdateUploadPermission(GetConnectionString(), FileUploadSetting.uploadPermission);
-                objGeneralSettings.UpdateAllowRegistration(GetConnectionString(), FileUploadSetting.allowRegistration);
-                objGeneralSettings.UpdateVerifiedRegistration(GetConnectionString(), FileUploadSetting.verifiedRegistration);
+                objGeneralSettings.UpdateUploadPermission(GetConnectionString(), ApplicationSetting.uploadPermission);
+                objGeneralSettings.UpdateAllowRegistration(GetConnectionString(), ApplicationSetting.allowRegistration);
+                objGeneralSettings.UpdateVerifiedRegistration(GetConnectionString(), ApplicationSetting.verifiedRegistration);
             }
             catch (Exception ex)
             {
