@@ -1,6 +1,107 @@
 ﻿@page "/tagsadmin"
-<h3>TagsAdmin</h3>
+@inherits OwningComponentBase
+@using Excubo.Blazor.TreeViews
+@using ADefHelpDeskApp.Models
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@inject IConfiguration _configuration
+@inject CategoryNodesController _CategoryNodesController
+@inject CategoryController _CategoryController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+<h3>Tags Admin</h3>
+
+@if (@IsSuperAdmin)
+{
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <TreeView Items="colAllTags"
+                      GetChildren="(treenode) => treenode.children">
+                    <ItemTemplate>
+                        &nbsp;<RadzenCheckBox @bind-Value=context.Item.selectable
+                                          TValue="bool"
+                                          @onclick:stopPropagation="true" />
+                        <a href="@context.Item.label"
+                       @onclick="@(args => SelectNode(@context.Item))"
+                       @onclick:preventDefault="true"
+                       @onclick:stopPropagation="true">
+                            @context.Item.label
+                        </a>
+                    </ItemTemplate>
+                </TreeView>
+
+            </div>
+        </div>
+    </div>
+    @if (@showWaitGraphic)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    }
+    @if (@Message != "")
+    {
+        <h4 style="color:red">@Message</h4>
+    }
+}
+else
+{
+    <p>Must be a Super Administrator</p>
+}
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    public List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    public bool IsSuperAdmin = false;
+    public bool showWaitGraphic = false;
+    public string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        IsSuperAdmin = objDTOUser.isSuperUser;
+
+        _CategoryNodesController = (CategoryNodesController)ScopedServices.GetService(typeof(CategoryNodesController));
+        _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
+
+        colAllTags = _CategoryNodesController.GetCategoryNodes();
+    }
+
+    async void SelectNode(CategoryDTO selectedNode)
+    {
+        //EditLabel = "Edit Node";
+        //SelectedTreeNode = selectedNode;
+
+        //SelectedTreeNodeParentId = 0;
+
+        //var SelectedNode =
+        //colDataNode.Where(x => x.Id == selectedNode.Id)
+        //.FirstOrDefault();
+
+        //if (SelectedNode != null)
+        //{
+        //    SelectedTreeNodeParentId =
+        //    colDataNode.Where(x => x.Id == selectedNode.Id)
+        //    .FirstOrDefault().ParentId ?? 0;
+        //}
+
+        //// Refresh parent dropdown list
+        //colTreelist =
+        //    await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+
+        StateHasChanged();
+    }
 }

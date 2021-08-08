@@ -49,10 +49,10 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         #region public List<CategoryDTO> GetCategoryNodes()
         public List<CategoryDTO> GetCategoryNodes()
         {
-            return NewMethod();
+            return colCategoryNodes();
         }
 
-        private List<CategoryDTO> NewMethod()
+        private List<CategoryDTO> colCategoryNodes()
         {
             // Collection to hold final TreeNodes
             List<CategoryDTO> colTreeNodes = new List<CategoryDTO>();

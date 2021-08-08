@@ -51,8 +51,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
         // GET: api/CategoryTree/true
 
-        #region public List<CategoryDTO> GetCategoryTree( bool UseCache)
-        public List<CategoryDTO> GetCategoryTree( bool UseCache)
+        #region public List<CategoryDTO> GetCategoryTree(bool UseCache)
+        public List<CategoryDTO> GetCategoryTree(bool UseCache)
         {
             return GetNodesMethod(UseCache, _cache, GetConnectionString());
         }

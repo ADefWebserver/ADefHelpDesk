@@ -16,6 +16,7 @@ using Radzen;
 using ADefHelpDeskApp.Controllers;
 using AdefHelpDeskBase.Controllers;
 using Microsoft.AspNetCore.Components;
+using ADefHelpDeskApp.Controllers.InternalApi;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -69,6 +70,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<UserManagerController>();
             services.AddScoped<RegisterController>();
             services.AddScoped<ProfileController>();
+            services.AddScoped<CategoryTreeController>();
+            services.AddScoped<CategoryNodesController>();
+            services.AddScoped<CategoryController>();
 
             // Radzen Services
             services.AddScoped<DialogService>();
