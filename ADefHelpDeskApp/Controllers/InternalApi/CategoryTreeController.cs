@@ -115,15 +115,15 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                     if (objNode.Selectable == true)
                     {
-                        objNewNode.expandedIcon = "fa fa-fw fa fa-folder-open";
-                        objNewNode.collapsedIcon = "fa fa-fw fa fa-folder";
+                        objNewNode.expandedIcon = "folder_open";
+                        objNewNode.collapsedIcon = "folder";
                         objNewNode.type = "ShowCheckBox";
                     }
 
                     if (objNode.Selectable == false)
                     {
-                        objNewNode.expandedIcon = "fas fa-th";
-                        objNewNode.collapsedIcon = "fas fa-th";
+                        objNewNode.expandedIcon = "apps";
+                        objNewNode.collapsedIcon = "apps";
                         objNewNode.type = "HideCheckBox";
                     }
 
@@ -175,15 +175,15 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                 if (objChild.Selectable == true)
                 {
-                    objNewNode.expandedIcon = "fa fa-fw fa fa-folder-open";
-                    objNewNode.collapsedIcon = "fa fa-fw fa fa-folder";
+                    objNewNode.expandedIcon = "folder_open";
+                    objNewNode.collapsedIcon = "folder";
                     objNewNode.type = "ShowCheckBox";
                 }
 
                 if (objChild.Selectable == false)
                 {
-                    objNewNode.expandedIcon = "fa-th";
-                    objNewNode.collapsedIcon = "fa-th";
+                    objNewNode.expandedIcon = "apps";
+                    objNewNode.collapsedIcon = "apps";
                     objNewNode.type = "HideCheckBox";
                 }
 

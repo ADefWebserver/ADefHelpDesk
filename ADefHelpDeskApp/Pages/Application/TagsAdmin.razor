@@ -25,10 +25,8 @@
                 <TreeView Items="colAllTags"
                       GetChildren="(treenode) => treenode.children">
                     <ItemTemplate>
-                        &nbsp;<RadzenCheckBox @bind-Value=context.Item.selectable
-                                          TValue="bool"
-                                          @onclick:stopPropagation="true" />
-                        <a href="@context.Item.label"
+                        <RadzenIcon Icon="@context.Item.collapsedIcon" />
+                        <a href="@context.Item.label" style="vertical-align: top;"
                        @onclick="@(args => SelectNode(@context.Item))"
                        @onclick:preventDefault="true"
                        @onclick:stopPropagation="true">
