@@ -9,6 +9,7 @@
 @using ADefHelpDeskApp.Controllers
 @using ADefHelpDeskApp.Controllers.InternalApi
 @inject IConfiguration _configuration
+@inject CategoryTreeController _CategoryTreeController
 @inject CategoryNodesController _CategoryNodesController
 @inject CategoryController _CategoryController
 @inject NavigationManager NavigationManager
@@ -74,10 +75,11 @@ else
         DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
         IsSuperAdmin = objDTOUser.isSuperUser;
 
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
         _CategoryNodesController = (CategoryNodesController)ScopedServices.GetService(typeof(CategoryNodesController));
         _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
 
-        colAllTags = _CategoryNodesController.GetCategoryNodes();
+        colAllTags = _CategoryTreeController.GetCategoryTree(false);
     }
 
     async void SelectNode(CategoryDTO selectedNode)
