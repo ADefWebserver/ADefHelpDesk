@@ -50,27 +50,27 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _cache = memoryCache;
         }
 
-        #region public IActionResult Put(int id, CategoryNode categoryNode)
-        public IActionResult Put(int id, CategoryNode categoryNode)
+        #region public DTOStatus Put(int id, CategoryNode categoryNode)
+        public DTOStatus Put(int id, CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)UpdateCategory(id, categoryNode, GetConnectionString());
+            return UpdateCategory(id, categoryNode, GetConnectionString());
         }
         #endregion
 
-        #region public IActionResult Post(CategoryNode categoryNode)
-        public IActionResult Post(CategoryNode categoryNode)
+        #region public CategoryNode Post(CategoryNode categoryNode)
+        public CategoryNode Post(CategoryNode categoryNode)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)CreateCategory(categoryNode, GetConnectionString());
+            return CreateCategory(categoryNode, GetConnectionString());
         }
         #endregion
 
-        #region public IActionResult Delete(int id)
-        public IActionResult Delete(int id)
+        #region public DTOStatus Delete(int id)
+        public DTOStatus Delete(int id)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)DeleteCategory(id, GetConnectionString());
+            return DeleteCategory(id, GetConnectionString());
         }
         #endregion
 
