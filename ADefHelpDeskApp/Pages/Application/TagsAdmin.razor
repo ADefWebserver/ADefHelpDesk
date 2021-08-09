@@ -170,11 +170,18 @@ else
 
         using (var db = new ADefHelpDeskContext(optionsBuilder.Options))
         {
-            var SelectedNode = db.AdefHelpDeskCategories.Where(x => x.CategoryId.ToString() == selectedNode.categoryId).FirstOrDefault();
+            var SelectedNode =
+            db.AdefHelpDeskCategories
+            .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
+            .FirstOrDefault();
 
             if (SelectedNode != null)
             {
-                var ParentId = db.AdefHelpDeskCategories.Where(x => x.CategoryId.ToString() == selectedNode.categoryId).FirstOrDefault().ParentCategoryId ?? 0;
+                var ParentId =
+                db.AdefHelpDeskCategories
+                .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
+                .FirstOrDefault().ParentCategoryId ?? 0;
+
                 SelectedTreeNodeParentId = ParentId.ToString();
             }
         }
@@ -206,121 +213,69 @@ else
 
     private void SaveNode()
     {
-        //if (SelectedTreeNode != null)
-        //{
-        //    if (SelectedTreeNode.Id > 0) // Existing Node
-        //    {
-        //        // Find the node in the colDataNode list
-        //        var EditedNode =
-        //            colDataNode.Where(x => x.Id == SelectedTreeNode.Id)
-        //            .FirstOrDefault();
+        if (SelectedTreeNode != null)
+        {
+            if (SelectedTreeNode.categoryId != "0") // Existing Node
+            {
+                CategoryNode ExistingCategoryNode = new CategoryNode();
+                ExistingCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
+                ExistingCategoryNode.NodeName = SelectedTreeNode.label;
+                ExistingCategoryNode.ParentId = SelectedTreeNode.parentId;
+                ExistingCategoryNode.Selectable = SelectedTreeNode.data.selectable;
+                ExistingCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
 
-        //        // Edit the Node Name
-        //        EditedNode.label = SelectedTreeNode.label;
+                var result = _CategoryController.Put(Convert.ToInt32(SelectedTreeNode.categoryId), ExistingCategoryNode);
+            }
+            else // New Node
+            {
+                //if (SelectedTreeNode.label.Trim().Length > 0)
+                //{
+                //    intCurrentId = intCurrentId + 1;
 
-        //        // Make node a child of the selected parent
-        //        if (SelectedTreeNodeParentId == 0)
-        //        {
-        //            EditedNode.ParentId = null;
-        //        }
-        //        else
-        //        {
-        //            EditedNode.ParentId = SelectedTreeNodeParentId;
-        //        }
+                //    // Add the node
+                //    var NewNode = new DataNode()
+                //    {
+                //        Id = intCurrentId,
+                //        label = SelectedTreeNode.label,
+                //        IsSelected = false
+                //    };
 
-        //        // Pass DataNodes to GetTree to get a list of TreeNodes
-        //        colAllTags = await TreeUtility.GetTree(colDataNode);
+                //    // Set ParentId
+                //    if (SelectedTreeNodeParentId == 0)
+                //    {
+                //        NewNode.ParentId = null;
+                //    }
+                //    else
+                //    {
+                //        NewNode.ParentId = SelectedTreeNodeParentId;
+                //    }
 
-        //        // Get colTreelist
-        //        colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
-        //    }
-        //    else // New Node
-        //    {
-        //        if (SelectedTreeNode.label.Trim().Length > 0)
-        //        {
-        //            intCurrentId = intCurrentId + 1;
+                //    // Add the new node to colDataNode
+                //    colDataNode.Add(NewNode);
 
-        //            // Add the node
-        //            var NewNode = new DataNode()
-        //            {
-        //                Id = intCurrentId,
-        //                label = SelectedTreeNode.label,
-        //                IsSelected = false
-        //            };
+                //    // Pass DataNodes to GetTree to get a list of TreeNodes
+                //    colAllTags = await TreeUtility.GetTree(colDataNode);
 
-        //            // Set ParentId
-        //            if (SelectedTreeNodeParentId == 0)
-        //            {
-        //                NewNode.ParentId = null;
-        //            }
-        //            else
-        //            {
-        //                NewNode.ParentId = SelectedTreeNodeParentId;
-        //            }
+                //    // Get colTreelist
+                //    colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
 
-        //            // Add the new node to colDataNode
-        //            colDataNode.Add(NewNode);
-
-        //            // Pass DataNodes to GetTree to get a list of TreeNodes
-        //            colAllTags = await TreeUtility.GetTree(colDataNode);
-
-        //            // Get colTreelist
-        //            colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
-
-        //            // Clear the SelectedTreeNode
-        //            SelectedTreeNode =
-        //            new TreeNode()
-        //            {
-        //                Id = -1,
-        //                label = "",
-        //                IsSelected = false,
-        //                Children = new List<TreeNode>()
-        //            };
-        //        }
-        //    }
-        //}
+                // Clear the SelectedTreeNode
+                //SelectedTreeNode =
+                //new TreeNode()
+                //{
+                //    Id = -1,
+                //    label = "",
+                //    IsSelected = false,
+                //    Children = new List<TreeNode>()
+                //};
+            }
+        }
 
         StateHasChanged();
     }
 
     private void DeleteNode()
     {
-        //if (SelectedTreeNode.Id > -1)
-        //{
-        //    // Find the node in the colDataNode list
-        //    var DeletedNode =
-        //        colDataNode.Where(x => x.Id == SelectedTreeNode.Id)
-        //        .FirstOrDefault();
-
-        //    // Get the ParentId (if any)
-        //    var DeletedParentId = DeletedNode.ParentId;
-
-        //    // Update all child nodes (if any) to he new ParentId
-        //    List<DataNode> ChildNodes =
-        //        colDataNode.Where(x => x.ParentId == DeletedNode.Id)
-        //        .ToList();
-
-        //    foreach (var item in ChildNodes)
-        //    {
-        //        // Get the node
-        //        var ChildNode =
-        //        colDataNode.Where(x => x.Id == item.Id).FirstOrDefault();
-
-        //        // Update the ParentId
-        //        ChildNode.ParentId = DeletedParentId;
-        //    }
-
-        //    // ** Remove the node from the colDataNode  collection **
-        //    colDataNode.Remove(DeletedNode);
-
-        //    // Pass DataNodes to GetTree to get a list of TreeNodes
-        //    colAllTags = await TreeUtility.GetTree(colDataNode);
-
-        //    // Get colTreelist
-        //    colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
-
-        // Set mode to New Node
-        SetNewNode();
 
         StateHasChanged();
     }
