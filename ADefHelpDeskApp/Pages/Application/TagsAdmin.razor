@@ -21,7 +21,6 @@
     <div>
         <div class="row">
             <div class="col-md-12">
-
                 <TreeView Items="colAllTags"
                       GetChildren="(treenode) => treenode.children">
                     <ItemTemplate>
@@ -34,7 +33,44 @@
                         </a>
                     </ItemTemplate>
                 </TreeView>
-
+                <div class="row">
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="@EditLabel" Style="width:400px;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <RadzenLabel Text="Node Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Name="label" @bind-Value=@SelectedTreeNode.label />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <RadzenLabel Text="Node Parent" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenDropDown AllowClear="true" TValue="Int32"
+                                                Data=colTreelist
+                                                ValueProperty="categoryId"
+                                                TextProperty="label"
+                                                @bind-Value=@SelectedTreeNodeParentId />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("Save"))
+                                              Text="Save" ButtonStyle="ButtonStyle.Secondary" />
+                                    <RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("New"))
+                                              Text="New" ButtonStyle="ButtonStyle.Success" />
+                                    <RadzenButton style="margin-bottom: 16px" Click=@(args => OnClick("Delete"))
+                                              Text="Delete" ButtonStyle="ButtonStyle.Danger" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -58,7 +94,21 @@ else
 
     System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    public List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    List<CategoryDTO> colTreelist = new List<CategoryDTO>();
+    int SelectedTreeNodeParentId = 0;
+    string EditLabel = "New Node";
+
+    CategoryDTO SelectedTreeNode = new CategoryDTO()
+    {
+        categoryId = "-1",
+        label = "",
+        selectable = false,
+        children = new List<CategoryDTO>()
+    };
+
+    int intCurrentId;
+
     public bool IsSuperAdmin = false;
     public bool showWaitGraphic = false;
     public string Message = "";
@@ -78,14 +128,34 @@ else
         _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
 
         colAllTags = _CategoryTreeController.GetCategoryTree(false);
+        colTreelist = _CategoryNodesController.GetCategoryNodes();
     }
 
-    async void SelectNode(CategoryDTO selectedNode)
+    // Handle edit node events
+    void OnClick(string buttonAction)
     {
-        //EditLabel = "Edit Node";
-        //SelectedTreeNode = selectedNode;
+        switch (buttonAction)
+        {
+            case "Save":
+                SaveNode();
+                break;
+            case "New":
+                SetNewNode();
+                break;
+            case "Delete":
+                DeleteNode();
+                break;
+            default:
+                break;
+        }
+    }
 
-        //SelectedTreeNodeParentId = 0;
+    void SelectNode(CategoryDTO selectedNode)
+    {
+        EditLabel = "Edit Node";
+        SelectedTreeNode = selectedNode;
+
+        SelectedTreeNodeParentId = 0;
 
         //var SelectedNode =
         //colDataNode.Where(x => x.Id == selectedNode.Id)
@@ -98,9 +168,148 @@ else
         //    .FirstOrDefault().ParentId ?? 0;
         //}
 
-        //// Refresh parent dropdown list
-        //colTreelist =
-        //    await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+        // Refresh parent dropdown list
+        colTreelist = _CategoryNodesController.GetCategoryNodes();
+
+        StateHasChanged();
+    }
+
+    private void SetNewNode()
+    {
+        EditLabel = "New Node";
+
+        SelectedTreeNode =
+            new CategoryDTO()
+            {
+                categoryId = "-1",
+                label = "",
+                selectable = false,
+                children = new List<CategoryDTO>()
+            };
+
+        // Get colTreelist
+        colAllTags = _CategoryTreeController.GetCategoryTree(false);
+
+        StateHasChanged();
+    }
+
+    private void SaveNode()
+    {
+        //if (SelectedTreeNode != null)
+        //{
+        //    if (SelectedTreeNode.Id > 0) // Existing Node
+        //    {
+        //        // Find the node in the colDataNode list
+        //        var EditedNode =
+        //            colDataNode.Where(x => x.Id == SelectedTreeNode.Id)
+        //            .FirstOrDefault();
+
+        //        // Edit the Node Name
+        //        EditedNode.label = SelectedTreeNode.label;
+
+        //        // Make node a child of the selected parent
+        //        if (SelectedTreeNodeParentId == 0)
+        //        {
+        //            EditedNode.ParentId = null;
+        //        }
+        //        else
+        //        {
+        //            EditedNode.ParentId = SelectedTreeNodeParentId;
+        //        }
+
+        //        // Pass DataNodes to GetTree to get a list of TreeNodes
+        //        colAllTags = await TreeUtility.GetTree(colDataNode);
+
+        //        // Get colTreelist
+        //        colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+        //    }
+        //    else // New Node
+        //    {
+        //        if (SelectedTreeNode.label.Trim().Length > 0)
+        //        {
+        //            intCurrentId = intCurrentId + 1;
+
+        //            // Add the node
+        //            var NewNode = new DataNode()
+        //            {
+        //                Id = intCurrentId,
+        //                label = SelectedTreeNode.label,
+        //                IsSelected = false
+        //            };
+
+        //            // Set ParentId
+        //            if (SelectedTreeNodeParentId == 0)
+        //            {
+        //                NewNode.ParentId = null;
+        //            }
+        //            else
+        //            {
+        //                NewNode.ParentId = SelectedTreeNodeParentId;
+        //            }
+
+        //            // Add the new node to colDataNode
+        //            colDataNode.Add(NewNode);
+
+        //            // Pass DataNodes to GetTree to get a list of TreeNodes
+        //            colAllTags = await TreeUtility.GetTree(colDataNode);
+
+        //            // Get colTreelist
+        //            colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+
+        //            // Clear the SelectedTreeNode
+        //            SelectedTreeNode =
+        //            new TreeNode()
+        //            {
+        //                Id = -1,
+        //                label = "",
+        //                IsSelected = false,
+        //                Children = new List<TreeNode>()
+        //            };
+        //        }
+        //    }
+        //}
+
+        StateHasChanged();
+    }
+
+    private void DeleteNode()
+    {
+        //if (SelectedTreeNode.Id > -1)
+        //{
+        //    // Find the node in the colDataNode list
+        //    var DeletedNode =
+        //        colDataNode.Where(x => x.Id == SelectedTreeNode.Id)
+        //        .FirstOrDefault();
+
+        //    // Get the ParentId (if any)
+        //    var DeletedParentId = DeletedNode.ParentId;
+
+        //    // Update all child nodes (if any) to he new ParentId
+        //    List<DataNode> ChildNodes =
+        //        colDataNode.Where(x => x.ParentId == DeletedNode.Id)
+        //        .ToList();
+
+        //    foreach (var item in ChildNodes)
+        //    {
+        //        // Get the node
+        //        var ChildNode =
+        //        colDataNode.Where(x => x.Id == item.Id).FirstOrDefault();
+
+        //        // Update the ParentId
+        //        ChildNode.ParentId = DeletedParentId;
+        //    }
+
+        //    // ** Remove the node from the colDataNode  collection **
+        //    colDataNode.Remove(DeletedNode);
+
+        //    // Pass DataNodes to GetTree to get a list of TreeNodes
+        //    colAllTags = await TreeUtility.GetTree(colDataNode);
+
+        //    // Get colTreelist
+        //    colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+
+        // Set mode to New Node
+        SetNewNode();
 
         StateHasChanged();
     }
