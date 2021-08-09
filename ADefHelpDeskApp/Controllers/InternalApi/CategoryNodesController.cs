@@ -47,12 +47,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         // GET: api/CategoryNodes/GetCategoryNodes
 
         #region public List<CategoryDTO> GetCategoryNodes()
-        public List<CategoryDTO> GetCategoryNodes()
+        public List<CategoryDTO> GetCategoryNodes(CategoryDTO CurrentSelectedNode)
         {
-            return colCategoryNodes();
+            return colCategoryNodes(CurrentSelectedNode);
         }
 
-        private List<CategoryDTO> colCategoryNodes()
+        private List<CategoryDTO> colCategoryNodes(CategoryDTO CurrentSelectedNode)
         {
             // Collection to hold final TreeNodes
             List<CategoryDTO> colTreeNodes = new List<CategoryDTO>();
@@ -109,9 +109,21 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 }
             }
 
+            // Prepare final collection
+            List<CategoryDTO> ColFinalTreeNodes = new List<CategoryDTO>();
+
+            foreach (var item in colTreeNodes)
+            {
+                // Do not add the currently selected node to the list
+                if (item.categoryId != CurrentSelectedNode.categoryId)
+                {
+                    ColFinalTreeNodes.Add(item);
+                }
+            }
+
             // This is not Queryable because we need the list
             // to stay in the correct order (by NodeParentData)
-            return colTreeNodes;
+            return ColFinalTreeNodes;
         }
         #endregion
 

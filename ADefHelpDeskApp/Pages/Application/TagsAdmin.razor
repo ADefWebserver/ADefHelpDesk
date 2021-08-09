@@ -1,14 +1,20 @@
 ﻿@page "/tagsadmin"
 @inherits OwningComponentBase
 @using Excubo.Blazor.TreeViews
-@using ADefHelpDeskApp.Models
 @using Radzen
 @using Radzen.Blazor
+@using ADefHelpDeskApp.Models
 @using ADefHelpDeskApp.Classes
 @using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
 @using ADefHelpDeskApp.Controllers
 @using ADefHelpDeskApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
 @inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
 @inject CategoryTreeController _CategoryTreeController
 @inject CategoryNodesController _CategoryNodesController
 @inject CategoryController _CategoryController
@@ -23,13 +29,13 @@
             <div class="col-md-12">
                 <TreeView Items="colAllTags"
                       GetChildren="(treenode) => treenode.children">
-                    <ItemTemplate>
-                        <RadzenIcon Icon="@context.Item.collapsedIcon" />
-                        <a href="@context.Item.label" style="vertical-align: top;"
-                       @onclick="@(args => SelectNode(@context.Item))"
+                    <ItemTemplate Context="treenode">
+                        <RadzenIcon Icon="@treenode.Item.collapsedIcon" />
+                        <a href="@treenode.Item.label" style="vertical-align: top;"
+                       @onclick="@(args => SelectNode(@treenode.Item))"
                        @onclick:preventDefault="true"
                        @onclick:stopPropagation="true">
-                            @context.Item.label
+                            @treenode.Item.label
                         </a>
                     </ItemTemplate>
                 </TreeView>
@@ -50,7 +56,7 @@
                                     <RadzenLabel Text="Node Parent" />
                                 </div>
                                 <div class="col-md-8">
-                                    <RadzenDropDown AllowClear="true" TValue="Int32"
+                                    <RadzenDropDown AllowClear="true" TValue="String"
                                                 Data=colTreelist
                                                 ValueProperty="categoryId"
                                                 TextProperty="label"
@@ -92,11 +98,13 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    string strDefaultConnection;
+
     System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     List<CategoryDTO> colAllTags = new List<CategoryDTO>();
     List<CategoryDTO> colTreelist = new List<CategoryDTO>();
-    int SelectedTreeNodeParentId = 0;
+    string SelectedTreeNodeParentId = "0";
     string EditLabel = "New Node";
 
     CategoryDTO SelectedTreeNode = new CategoryDTO()
@@ -116,7 +124,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Get database conection string
-        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
@@ -128,7 +136,7 @@ else
         _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
 
         colAllTags = _CategoryTreeController.GetCategoryTree(false);
-        colTreelist = _CategoryNodesController.GetCategoryNodes();
+        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
     }
 
     // Handle edit node events
@@ -155,21 +163,24 @@ else
         EditLabel = "Edit Node";
         SelectedTreeNode = selectedNode;
 
-        SelectedTreeNodeParentId = 0;
+        SelectedTreeNodeParentId = "0";
 
-        //var SelectedNode =
-        //colDataNode.Where(x => x.Id == selectedNode.Id)
-        //.FirstOrDefault();
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
 
-        //if (SelectedNode != null)
-        //{
-        //    SelectedTreeNodeParentId =
-        //    colDataNode.Where(x => x.Id == selectedNode.Id)
-        //    .FirstOrDefault().ParentId ?? 0;
-        //}
+        using (var db = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            var SelectedNode = db.AdefHelpDeskCategories.Where(x => x.CategoryId.ToString() == selectedNode.categoryId).FirstOrDefault();
+
+            if (SelectedNode != null)
+            {
+                var ParentId = db.AdefHelpDeskCategories.Where(x => x.CategoryId.ToString() == selectedNode.categoryId).FirstOrDefault().ParentCategoryId ?? 0;
+                SelectedTreeNodeParentId = ParentId.ToString();
+            }
+        }
 
         // Refresh parent dropdown list
-        colTreelist = _CategoryNodesController.GetCategoryNodes();
+        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
         StateHasChanged();
     }
