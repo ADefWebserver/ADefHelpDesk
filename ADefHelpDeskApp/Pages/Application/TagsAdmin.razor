@@ -41,7 +41,7 @@
                 </TreeView>
                 <div class="row">
                     <div class="col-md-6">
-                        <RadzenFieldset Text="@EditLabel" Style="width:400px;">
+                        <RadzenFieldset Text="@EditLabel" Style="width:500px;">
                             <div class="row">
                                 <div class="col-md-4">
                                     <RadzenLabel Text="Node Name" />
@@ -61,6 +61,24 @@
                                                 ValueProperty="categoryId"
                                                 TextProperty="label"
                                                 @bind-Value=@SelectedTreeNodeParentId />
+                                </div>
+                            </div>
+                            <br />
+                             <div class="row">
+                                <div class="col-md-4">
+                                    <RadzenLabel Text="Selectable" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.selectable />
+                                </div>
+                            </div>
+                            <br />
+                                <div class="row">
+                                <div class="col-md-4">
+                                    <RadzenLabel Text="Requester Visible" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.requestorVisible />
                                 </div>
                             </div>
                             <br />
@@ -131,6 +149,13 @@ else
         DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
         IsSuperAdmin = objDTOUser.isSuperUser;
 
+        NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+        objNewNodeDetail.categoryId = "0";
+        objNewNodeDetail.CheckboxChecked = false;
+        objNewNodeDetail.selectable = false;
+        objNewNodeDetail.requestorVisible = false;
+        SelectedTreeNode.data = objNewNodeDetail;
+
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
         _CategoryNodesController = (CategoryNodesController)ScopedServices.GetService(typeof(CategoryNodesController));
         _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
@@ -164,27 +189,31 @@ else
         SelectedTreeNode = selectedNode;
 
         SelectedTreeNodeParentId = "0";
-
-        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-        optionsBuilder.UseSqlServer(strDefaultConnection);
-
-        using (var db = new ADefHelpDeskContext(optionsBuilder.Options))
+        if(selectedNode.parentId > 0)
         {
-            var SelectedNode =
-            db.AdefHelpDeskCategories
-            .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
-            .FirstOrDefault();
-
-            if (SelectedNode != null)
-            {
-                var ParentId =
-                db.AdefHelpDeskCategories
-                .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
-                .FirstOrDefault().ParentCategoryId ?? 0;
-
-                SelectedTreeNodeParentId = ParentId.ToString();
-            }
+            SelectedTreeNodeParentId = selectedNode.parentId.ToString();
         }
+
+        //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        //optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        //using (var db = new ADefHelpDeskContext(optionsBuilder.Options))
+        //{
+        //    var SelectedNode =
+        //    db.AdefHelpDeskCategories
+        //    .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
+        //    .FirstOrDefault();
+
+        //    if (SelectedNode != null)
+        //    {
+        //        var ParentId =
+        //        db.AdefHelpDeskCategories
+        //        .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
+        //        .FirstOrDefault().ParentCategoryId ?? 0;
+
+        //        SelectedTreeNodeParentId = ParentId.ToString();
+        //    }
+        //}
 
         // Refresh parent dropdown list
         colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
@@ -215,12 +244,19 @@ else
     {
         if (SelectedTreeNode != null)
         {
+            // Set Parent Node
+            int? intSelectedParentNode = null;
+            if(SelectedTreeNodeParentId != "0")
+            {
+                intSelectedParentNode = Convert.ToInt32(SelectedTreeNodeParentId);
+            }
+
             if (SelectedTreeNode.categoryId != "0") // Existing Node
             {
                 CategoryNode ExistingCategoryNode = new CategoryNode();
                 ExistingCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
                 ExistingCategoryNode.NodeName = SelectedTreeNode.label;
-                ExistingCategoryNode.ParentId = SelectedTreeNode.parentId;
+                ExistingCategoryNode.ParentId = intSelectedParentNode;
                 ExistingCategoryNode.Selectable = SelectedTreeNode.data.selectable;
                 ExistingCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
 
@@ -270,6 +306,9 @@ else
                 //};
             }
         }
+
+        colAllTags = _CategoryTreeController.GetCategoryTree(false);
+        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
         StateHasChanged();
     }
