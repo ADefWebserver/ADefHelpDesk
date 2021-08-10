@@ -194,27 +194,6 @@ else
             SelectedTreeNodeParentId = selectedNode.parentId.ToString();
         }
 
-        //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-        //optionsBuilder.UseSqlServer(strDefaultConnection);
-
-        //using (var db = new ADefHelpDeskContext(optionsBuilder.Options))
-        //{
-        //    var SelectedNode =
-        //    db.AdefHelpDeskCategories
-        //    .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
-        //    .FirstOrDefault();
-
-        //    if (SelectedNode != null)
-        //    {
-        //        var ParentId =
-        //        db.AdefHelpDeskCategories
-        //        .Where(x => x.CategoryId.ToString() == selectedNode.categoryId)
-        //        .FirstOrDefault().ParentCategoryId ?? 0;
-
-        //        SelectedTreeNodeParentId = ParentId.ToString();
-        //    }
-        //}
-
         // Refresh parent dropdown list
         colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
