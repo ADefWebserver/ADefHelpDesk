@@ -75,6 +75,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 CategoryDTO objNoneNode = new CategoryDTO();
 
                 objNoneNode.label = "[None]";
+                objNoneNode.categoryId = "0";
                 objNoneNode.parentId = 0;
                 colTreeNodes.Add(objNoneNode);
 
@@ -115,7 +116,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             foreach (var item in colTreeNodes)
             {
                 // Do not add the currently selected node to the list
-                if (item.categoryId != CurrentSelectedNode.categoryId)
+                if ((item.categoryId != CurrentSelectedNode.categoryId) || 
+                    (item.categoryId == "0"))
                 {
                     ColFinalTreeNodes.Add(item);
                 }

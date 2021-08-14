@@ -89,7 +89,7 @@
 									<RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("New"))
 											  Text="New" ButtonStyle="ButtonStyle.Success" />
 									<RadzenButton style="margin-bottom: 16px" Click=@(args => OnClick("Delete"))
-											  Text="Delete" ButtonStyle="ButtonStyle.Danger" />
+											  Text="Delete" ButtonStyle="ButtonStyle.Danger" Visible=@(SelectedTreeNode.categoryId != "0") />
 								</div>
 							</div>
 						</RadzenFieldset>
