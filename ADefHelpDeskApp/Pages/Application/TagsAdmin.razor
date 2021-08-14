@@ -24,273 +24,291 @@
 
 @if (@IsSuperAdmin)
 {
-    <div>
-        <div class="row">
-            <div class="col-md-12">
-                <TreeView Items="colAllTags"
-                      GetChildren="(treenode) => treenode.children">
-                    <ItemTemplate Context="treenode">
-                        <RadzenIcon Icon="@treenode.Item.collapsedIcon" />
-                        <a href="@treenode.Item.label" style="vertical-align: top;"
-                       @onclick="@(args => SelectNode(@treenode.Item))"
-                       @onclick:preventDefault="true"
-                       @onclick:stopPropagation="true">
-                            @treenode.Item.label
-                        </a>
-                    </ItemTemplate>
-                </TreeView>
-                <div class="row">
-                    <div class="col-md-6">
-                        <RadzenFieldset Text="@EditLabel" Style="width:500px;">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <RadzenLabel Text="Node Name" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenTextBox Name="label" @bind-Value=@SelectedTreeNode.label />
-                                </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <RadzenLabel Text="Node Parent" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenDropDown AllowClear="true" TValue="String"
-                                                Data=colTreelist
-                                                ValueProperty="categoryId"
-                                                TextProperty="label"
-                                                @bind-Value=@SelectedTreeNodeParentId />
-                                </div>
-                            </div>
-                            <br />
-                             <div class="row">
-                                <div class="col-md-4">
-                                    <RadzenLabel Text="Selectable" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.selectable />
-                                </div>
-                            </div>
-                            <br />
-                                <div class="row">
-                                <div class="col-md-4">
-                                    <RadzenLabel Text="Requester Visible" />
-                                </div>
-                                <div class="col-md-8">
-                                    <RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.requestorVisible />
-                                </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("Save"))
-                                              Text="Save" ButtonStyle="ButtonStyle.Secondary" />
-                                    <RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("New"))
-                                              Text="New" ButtonStyle="ButtonStyle.Success" />
-                                    <RadzenButton style="margin-bottom: 16px" Click=@(args => OnClick("Delete"))
-                                              Text="Delete" ButtonStyle="ButtonStyle.Danger" />
-                                </div>
-                            </div>
-                        </RadzenFieldset>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @if (@showWaitGraphic)
-    {
-        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-    }
-    @if (@Message != "")
-    {
-        <h4 style="color:red">@Message</h4>
-    }
+	<div>
+		<div class="row">
+			<div class="col-md-12">
+				<TreeView Items="colAllTags"
+					  GetChildren="(treenode) => treenode.children">
+					<ItemTemplate Context="treenode">
+						<RadzenIcon Icon="@treenode.Item.collapsedIcon" />
+						<a href="@treenode.Item.label" style="vertical-align: top;"
+					   @onclick="@(args => SelectNode(@treenode.Item))"
+					   @onclick:preventDefault="true"
+					   @onclick:stopPropagation="true">
+							@treenode.Item.label
+						</a>
+					</ItemTemplate>
+				</TreeView>
+				<div class="row">
+					<div class="col-md-6">
+						<RadzenFieldset Text="@EditLabel" Style="width:500px;">
+							<div class="row">
+								<div class="col-md-4">
+									<RadzenLabel Text="Node Name" />
+								</div>
+								<div class="col-md-8">
+									<RadzenTextBox Name="label" @bind-Value=@SelectedTreeNode.label />
+								</div>
+							</div>
+							<br />
+							<div class="row">
+								<div class="col-md-4">
+									<RadzenLabel Text="Node Parent" />
+								</div>
+								<div class="col-md-8">
+									<RadzenDropDown AllowClear="true" TValue="String"
+												Data=colTreelist
+												ValueProperty="categoryId"
+												TextProperty="label"
+												@bind-Value=@SelectedTreeNodeParentId />
+								</div>
+							</div>
+							<br />
+							<div class="row">
+								<div class="col-md-4">
+									<RadzenLabel Text="Selectable" />
+								</div>
+								<div class="col-md-8">
+									<RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.selectable />
+								</div>
+							</div>
+							<br />
+							<div class="row">
+								<div class="col-md-4">
+									<RadzenLabel Text="Requester Visible" />
+								</div>
+								<div class="col-md-8">
+									<RadzenCheckBox TValue="bool" @bind-Value=@SelectedTreeNode.data.requestorVisible />
+								</div>
+							</div>
+							<br />
+							<div class="row">
+								<div class="col-md-12">
+									<RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("Save"))
+											  Text="Save" ButtonStyle="ButtonStyle.Secondary" />
+									<RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => OnClick("New"))
+											  Text="New" ButtonStyle="ButtonStyle.Success" />
+									<RadzenButton style="margin-bottom: 16px" Click=@(args => OnClick("Delete"))
+											  Text="Delete" ButtonStyle="ButtonStyle.Danger" />
+								</div>
+							</div>
+						</RadzenFieldset>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	@if (@showWaitGraphic)
+	{
+		<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+	}
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
 }
 else
 {
-    <p>Must be a Super Administrator</p>
+	<p>Must be a Super Administrator</p>
 }
 
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    string strDefaultConnection;
+	string strDefaultConnection;
 
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    List<CategoryDTO> colAllTags = new List<CategoryDTO>();
-    List<CategoryDTO> colTreelist = new List<CategoryDTO>();
-    string SelectedTreeNodeParentId = "0";
-    string EditLabel = "New Node";
+	List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+	List<CategoryDTO> colTreelist = new List<CategoryDTO>();
+	string SelectedTreeNodeParentId = "0";
+	string EditLabel = "New Node";
 
-    CategoryDTO SelectedTreeNode = new CategoryDTO()
-    {
-        categoryId = "0",
-        label = "",
-        selectable = false,
-        children = new List<CategoryDTO>()
-    };
+	CategoryDTO SelectedTreeNode = new CategoryDTO()
+	{
+		categoryId = "0",
+		label = "",
+		selectable = false,
+		children = new List<CategoryDTO>()
+	};
 
-    int intCurrentId;
+	public bool IsSuperAdmin = false;
+	public bool showWaitGraphic = false;
+	public string Message = "";
 
-    public bool IsSuperAdmin = false;
-    public bool showWaitGraphic = false;
-    public string Message = "";
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Get database conection string
-        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
 
-        // Get the current user
-        CurrentUser = (await authenticationStateTask).User;
-        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
-        IsSuperAdmin = objDTOUser.isSuperUser;
+		NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+		objNewNodeDetail.categoryId = "0";
+		objNewNodeDetail.CheckboxChecked = false;
+		objNewNodeDetail.selectable = false;
+		objNewNodeDetail.requestorVisible = false;
+		SelectedTreeNode.data = objNewNodeDetail;
 
-        NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
-        objNewNodeDetail.categoryId = "0";
-        objNewNodeDetail.CheckboxChecked = false;
-        objNewNodeDetail.selectable = false;
-        objNewNodeDetail.requestorVisible = false;
-        SelectedTreeNode.data = objNewNodeDetail;
+		_CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+		_CategoryNodesController = (CategoryNodesController)ScopedServices.GetService(typeof(CategoryNodesController));
+		_CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
 
-        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
-        _CategoryNodesController = (CategoryNodesController)ScopedServices.GetService(typeof(CategoryNodesController));
-        _CategoryController = (CategoryController)ScopedServices.GetService(typeof(CategoryController));
+		Reload();
+	}
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(false);
-        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
-    }
+	// Handle edit node events
+	void OnClick(string buttonAction)
+	{
+		switch (buttonAction)
+		{
+			case "Save":
+				SaveNode();
+				break;
+			case "New":
+				SetNewNode();
+				break;
+			case "Delete":
+				DeleteNode();
+				break;
+			default:
+				break;
+		}
+	}
 
-    // Handle edit node events
-    void OnClick(string buttonAction)
-    {
-        switch (buttonAction)
-        {
-            case "Save":
-                SaveNode();
-                break;
-            case "New":
-                SetNewNode();
-                break;
-            case "Delete":
-                DeleteNode();
-                break;
-            default:
-                break;
-        }
-    }
+	void SelectNode(CategoryDTO selectedNode)
+	{
+		EditLabel = "Edit Node";
+		SelectedTreeNode = selectedNode;
 
-    void SelectNode(CategoryDTO selectedNode)
-    {
-        EditLabel = "Edit Node";
-        SelectedTreeNode = selectedNode;
+		SelectedTreeNodeParentId = "0";
+		if (selectedNode.parentId > 0)
+		{
+			SelectedTreeNodeParentId = selectedNode.parentId.ToString();
+		}
 
-        SelectedTreeNodeParentId = "0";
-        if(selectedNode.parentId > 0)
-        {
-            SelectedTreeNodeParentId = selectedNode.parentId.ToString();
-        }
+		Reload();
+	}
 
-        // Refresh parent dropdown list
-        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
+	private void SetNewNode()
+	{
+		EditLabel = "New Node";
 
-        StateHasChanged();
-    }
+		SelectedTreeNode =
+			new CategoryDTO()
+			{
+				categoryId = "0",
+				label = "",
+				selectable = false,
+				children = new List<CategoryDTO>()
+			};
 
-    private void SetNewNode()
-    {
-        EditLabel = "New Node";
+		NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+		objNewNodeDetail.categoryId = "0";
+		objNewNodeDetail.CheckboxChecked = false;
+		objNewNodeDetail.selectable = false;
+		objNewNodeDetail.requestorVisible = false;
+		SelectedTreeNode.data = objNewNodeDetail;
 
-        SelectedTreeNode =
-            new CategoryDTO()
-            {
-                categoryId = "0",
-                label = "",
-                selectable = false,
-                children = new List<CategoryDTO>()
-            };
+		Reload();
+	}
 
-        NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
-        objNewNodeDetail.categoryId = "0";
-        objNewNodeDetail.CheckboxChecked = false;
-        objNewNodeDetail.selectable = false;
-        objNewNodeDetail.requestorVisible = false;
-        SelectedTreeNode.data = objNewNodeDetail;
+	private void SaveNode()
+	{
+		if (SelectedTreeNode != null)
+		{
+			// Set Parent Node
+			int? intSelectedParentNode = null;
+			if (SelectedTreeNodeParentId != "0")
+			{
+				intSelectedParentNode = Convert.ToInt32(SelectedTreeNodeParentId);
+			}
 
-        // Get colTreelist
-        colAllTags = _CategoryTreeController.GetCategoryTree(false);
-        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
+			if (SelectedTreeNode.categoryId != "0") // Existing Node
+			{
+				if (SelectedTreeNode.label.Trim().Count() > 0) // Must have content
+				{
+					CategoryNode ExistingCategoryNode = new CategoryNode();
+					ExistingCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
+					ExistingCategoryNode.NodeName = SelectedTreeNode.label;
+					ExistingCategoryNode.ParentId = intSelectedParentNode;
+					ExistingCategoryNode.Selectable = SelectedTreeNode.data.selectable;
+					ExistingCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
 
-        StateHasChanged();
-    }
+					var result = _CategoryController.Put(Convert.ToInt32(SelectedTreeNode.categoryId), ExistingCategoryNode);
+				}
+				else
+				{
+					return;
+				}
+			}
+			else // New Node
+			{
+				if (SelectedTreeNode.label.Trim().Count() > 0) // Must have content
+				{
+					intSelectedParentNode = Convert.ToInt32(SelectedTreeNodeParentId);
 
-    private void SaveNode()
-    {
-        if (SelectedTreeNode != null)
-        {
-            // Set Parent Node
-            int? intSelectedParentNode = null;
-            if(SelectedTreeNodeParentId != "0")
-            {
-                intSelectedParentNode = Convert.ToInt32(SelectedTreeNodeParentId);
-            }
+					// Add the node
+					CategoryNode NewCategoryNode = new CategoryNode();
+					NewCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
+					NewCategoryNode.NodeName = SelectedTreeNode.label;
+					NewCategoryNode.ParentId = intSelectedParentNode;
+					NewCategoryNode.Selectable = SelectedTreeNode.data.selectable;
+					NewCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
 
-            if (SelectedTreeNode.categoryId != "0") // Existing Node
-            {
-                CategoryNode ExistingCategoryNode = new CategoryNode();
-                ExistingCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
-                ExistingCategoryNode.NodeName = SelectedTreeNode.label;
-                ExistingCategoryNode.ParentId = intSelectedParentNode;
-                ExistingCategoryNode.Selectable = SelectedTreeNode.data.selectable;
-                ExistingCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
+					var result = _CategoryController.Post(NewCategoryNode);
 
-                var result = _CategoryController.Put(Convert.ToInt32(SelectedTreeNode.categoryId), ExistingCategoryNode);
-            }
-            else // New Node
-            {
-                // Add the node
-                CategoryNode NewCategoryNode = new CategoryNode();
-                NewCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
-                NewCategoryNode.NodeName = SelectedTreeNode.label;
-                NewCategoryNode.ParentId = intSelectedParentNode;
-                NewCategoryNode.Selectable = SelectedTreeNode.data.selectable;
-                NewCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
+					// Clear the SelectedTreeNode
+					EditLabel = "New Node";
 
-                var result = _CategoryController.Post(NewCategoryNode);
+					SelectedTreeNode =
+						new CategoryDTO()
+						{
+							categoryId = "0",
+							label = "",
+							selectable = false,
+							children = new List<CategoryDTO>()
+						};
 
-                // Clear the SelectedTreeNode
-                EditLabel = "New Node";
+					NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+					objNewNodeDetail.categoryId = "0";
+					objNewNodeDetail.CheckboxChecked = false;
+					objNewNodeDetail.selectable = false;
+					objNewNodeDetail.requestorVisible = false;
+					SelectedTreeNode.data = objNewNodeDetail;
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
 
-                SelectedTreeNode =
-                    new CategoryDTO()
-                    {
-                        categoryId = "0",
-                        label = "",
-                        selectable = false,
-                        children = new List<CategoryDTO>()
-                    };
+		Reload();
+	}
 
-                NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
-                objNewNodeDetail.categoryId = "0";
-                objNewNodeDetail.CheckboxChecked = false;
-                objNewNodeDetail.selectable = false;
-                objNewNodeDetail.requestorVisible = false;
-                SelectedTreeNode.data = objNewNodeDetail;
-            }
-        }
+	private void DeleteNode()
+	{
+		if (SelectedTreeNode != null)
+		{
+			if (SelectedTreeNode.categoryId != "0") // Must be an existing Node
+			{
+				var result = _CategoryController.Delete(Convert.ToInt32(SelectedTreeNode.categoryId));
+			}
+		}
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(false);
-        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
+		SetNewNode();
+	}
 
-        StateHasChanged();
-    }
+	private void Reload()
+	{
+		colAllTags = _CategoryTreeController.GetCategoryTree(false);
+		colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
-    private void DeleteNode()
-    {
-
-        StateHasChanged();
-    }
+		StateHasChanged();
+	}
 }
