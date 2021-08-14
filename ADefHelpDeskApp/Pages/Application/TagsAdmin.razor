@@ -213,8 +213,16 @@ else
                 children = new List<CategoryDTO>()
             };
 
+        NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+        objNewNodeDetail.categoryId = "0";
+        objNewNodeDetail.CheckboxChecked = false;
+        objNewNodeDetail.selectable = false;
+        objNewNodeDetail.requestorVisible = false;
+        SelectedTreeNode.data = objNewNodeDetail;
+
         // Get colTreelist
         colAllTags = _CategoryTreeController.GetCategoryTree(false);
+        colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
         StateHasChanged();
     }
@@ -275,14 +283,23 @@ else
                 //    colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
 
                 // Clear the SelectedTreeNode
+                //EditLabel = "New Node";
+
                 //SelectedTreeNode =
-                //new TreeNode()
-                //{
-                //    Id = -1,
-                //    label = "",
-                //    IsSelected = false,
-                //    Children = new List<TreeNode>()
-                //};
+                //    new CategoryDTO()
+                //    {
+                //        categoryId = "-1",
+                //        label = "",
+                //        selectable = false,
+                //        children = new List<CategoryDTO>()
+                //    };
+
+                //NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+                //objNewNodeDetail.categoryId = "0";
+                //objNewNodeDetail.CheckboxChecked = false;
+                //objNewNodeDetail.selectable = false;
+                //objNewNodeDetail.requestorVisible = false;
+                //SelectedTreeNode.data = objNewNodeDetail;
             }
         }
 
