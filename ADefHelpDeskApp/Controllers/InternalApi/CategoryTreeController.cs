@@ -42,8 +42,6 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _cache = memoryCache;
         }
 
-        // GET: api/CategoryTree/true
-
         #region public List<CategoryDTO> GetCategoryTree(bool UseCache)
         public List<CategoryDTO> GetCategoryTree(bool UseCache)
         {

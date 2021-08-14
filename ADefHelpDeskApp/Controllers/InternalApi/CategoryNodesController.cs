@@ -44,8 +44,6 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _config = config;
         }
 
-        // GET: api/CategoryNodes/GetCategoryNodes
-
         #region public List<CategoryDTO> GetCategoryNodes()
         public List<CategoryDTO> GetCategoryNodes(CategoryDTO CurrentSelectedNode)
         {
