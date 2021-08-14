@@ -127,7 +127,7 @@ else
 
     CategoryDTO SelectedTreeNode = new CategoryDTO()
     {
-        categoryId = "-1",
+        categoryId = "0",
         label = "",
         selectable = false,
         children = new List<CategoryDTO>()
@@ -207,7 +207,7 @@ else
         SelectedTreeNode =
             new CategoryDTO()
             {
-                categoryId = "-1",
+                categoryId = "0",
                 label = "",
                 selectable = false,
                 children = new List<CategoryDTO>()
@@ -251,55 +251,34 @@ else
             }
             else // New Node
             {
-                //if (SelectedTreeNode.label.Trim().Length > 0)
-                //{
-                //    intCurrentId = intCurrentId + 1;
+                // Add the node
+                CategoryNode NewCategoryNode = new CategoryNode();
+                NewCategoryNode.Id = Convert.ToInt32(SelectedTreeNode.categoryId);
+                NewCategoryNode.NodeName = SelectedTreeNode.label;
+                NewCategoryNode.ParentId = intSelectedParentNode;
+                NewCategoryNode.Selectable = SelectedTreeNode.data.selectable;
+                NewCategoryNode.RequestorVisible = SelectedTreeNode.data.requestorVisible;
 
-                //    // Add the node
-                //    var NewNode = new DataNode()
-                //    {
-                //        Id = intCurrentId,
-                //        label = SelectedTreeNode.label,
-                //        IsSelected = false
-                //    };
-
-                //    // Set ParentId
-                //    if (SelectedTreeNodeParentId == 0)
-                //    {
-                //        NewNode.ParentId = null;
-                //    }
-                //    else
-                //    {
-                //        NewNode.ParentId = SelectedTreeNodeParentId;
-                //    }
-
-                //    // Add the new node to colDataNode
-                //    colDataNode.Add(NewNode);
-
-                //    // Pass DataNodes to GetTree to get a list of TreeNodes
-                //    colAllTags = await TreeUtility.GetTree(colDataNode);
-
-                //    // Get colTreelist
-                //    colTreelist = await TreeUtility.GetTreeList(colAllTags, SelectedTreeNode);
+                var result = _CategoryController.Post(NewCategoryNode);
 
                 // Clear the SelectedTreeNode
-                //EditLabel = "New Node";
+                EditLabel = "New Node";
 
-                //SelectedTreeNode =
-                //    new CategoryDTO()
-                //    {
-                //        categoryId = "-1",
-                //        label = "",
-                //        selectable = false,
-                //        children = new List<CategoryDTO>()
-                //    };
+                SelectedTreeNode =
+                    new CategoryDTO()
+                    {
+                        categoryId = "0",
+                        label = "",
+                        selectable = false,
+                        children = new List<CategoryDTO>()
+                    };
 
-                //NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
-                //objNewNodeDetail.categoryId = "0";
-                //objNewNodeDetail.CheckboxChecked = false;
-                //objNewNodeDetail.selectable = false;
-                //objNewNodeDetail.requestorVisible = false;
-                //SelectedTreeNode.data = objNewNodeDetail;
+                NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
+                objNewNodeDetail.categoryId = "0";
+                objNewNodeDetail.CheckboxChecked = false;
+                objNewNodeDetail.selectable = false;
+                objNewNodeDetail.requestorVisible = false;
+                SelectedTreeNode.data = objNewNodeDetail;
             }
         }
 
