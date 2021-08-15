@@ -21,17 +21,23 @@
 <h3>Roles</h3>
 @if (@IsSuperAdmin)
 {
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddRole()) Text="Add" /> 
+	<br /><br />
 	<RadzenDataGrid Data="@colRoles" Count="@count" LoadData="@LoadData" TItem="RoleDTO"
-				AllowVirtualization="true" Style="height:400px"
+				AllowVirtualization="false" Style="height:400px"
 				AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
 				LogicalFilterOperator="LogicalFilterOperator.Or"
 				AllowSorting="true">
 		<Columns>
 			<RadzenDataGridColumn Width="80px" TItem="RoleDTO" Property="iD" Title="Edit" Sortable=false Filterable=false>
-            <Template Context="data">
-                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditRole(data.iD)) />
-            </Template>
-        </RadzenDataGridColumn>
+				<Template Context="data">
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditRole(data)) />
+				</Template>
+			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="RoleDTO" Property="roleName" Title="roleName" />
 		</Columns>
 	</RadzenDataGrid>
@@ -61,9 +67,15 @@
 		IsSuperAdmin = objDTOUser.isSuperUser;
 
 		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+
+		RefreshGrid();
+	}
+
+	void RefreshGrid()
+	{
 		var filter = new LoadDataArgs();
 		filter.Skip = 0;
-		filter.Top = 10;
+		filter.Top = 100;
 		filter.Filter = "";
 		filter.OrderBy = "";
 
@@ -89,10 +101,70 @@
 		count = _RoleController.GetRoles().Count();
 	}
 
-	async Task EditRole(int orderId)
-    {
-         //await DialogService.OpenAsync<DialogCardPage>($"Order {orderId}",
-         //      new Dictionary<string, object>() { { "OrderID", orderId } },
-         //      new DialogOptions() { Width = "700px", Height = "530px" });
-    }
+	async Task AddRole()
+	{
+		var NewRoleDTO = new RoleDTO();
+		NewRoleDTO.iD = 0;
+		NewRoleDTO.portalID = -1;
+		NewRoleDTO.roleName = "";
+
+		await EditRole(NewRoleDTO);
+	}
+
+	async Task EditRole(RoleDTO Role)
+	{
+		Message = "";
+		var result = await DialogService.OpenAsync("Edit Role", ds =>
+		@<div>
+			<p Style="margin-bottom: 1rem"><RadzenTextBox Name="Role" @bind-Value=Role.roleName /></p>
+			<div class="row">
+				<div class="col-md-12">
+					<RadzenButton Text="Save" Click="() => ds.Close(true)" ButtonStyle="ButtonStyle.Success" Style="margin-bottom: 10px; width: 150px" />
+					@if (Role.iD > 0) // can only delete existing nodes
+					{
+					  <RadzenButton Text="Delete" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Danger" Style="margin-bottom: 10px; width: 150px" />
+					}
+					</div>
+				</div>
+			</div> );
+
+		switch (result)
+		{
+			case true:
+				// Save
+				if (Role.iD > 0) // Existing Record
+				{
+					var UpdateResult = _RoleController.Put(Role.iD, Role);
+					if(!UpdateResult.Success)
+					{
+						Message = UpdateResult.StatusMessage;
+					}
+					else
+					{
+						RefreshGrid();
+					}
+				}
+				else // New Record
+				{
+					var InsertResult = _RoleController.Post(Role);
+					RefreshGrid();
+				}
+				break;
+			case false:
+				// Delete
+				var DeleteResult = _RoleController.Delete(Role.iD);
+				if(!DeleteResult.Success)
+				{
+					Message = DeleteResult.StatusMessage;
+				}
+				else
+				{
+					RefreshGrid();
+				}
+				break;
+			default:
+				break;
+		};
+
+	}
 }
