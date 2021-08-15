@@ -16,7 +16,6 @@
 @inject IConfiguration _configuration
 @inject ADefHelpDeskContext context
 @inject RoleController _RoleController
-
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
 <h3>Roles</h3>
@@ -28,6 +27,11 @@
 				LogicalFilterOperator="LogicalFilterOperator.Or"
 				AllowSorting="true">
 		<Columns>
+			<RadzenDataGridColumn Width="80px" TItem="RoleDTO" Property="iD" Title="Edit" Sortable=false Filterable=false>
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditRole(data.iD)) />
+            </Template>
+        </RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="RoleDTO" Property="roleName" Title="roleName" />
 		</Columns>
 	</RadzenDataGrid>
@@ -84,4 +88,11 @@
 
 		count = _RoleController.GetRoles().Count();
 	}
+
+	async Task EditRole(int orderId)
+    {
+         //await DialogService.OpenAsync<DialogCardPage>($"Order {orderId}",
+         //      new Dictionary<string, object>() { { "OrderID", orderId } },
+         //      new DialogOptions() { Width = "700px", Height = "530px" });
+    }
 }
