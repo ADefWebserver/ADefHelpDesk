@@ -73,6 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<CategoryTreeController>();
             services.AddScoped<CategoryNodesController>();
             services.AddScoped<CategoryController>();
+            services.AddScoped<RoleController>();
 
             // Radzen Services
             services.AddScoped<DialogService>();

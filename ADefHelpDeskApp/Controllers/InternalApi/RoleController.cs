@@ -52,27 +52,27 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
         #endregion
 
-        #region public IActionResult Put(int id, RoleDTO RoleDTO)
-        public IActionResult Put(int id, RoleDTO RoleDTO)
+        #region public DTOStatus Put(int id, RoleDTO RoleDTO)
+        public DTOStatus Put(int id, RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)UpdateRole(id, RoleDTO, GetConnectionString());
+            return UpdateRole(id, RoleDTO, GetConnectionString());
         }
         #endregion
 
-        #region public IActionResult Post(RoleDTO RoleDTO)
-        public IActionResult Post(RoleDTO RoleDTO)
+        #region public RoleDTO Post(RoleDTO RoleDTO)
+        public RoleDTO Post(RoleDTO RoleDTO)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)CreateRole(RoleDTO, GetConnectionString());
+            return CreateRole(RoleDTO, GetConnectionString());
         }
         #endregion
 
-        #region public IActionResult Delete(int id)
-        public IActionResult Delete(int id)
+        #region public DTOStatus Delete(int id)
+        public DTOStatus Delete(int id)
         {
             // Must be a Super Administrator to call this Method
-            return (IActionResult)DeleteRole(id, GetConnectionString());
+            return DeleteRole(id, GetConnectionString());
         }
         #endregion
 
