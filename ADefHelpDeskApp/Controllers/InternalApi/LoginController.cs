@@ -53,53 +53,53 @@ namespace AdefHelpDeskBase.Controllers
         // ********************************************************
         // Login
 
-        #region public IActionResult CurrentUser(string CurrentUserName)
-        public IActionResult CurrentUser(string CurrentUserName)
+        #region public User CurrentUser(string CurrentUserName)
+        public User CurrentUser(string CurrentUserName)
         {
             // User to return
             User objUser = new User();
 
-                objUser.userName = CurrentUserName;
-                objUser.isLoggedIn = true;
+            objUser.userName = CurrentUserName;
+            objUser.isLoggedIn = true;
 
-                // Get the Roles
-                var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-                optionsBuilder.UseSqlServer(GetConnectionString());
+            // Get the Roles
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(GetConnectionString());
 
-                using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // Get all possible roles to reduce database calls later
+                var AllRoles = (from role in context.AdefHelpDeskRoles
+                                select role).ToList();
+
+                var UserAndRoles = context.AdefHelpDeskUsers
+                    .Where(x => x.Username == objUser.userName)
+                    .Include(role => role.AdefHelpDeskUserRoles)
+                    .FirstOrDefault();
+
+                objUser.userId = UserAndRoles.UserId;
+                objUser.firstName = UserAndRoles.FirstName;
+                objUser.lastName = UserAndRoles.LastName;
+                objUser.email = UserAndRoles.Email;
+                objUser.isSuperUser = UserAndRoles.IsSuperUser;
+
+                objUser.userRoles = new List<RoleDTO>();
+
+                foreach (var Role in UserAndRoles.AdefHelpDeskUserRoles)
                 {
-                    // Get all possible roles to reduce database calls later
-                    var AllRoles = (from role in context.AdefHelpDeskRoles
-                                    select role).ToList();
+                    var objUserRole = AllRoles.Where(x => x.Id == Role.RoleId).FirstOrDefault();
 
-                    var UserAndRoles = context.AdefHelpDeskUsers
-                        .Where(x => x.Username == objUser.userName)
-                        .Include(role => role.AdefHelpDeskUserRoles)
-                        .FirstOrDefault();
+                    RoleDTO objRole = new RoleDTO();
 
-                    objUser.userId = UserAndRoles.UserId;
-                    objUser.firstName = UserAndRoles.FirstName;
-                    objUser.lastName = UserAndRoles.LastName;
-                    objUser.email = UserAndRoles.Email;
-                    objUser.isSuperUser = UserAndRoles.IsSuperUser;
-
-                    objUser.userRoles = new List<RoleDTO>();
-
-                    foreach (var Role in UserAndRoles.AdefHelpDeskUserRoles)
-                    {
-                        var objUserRole = AllRoles.Where(x => x.Id == Role.RoleId).FirstOrDefault();
-
-                        RoleDTO objRole = new RoleDTO();
-
-                        objRole.iD = objUserRole.Id;
-                        objRole.roleName = objUserRole.RoleName;
-                        objRole.portalID = objUserRole.PortalId;
-                        objUser.userRoles.Add(objRole);
-                    }
+                    objRole.iD = objUserRole.Id;
+                    objRole.roleName = objUserRole.RoleName;
+                    objRole.portalID = objUserRole.PortalId;
+                    objUser.userRoles.Add(objRole);
                 }
+            }
 
             // Return the result
-            return (IActionResult)objUser;
+            return objUser;
         }
         #endregion
 

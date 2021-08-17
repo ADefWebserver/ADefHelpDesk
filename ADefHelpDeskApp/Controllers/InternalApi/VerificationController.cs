@@ -59,11 +59,8 @@ namespace AdefHelpDeskBase.Controllers
         // ********************************************************
         // Verification
 
-        // (POST) api/Verification
-        #region public IActionResult Index(DTOVerification Verification)
-
-
-        public IActionResult Index(DTOVerification Verification)
+        #region public LoginStatus Index(DTOVerification Verification)
+        public LoginStatus Index(DTOVerification Verification)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -91,7 +88,7 @@ namespace AdefHelpDeskBase.Controllers
                         // Bad verification code
                         objLoginStatus.isLoggedIn = false;
                         objLoginStatus.status = "Incorrrect Verification Code.";
-                        return (IActionResult)objLoginStatus;
+                        return objLoginStatus;
                     }
 
                     // Sign the User in
@@ -103,7 +100,7 @@ namespace AdefHelpDeskBase.Controllers
                         // Return the error
                         objLoginStatus.status = $"Could not sign user {paramUserName} in.";
                         objLoginStatus.isLoggedIn = false;
-                        return (IActionResult)objLoginStatus;
+                        return objLoginStatus;
                     }
                     else
                     {
@@ -114,14 +111,14 @@ namespace AdefHelpDeskBase.Controllers
                         // Return Success
                         objLoginStatus.status = $"User {paramUserName} signed in.";
                         objLoginStatus.isLoggedIn = true;
-                        return (IActionResult)objLoginStatus;
+                        return objLoginStatus;
                     }
                 }
             }
 
             objLoginStatus.isLoggedIn = false;
             objLoginStatus.status = "Authentication Failure";
-            return (IActionResult)objLoginStatus;
+            return objLoginStatus;
         }
         #endregion
 

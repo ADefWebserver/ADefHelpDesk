@@ -51,9 +51,6 @@ namespace ADefHelpDeskApp.Controllers
         {
             _config = config;
         }
-
-        // api/EmailAdmin/SMTPSettings
-
         
         #region public DTOSMTPSetting SMTPSettings()
         public DTOSMTPSetting SMTPSettings()
@@ -79,9 +76,6 @@ namespace ADefHelpDeskApp.Controllers
             return objDTOSMTPSetting;
         }
         #endregion
-
-        // api/EmailAdmin/SMTPSetting        
-
 
         #region public DTOSMTPSetting SMTPSetting(DTOSMTPSetting SMTPSetting, string BaseWebAddress)
         public DTOSMTPSetting SMTPSetting(DTOSMTPSetting SMTPSetting, string BaseWebAddress)

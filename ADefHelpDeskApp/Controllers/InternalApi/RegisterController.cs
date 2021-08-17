@@ -43,7 +43,6 @@ namespace AdefHelpDeskBase.Controllers
 {
     public class RegisterController
     {
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private IConfiguration _configuration { get; set; }
@@ -64,8 +63,8 @@ namespace AdefHelpDeskBase.Controllers
         // ********************************************************
         // Register
 
-        #region public IActionResult Index(RegisterDTO Register,string CurrentUserName, string BaseWebAddress)
-        public IActionResult Index(RegisterDTO Register, string CurrentUserName, string BaseWebAddress)
+        #region public RegisterStatus Index(RegisterDTO Register,string CurrentUserName, string BaseWebAddress)
+        public RegisterStatus Index(RegisterDTO Register, string CurrentUserName, string BaseWebAddress)
         {
             // RegisterStatus to return
             RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -88,7 +87,7 @@ namespace AdefHelpDeskBase.Controllers
                 objRegisterStatus.status = result.Result.status;
             }
 
-            return (IActionResult)objRegisterStatus;
+            return objRegisterStatus;
         }
         #endregion
 

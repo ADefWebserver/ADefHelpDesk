@@ -81,8 +81,8 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        #region public Task<IActionResult> Delete(int id,string CurrentUserName)
-        public IActionResult Delete(int id, string CurrentUserName)
+        #region public DTOStatus Delete(int id,string CurrentUserName)
+        public DTOStatus Delete(int id, string CurrentUserName)
         {
             // Must be a Administrator to call this Method
 
@@ -91,12 +91,12 @@ namespace AdefHelpDeskBase.Controllers
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = strResponse;
             objDTOStatus.Success = false;
-            return (IActionResult)objDTOStatus;           
+            return objDTOStatus;           
         }
         #endregion
 
-        #region public IActionResult DeleteTaskDetail(int id,string CurrentUserName)
-        public IActionResult DeleteTaskDetail(int id, string CurrentUserName)
+        #region public DTOStatus DeleteTaskDetail(int id,string CurrentUserName)
+        public DTOStatus DeleteTaskDetail(int id, string CurrentUserName)
         {
             // Must be a Administrator to call this Method
 
@@ -105,7 +105,7 @@ namespace AdefHelpDeskBase.Controllers
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = strResponse;
             objDTOStatus.Success = false;
-            return (IActionResult)objDTOStatus;
+            return objDTOStatus;
         }
         #endregion
 

@@ -59,11 +59,8 @@ namespace AdefHelpDeskBase.Controllers
         // ********************************************************
         // Migrate
 
-        // (POST) api/Migration
-        #region public IActionResult Index(DTOMigration Migration)
-
-
-        public IActionResult Index(DTOMigration Migration)
+        #region public LoginStatus Index(DTOMigration Migration)
+        public LoginStatus Index(DTOMigration Migration)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -95,7 +92,7 @@ namespace AdefHelpDeskBase.Controllers
                         {
                             objLoginStatus.status = "The Email for this account is not valid. It cannot be migrated.";
                             objLoginStatus.isLoggedIn = false;
-                            return (IActionResult)objLoginStatus;
+                            return objLoginStatus;
                         }
 
                         EmailValidation objEmailValidation = new EmailValidation();
@@ -103,7 +100,7 @@ namespace AdefHelpDeskBase.Controllers
                         {
                             objLoginStatus.status = "The Email for this account is not valid. It cannot be migrated.";
                             objLoginStatus.isLoggedIn = false;
-                            return (IActionResult)objLoginStatus;
+                            return objLoginStatus;
                         }
 
                         // Migrate Account
@@ -122,7 +119,7 @@ namespace AdefHelpDeskBase.Controllers
                                 // Return the error
                                 objLoginStatus.status = $"Could not sign user {paramUserName} in.";
                                 objLoginStatus.isLoggedIn = false;
-                                return (IActionResult)objLoginStatus;
+                                return objLoginStatus;
                             }                           
                             else
                             {
@@ -143,7 +140,7 @@ namespace AdefHelpDeskBase.Controllers
                                 // Success 
                                 objLoginStatus.status = $"Logged {paramUserName} in.";
                                 objLoginStatus.isLoggedIn = true;
-                                return (IActionResult)objLoginStatus;
+                                return objLoginStatus;
                             }
                         }
                         else
@@ -158,20 +155,20 @@ namespace AdefHelpDeskBase.Controllers
                             // Return the error
                             objLoginStatus.status = strErrors;
                             objLoginStatus.isLoggedIn = false;
-                            return (IActionResult)objLoginStatus;
+                            return objLoginStatus;
                         }
                     }
                     else
                     {
                         objLoginStatus.status = "Orginal password does not match.";
-                        return (IActionResult)objLoginStatus;
+                        return objLoginStatus;
                     }
                 }
             }
 
             objLoginStatus.status = "Authentication Failure";
 
-            return (IActionResult)objLoginStatus;
+            return objLoginStatus;
         }
         #endregion
 

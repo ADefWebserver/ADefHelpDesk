@@ -45,7 +45,6 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _config = config;
         }
 
-        // GET: api/ApiSecurity/Get
         #region public List<ApiSecurityDTO> Get(string CurrentUserName)
         public List<ApiSecurityDTO> Get(string CurrentUserName)
         {
@@ -84,11 +83,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
         #endregion
 
-        // PUT: api/ApiSecurity/1
-
-
-        #region public async Task<IActionResult> Put( int id,  ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
-        public async Task<IActionResult> Put( int id,  ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        #region public DTOStatus Put(int id, ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        public DTOStatus Put(int id, ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
 
@@ -102,14 +98,14 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             {
                 objDTOStatus.StatusMessage = $"Error: A Password is required.";
                 objDTOStatus.Success = false;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
 
             if (ApiSecurityDTO.password.Trim().Length < 5)
             {
                 objDTOStatus.StatusMessage = $"Error: A password longer than 5 characters is required.";
                 objDTOStatus.Success = false;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
             #endregion
 
@@ -118,12 +114,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
-                var existingApiSecurity = await context.AdefHelpDeskApiSecurity.SingleOrDefaultAsync(x => x.Id == id);
+                var existingApiSecurity = context.AdefHelpDeskApiSecurity.SingleOrDefault(x => x.Id == id);
                 if (existingApiSecurity == null)
                 {
                     objDTOStatus.StatusMessage = $"Not Found";
                     objDTOStatus.Success = false;
-                    return (IActionResult)objDTOStatus;
+                    return objDTOStatus;
                 }
 
                 // Update the ApiSecurity 
@@ -146,19 +142,19 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                 try
                 {
-                    await context.SaveChangesAsync();
+                    context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
                     objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                     objDTOStatus.Success = false;
-                    return (IActionResult)objDTOStatus;
+                    return objDTOStatus;
                 }
                 catch (Exception ex)
                 {
                     objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                     objDTOStatus.Success = false;
-                    return (IActionResult)objDTOStatus;
+                    return objDTOStatus;
                 }
 
                 // Log to the System Log
@@ -172,15 +168,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             objDTOStatus.StatusMessage = "";
             objDTOStatus.Success = true;
 
-            return (IActionResult)objDTOStatus;
+            return objDTOStatus;
         }
         #endregion
 
-        // POST: api/ApiSecurity
-
-
-        #region public async Task<IActionResult> Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
-        public async Task<IActionResult> Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        #region public DTOStatus Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
+        public DTOStatus Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
 
@@ -197,14 +190,14 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             {
                 objDTOStatus.StatusMessage = $"Error: A Username and Password are required.";
                 objDTOStatus.Success = false;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
 
             if (ApiSecurityDTO.password.Trim().Length < 5)
             {
                 objDTOStatus.StatusMessage = $"Error: A password longer than 5 characters is required.";
                 objDTOStatus.Success = false;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             } 
             #endregion
 
@@ -216,12 +209,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
                 {
                     // Check for duplicate Username
-                    var existingApiSecurity = await context.AdefHelpDeskApiSecurity.SingleOrDefaultAsync(x => x.Username == ApiSecurityDTO.username);
+                    var existingApiSecurity = context.AdefHelpDeskApiSecurity.SingleOrDefault(x => x.Username == ApiSecurityDTO.username);
                     if (existingApiSecurity != null)
                     {
                         objDTOStatus.StatusMessage = $"Error: The username {ApiSecurityDTO.username} is already used";
                         objDTOStatus.Success = false;
-                        return (IActionResult)objDTOStatus;
+                        return objDTOStatus;
                     }
 
                     var newApiSecurityDTO = new AdefHelpDeskApiSecurity();
@@ -236,7 +229,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     newApiSecurityDTO.IsActive = ApiSecurityDTO.isActive;                    
 
                     context.AdefHelpDeskApiSecurity.Add(newApiSecurityDTO);
-                    await context.SaveChangesAsync();
+                    context.SaveChanges();
 
                     ApiSecurityDTO.id = newApiSecurityDTO.Id;
 
@@ -255,18 +248,15 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             {
                 objDTOStatus.StatusMessage = ex.GetBaseException().Message;
                 objDTOStatus.Success = false;
-                return (IActionResult)objDTOStatus;
+                return objDTOStatus;
             }
 
-            return (IActionResult)objDTOStatus;
+            return objDTOStatus;
         }
         #endregion
 
-        // DELETE: api/ApiSecurity/1
-
-
-        #region public async Task<IActionResult> Delete(int id, string CurrentUserName)
-        public async Task<IActionResult> Delete(int id, string CurrentUserName)
+        #region public DTOStatus Delete(int id, string CurrentUserName)
+        public DTOStatus Delete(int id, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
             DTOStatus objDTOStatus = new DTOStatus();
@@ -276,17 +266,17 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
-                var objApiSecurity = await context.AdefHelpDeskApiSecurity.SingleOrDefaultAsync(x => x.Id == id);
+                var objApiSecurity = context.AdefHelpDeskApiSecurity.SingleOrDefault(x => x.Id == id);
 
                 if (objApiSecurity == null)
                 {
                     objDTOStatus.StatusMessage = $"Not Found";
                     objDTOStatus.Success = false;
-                    return (IActionResult)objDTOStatus;
+                    return objDTOStatus;
                 }
 
                 context.AdefHelpDeskApiSecurity.Remove(objApiSecurity);
-                await context.SaveChangesAsync();
+                context.SaveChanges();
 
                 // Log to the System Log
                 Log.InsertSystemLog(
@@ -298,7 +288,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
             objDTOStatus.StatusMessage = "Deleted User";
             objDTOStatus.Success = false;
-            return (IActionResult)objDTOStatus; 
+            return objDTOStatus; 
         }
         #endregion
 

@@ -52,9 +52,8 @@ namespace ADefHelpDeskApp.Controllers
             _config = config;
         }
 
-
-        #region public IActionResult Index(string CurrentUserName)
-        public IActionResult Index(string CurrentUserName)
+        #region public SearchTaskParameters Index(string CurrentUserName)
+        public SearchTaskParameters Index(string CurrentUserName)
         {
             // SearchTaskParameters to return
             // Set important defaults
@@ -109,13 +108,12 @@ namespace ADefHelpDeskApp.Controllers
             }
 
             // Return the result
-            return (IActionResult)objSearchTaskParameters;
+            return objSearchTaskParameters;
         }
         #endregion
 
-        // api/SearchParameters/SaveSearchParameters
-        #region public IActionResult SaveSearchParameters(SearchTaskParameters paramSearchTaskParameters,string CurrentUserName)
-        public IActionResult SaveSearchParameters(SearchTaskParameters paramSearchTaskParameters, string CurrentUserName)
+        #region public DTOStatus SaveSearchParameters(SearchTaskParameters paramSearchTaskParameters,string CurrentUserName)
+        public DTOStatus SaveSearchParameters(SearchTaskParameters paramSearchTaskParameters, string CurrentUserName)
         {
             try
             {
@@ -175,7 +173,7 @@ namespace ADefHelpDeskApp.Controllers
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = $"No Content";
             objDTOStatus.Success = false;
-            return (IActionResult)objDTOStatus;
+            return objDTOStatus;
         }
         #endregion
 
