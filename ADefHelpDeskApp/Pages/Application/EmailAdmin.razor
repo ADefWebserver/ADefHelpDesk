@@ -1,6 +1,252 @@
 ﻿@page "/emailadmin"
-<h3>EmailAdmin</h3>
-
+@inherits OwningComponentBase
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
+@inject EmailAdminController _EmailAdminController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+<h3>Email Administration</h3>
+<AuthorizeView>
+    <Authorized>
+        @if (@IsSuperAdmin)
+        {
+            <table class="form-group" cellpadding="4" cellspacing="4">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="Application Name" class="control-label" style="font-weight: bold">Application Name: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="File Storage Type" class="control-label" style="font-weight: bold">File Storage Type: </label>
+                        </td>
+                        <td>
+                            <RadzenDropDown Data=@storageFileTypeDropdown @bind-Value=@selectedStoragefiletype
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                        </td>
+                    </tr>
+                    <tr hidden="@((String)selectedStoragefiletype == "AzureStorage")">
+                        <td>
+                            <label for="File Upload Path" class="control-label" style="font-weight: bold">File Upload Path: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@fileUploadPath style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr hidden="@((String)selectedStoragefiletype == "FileSystem")">
+                        <td>
+                            <label for="Azure Storage Connection" class="control-label" style="font-weight: bold">Azure Storage Connection: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@azurestorageconnection style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="File Upload Permission" class="control-label" style="font-weight: bold">File Upload Permission: </label>
+                        </td>
+                        <td>
+                            <RadzenDropDown Data=@uploadPermissionDropdown @bind-Value=@selectedPermission
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Allow User Registration" class="control-label" style="font-weight: bold">Allow User Registration: </label>
+                        </td>
+                        <td>
+                            <RadzenDropDown Data=@allowUserRegistrationDropdown @bind-Value=@selectedAllowUserRegistration
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemBoolValue"
+                                        Style="width:300px" />
+                        </td>
+                    </tr>
+                    <tr hidden="@(!(bool)selectedAllowUserRegistration)">
+                        <td>
+                            <label for="Verified Registration" class="control-label" style="font-weight: bold">Verified Registration: </label>
+                        </td>
+                        <td>
+                            <RadzenDropDown Data=@verifiedRegistrationDropdown @bind-Value=@selectedVerifiedRegistration
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemBoolValue"
+                                        Style="width:300px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Application GUID" class="control-label" style="font-weight: bold">Application GUID: </label>
+                        </td>
+                        <td>
+                            <label class="control-label">@applicationGUID</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="button" label="Save"
+                                class="btn btn-success"
+                                @onclick="Save">
+                                Save
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @if (@showWaitGraphic)
+            {
+                <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+            }
+            @if (@Message != "")
+            {
+                <h4 style="color:red">@Message</h4>
+            }
+        }
+        else
+        {
+            <p>Must be a Super Administrator</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not signed in.</p>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    public bool IsSuperAdmin = false;
+    public bool showWaitGraphic = false;
+    public string Message = "";
+    public string applicationName = "";
+    public string fileUploadPath = "";
+    public object selectedStoragefiletype;
+    public string azurestorageconnection = "";
+    public object selectedPermission = "";
+    public string applicationGUID = "";
+    public List<SelectItem> storageFileTypeDropdown = new List<SelectItem>();
+    public List<SelectItem> uploadPermissionDropdown = new List<SelectItem>();
+    public object selectedAllowUserRegistration;
+    public object selectedVerifiedRegistration;
+    public List<SelectItem> allowUserRegistrationDropdown = new List<SelectItem>();
+    public List<SelectItem> verifiedRegistrationDropdown = new List<SelectItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        IsSuperAdmin = objDTOUser.isSuperUser;
+
+        _EmailAdminController = (EmailAdminController)ScopedServices.GetService(typeof(EmailAdminController));
+
+        populateDropdowns();
+    }
+
+    private void populateDropdowns()
+    {
+        // ** Upload Permission
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "All", ItemStringValue = "All" });
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator", ItemStringValue = "Administrator" });
+        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator/Registered Users", ItemStringValue = "Administrator/Registered Users" });
+
+        // ** Storage File Type
+        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "File System", ItemStringValue = "FileSystem" });
+        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "Azure Storage", ItemStringValue = "AzureStorage" });
+
+        // ** Allow User Registration
+        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
+        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
+
+        // ** Verified Registration
+        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
+        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
+
+        // Get current settings
+        GetCurrentSettings();
+    }
+
+    private void GetCurrentSettings()
+    {
+        var DTOSMTPSettings = _EmailAdminController.SMTPSettings();
+
+        //applicationName = DTOSettings.applicationName;
+        //fileUploadPath = DTOSettings.fileUploadPath;
+        //azurestorageconnection = DTOSettings.azurestorageconnection;
+        //applicationGUID = DTOSettings.applicationGUID;
+
+        //selectedStoragefiletype = DTOSettings.storagefiletype;
+        //selectedPermission = DTOSettings.uploadPermission;
+        //selectedAllowUserRegistration = DTOSettings.allowRegistration;
+        //selectedVerifiedRegistration = DTOSettings.verifiedRegistration;
+
+        StateHasChanged();
+    }
+
+    private void Save()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
+
+            // Get the form values
+            //DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
+            //{
+            //    applicationName = applicationName,
+            //    applicationGUID = applicationGUID,
+            //    fileUploadPath = fileUploadPath,
+            //    storagefiletype = (String)selectedStoragefiletype,
+            //    azurestorageconnection = this.azurestorageconnection,
+            //    uploadPermission = (String)selectedPermission,
+            //    allowRegistration = (bool)selectedAllowUserRegistration,
+            //    verifiedRegistration = (bool)selectedVerifiedRegistration,
+            //    status = "",
+            //    valid = true,
+            //    termsOfUse = "",
+            //    privacyStatement = "",
+            //    swaggerWebAddress = ""
+            //};
+
+            DTOSMTPSetting SMTPSetting = new DTOSMTPSetting();
+
+            // Call the service
+            DTOSMTPSetting result = _EmailAdminController.SMTPSetting(SMTPSetting, NavigationManager.BaseUri);
+
+            showWaitGraphic = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            showWaitGraphic = false;
+            Message = ex.Message;
+            StateHasChanged();
+            return;
+        }
+    }
 }
