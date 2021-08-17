@@ -25,8 +25,8 @@
 	{
 		<h4 style="color:red">@Message</h4>
 	}
-	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddRole()) Text="Add" /> 
-	<br /><br />
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddRole()) Text="Add" Style="margin-bottom: 10px" /> 
+	<br />
 	<RadzenDataGrid Data="@colRoles" Count="@count" LoadData="@LoadData" TItem="RoleDTO"
 				AllowVirtualization="false" Style="height:400px"
 				AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
