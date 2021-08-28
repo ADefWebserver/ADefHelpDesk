@@ -106,16 +106,34 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                     if (objNode.Selectable == true)
                     {
-                        objNewNode.expandedIcon = "folder_open";
-                        objNewNode.collapsedIcon = "folder";
-                        objNewNode.type = "ShowCheckBox";
+                        if (objNode.RequestorVisible == true)
+                        {
+                            objNewNode.expandedIcon = "check_box";
+                            objNewNode.collapsedIcon = "check_box_outline_blank";
+                            objNewNode.type = "ShowCheckBox";
+                        }
+                        else
+                        {
+                            objNewNode.expandedIcon = "radio_button_checked";
+                            objNewNode.collapsedIcon = "radio_button_unchecked";
+                            objNewNode.type = "ShowCheckBox";
+                        }
                     }
 
                     if (objNode.Selectable == false)
                     {
-                        objNewNode.expandedIcon = "apps";
-                        objNewNode.collapsedIcon = "apps";
-                        objNewNode.type = "HideCheckBox";
+                        if (objNode.RequestorVisible == true)
+                        {
+                            objNewNode.expandedIcon = "apps";
+                            objNewNode.collapsedIcon = "apps";
+                            objNewNode.type = "HideCheckBox";
+                        }
+                        else
+                        {
+                            objNewNode.expandedIcon = "app_registration";
+                            objNewNode.collapsedIcon = "app_registration";
+                            objNewNode.type = "HideCheckBox";
+                        }
                     }
 
                     colTreeNodes.Add(objNewNode);
@@ -166,16 +184,34 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                 if (objChild.Selectable == true)
                 {
-                    objNewNode.expandedIcon = "folder_open";
-                    objNewNode.collapsedIcon = "folder";
-                    objNewNode.type = "ShowCheckBox";
+                    if (objChild.RequestorVisible == true)
+                    {
+                        objNewNode.expandedIcon = "check_box";
+                        objNewNode.collapsedIcon = "check_box_outline_blank";
+                        objNewNode.type = "ShowCheckBox";
+                    }
+                    else
+                    {
+                        objNewNode.expandedIcon = "radio_button_checked";
+                        objNewNode.collapsedIcon = "radio_button_unchecked";
+                        objNewNode.type = "ShowCheckBox";
+                    }
                 }
 
                 if (objChild.Selectable == false)
                 {
-                    objNewNode.expandedIcon = "apps";
-                    objNewNode.collapsedIcon = "apps";
-                    objNewNode.type = "HideCheckBox";
+                    if (objChild.RequestorVisible == true)
+                    {
+                        objNewNode.expandedIcon = "apps";
+                        objNewNode.collapsedIcon = "apps";
+                        objNewNode.type = "HideCheckBox";
+                    }
+                    else
+                    {
+                        objNewNode.expandedIcon = "app_registration";
+                        objNewNode.collapsedIcon = "app_registration";
+                        objNewNode.type = "HideCheckBox";
+                    }
                 }
 
                 // Search for the Node in colTreeNodeCollection
