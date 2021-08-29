@@ -27,80 +27,39 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Application Name" class="control-label" style="font-weight: bold">Application Name: </label>
+                            <label for="SMTP Server and port" class="control-label" style="font-weight: bold">SMTP Server and port: </label>
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                            <RadzenTextBox @bind-Value=selectedSMTPSetting.smtpServer style="width: 100%;" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="File Storage Type" class="control-label" style="font-weight: bold">File Storage Type: </label>
+                            <label for="SmtpAuthentication" class="control-label" style="font-weight: bold">SMTP Authentication: </label>
                         </td>
                         <td>
-                            <RadzenDropDown Data=@storageFileTypeDropdown @bind-Value=@selectedStoragefiletype
+                            <RadzenRadioButtonList Data=@smtpAuthenticationDropdown @bind-Value=selectedSMTPSetting.smtpAuthentication
                                         TextProperty="ItemLabel"
                                         ValueProperty="ItemStringValue"
                                         Style="width:300px" />
                         </td>
                     </tr>
-                    <tr hidden="@((String)selectedStoragefiletype == "AzureStorage")">
+                    <tr hidden="@((String)selectedSMTPSetting.smtpAuthentication == "0")">
                         <td>
-                            <label for="File Upload Path" class="control-label" style="font-weight: bold">File Upload Path: </label>
+                            <label for="SMTP Username" class="control-label" style="font-weight: bold">SMTP Username: </label>
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value=@fileUploadPath style="width: 100%;" />
-                        </td>
-                    </tr>
-                    <tr hidden="@((String)selectedStoragefiletype == "FileSystem")">
-                        <td>
-                            <label for="Azure Storage Connection" class="control-label" style="font-weight: bold">Azure Storage Connection: </label>
-                        </td>
-                        <td>
-                            <RadzenTextBox @bind-Value=@azurestorageconnection style="width: 100%;" />
+                            <RadzenTextBox @bind-Value=selectedSMTPSetting.smtpUserName style="width: 100%;" />
                         </td>
                     </tr>
-                    <tr>
+                    <tr hidden="@((String)selectedSMTPSetting.smtpAuthentication == "0")">
                         <td>
-                            <label for="File Upload Permission" class="control-label" style="font-weight: bold">File Upload Permission: </label>
+                            <label for="SMTP Password" class="control-label" style="font-weight: bold">SMTP Password: </label>
                         </td>
                         <td>
-                            <RadzenDropDown Data=@uploadPermissionDropdown @bind-Value=@selectedPermission
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemStringValue"
-                                        Style="width:300px" />
+                            <RadzenTextBox @bind-Value=selectedSMTPSetting.smtpPassword style="width: 100%;" />
                         </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Allow User Registration" class="control-label" style="font-weight: bold">Allow User Registration: </label>
-                        </td>
-                        <td>
-                            <RadzenDropDown Data=@allowUserRegistrationDropdown @bind-Value=@selectedAllowUserRegistration
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemBoolValue"
-                                        Style="width:300px" />
-                        </td>
-                    </tr>
-                    <tr hidden="@(!(bool)selectedAllowUserRegistration)">
-                        <td>
-                            <label for="Verified Registration" class="control-label" style="font-weight: bold">Verified Registration: </label>
-                        </td>
-                        <td>
-                            <RadzenDropDown Data=@verifiedRegistrationDropdown @bind-Value=@selectedVerifiedRegistration
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemBoolValue"
-                                        Style="width:300px" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Application GUID" class="control-label" style="font-weight: bold">Application GUID: </label>
-                        </td>
-                        <td>
-                            <label class="control-label">@applicationGUID</label>
-                        </td>
-                    </tr>
+                    </tr> 
                     <tr>
                         <td>
                             <button type="button" label="Save"
@@ -139,18 +98,10 @@
     public bool IsSuperAdmin = false;
     public bool showWaitGraphic = false;
     public string Message = "";
-    public string applicationName = "";
-    public string fileUploadPath = "";
-    public object selectedStoragefiletype;
-    public string azurestorageconnection = "";
-    public object selectedPermission = "";
-    public string applicationGUID = "";
-    public List<SelectItem> storageFileTypeDropdown = new List<SelectItem>();
-    public List<SelectItem> uploadPermissionDropdown = new List<SelectItem>();
-    public object selectedAllowUserRegistration;
-    public object selectedVerifiedRegistration;
-    public List<SelectItem> allowUserRegistrationDropdown = new List<SelectItem>();
-    public List<SelectItem> verifiedRegistrationDropdown = new List<SelectItem>();
+
+    public DTOSMTPSetting selectedSMTPSetting = new DTOSMTPSetting();    
+    public List<SelectItem> smtpAuthenticationDropdown = new List<SelectItem>();
+    public List<SelectItem> smtpSecureDropdown = new List<SelectItem>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -169,22 +120,14 @@
 
     private void populateDropdowns()
     {
-        // ** Upload Permission
-        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "All", ItemStringValue = "All" });
-        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator", ItemStringValue = "Administrator" });
-        uploadPermissionDropdown.Add(new SelectItem() { ItemLabel = "Administrator/Registered Users", ItemStringValue = "Administrator/Registered Users" });
+        // ** smtpAuthentication
+        smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "Anonymous", ItemStringValue = "0" });
+        smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "Basic", ItemStringValue = "1" });
+        smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "NTLM", ItemStringValue = "2" });
 
-        // ** Storage File Type
-        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "File System", ItemStringValue = "FileSystem" });
-        storageFileTypeDropdown.Add(new SelectItem() { ItemLabel = "Azure Storage", ItemStringValue = "AzureStorage" });
-
-        // ** Allow User Registration
-        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
-        allowUserRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
-
-        // ** Verified Registration
-        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "True", ItemBoolValue = true });
-        verifiedRegistrationDropdown.Add(new SelectItem() { ItemLabel = "False", ItemBoolValue = false });
+        // ** smtpSecure
+        smtpSecureDropdown.Add(new SelectItem() { ItemLabel = "True", ItemStringValue = "True" });
+        smtpSecureDropdown.Add(new SelectItem() { ItemLabel = "False", ItemStringValue = "False" });
 
         // Get current settings
         GetCurrentSettings();
@@ -193,16 +136,16 @@
     private void GetCurrentSettings()
     {
         var DTOSMTPSettings = _EmailAdminController.SMTPSettings();
-
-        //applicationName = DTOSettings.applicationName;
-        //fileUploadPath = DTOSettings.fileUploadPath;
-        //azurestorageconnection = DTOSettings.azurestorageconnection;
-        //applicationGUID = DTOSettings.applicationGUID;
-
-        //selectedStoragefiletype = DTOSettings.storagefiletype;
-        //selectedPermission = DTOSettings.uploadPermission;
-        //selectedAllowUserRegistration = DTOSettings.allowRegistration;
-        //selectedVerifiedRegistration = DTOSettings.verifiedRegistration;
+        
+        selectedSMTPSetting.smtpServer = DTOSMTPSettings.smtpServer;
+        selectedSMTPSetting.smtpAuthentication = DTOSMTPSettings.smtpAuthentication;
+        selectedSMTPSetting.smtpSecure = DTOSMTPSettings.smtpSecure;
+        selectedSMTPSetting.smtpStatus = DTOSMTPSettings.smtpStatus;
+        selectedSMTPSetting.smtpFromEmail = DTOSMTPSettings.smtpFromEmail;
+        selectedSMTPSetting.smtpUserName = DTOSMTPSettings.smtpUserName;
+        selectedSMTPSetting.smtpPassword = DTOSMTPSettings.smtpPassword;
+        selectedSMTPSetting.smtpValid = DTOSMTPSettings.smtpValid;
+        selectedSMTPSetting.updateType = DTOSMTPSettings.updateType;
 
         StateHasChanged();
     }
