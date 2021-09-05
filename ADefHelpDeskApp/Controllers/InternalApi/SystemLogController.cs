@@ -52,21 +52,21 @@ namespace ADefHelpDeskApp.Controllers
             _config = config;
         }
 
-        #region public SystemLogSearchResult SystemLogs(SearchParameters searchData,string CurrentUserName)
-        public SystemLogSearchResult SystemLogs(SearchParameters searchData, string CurrentUserName)
+        #region public SystemLogSearchResult SystemLogs(SearchParameters searchData)
+        public SystemLogSearchResult SystemLogs(SearchParameters searchData)
         {
             SystemLogSearchResult objSystemLogSearchResult = new SystemLogSearchResult();
 
             // Must be a Super Administrator to call this Method
 
-            return SystemLogsMethod(searchData, CurrentUserName, GetConnectionString());
+            return SystemLogsMethod(searchData, GetConnectionString());
         }
         #endregion
 
         // Methods
 
-        #region public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string CurrentUser, string ConnectionString)
-        public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string CurrentUser, string ConnectionString)
+        #region public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string ConnectionString)
+        public static SystemLogSearchResult SystemLogsMethod(SearchParameters searchData, string ConnectionString)
         {
             SystemLogSearchResult objSystemLogSearchResult = new SystemLogSearchResult();
             objSystemLogSearchResult.SystemLogList = new List<DTOSystemLog>();
@@ -78,7 +78,7 @@ namespace ADefHelpDeskApp.Controllers
             {
                 var QueryResult = (from systemLog in context.AdefHelpDeskSystemLog
                                    select systemLog).OrderByDescending(l => l.LogId)
-                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber - 1))
+                                   .Skip(searchData.pageNumber)
                                    .Take(searchData.rowsPerPage).ToList();
 
                 List<DTOSystemLog> colDTOSystemLog = new List<DTOSystemLog>();

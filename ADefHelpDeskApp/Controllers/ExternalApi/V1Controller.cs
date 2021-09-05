@@ -1106,13 +1106,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public SystemLogSearchResult SystemLogs([FromBody]SearchLogParameters objSearchLogParameters)
         {
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             AdefHelpDeskBase.Models.SearchParameters SearchParameters = new Models.SearchParameters();
             SearchParameters.searchString = objSearchLogParameters.searchString;
             SearchParameters.pageNumber = objSearchLogParameters.pageNumber;
             SearchParameters.rowsPerPage = objSearchLogParameters.rowsPerPage;
 
-            return SystemLogController.SystemLogsMethod(SearchParameters, strCurrentUser, GetConnectionString());
+            return SystemLogController.SystemLogsMethod(SearchParameters, GetConnectionString());
         }
         #endregion
 

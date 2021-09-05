@@ -1,6 +1,93 @@
 ﻿@page "/systemlogs"
-<h3>SystemLogs</h3>
+@inherits OwningComponentBase
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
+@inject SystemLogController _SystemLogController
 
+<h3>System Logs</h3>
+@if (@IsSuperAdmin)
+{
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<RadzenDataGrid Data="@colSystemLogs" Count="@count" LoadData="@LoadData"
+				PageSizeOptions="@pageSizeOptions" TItem="DTOSystemLog"
+				AllowPaging="true" AllowSorting="false">
+		<Columns>
+			<RadzenDataGridColumn TItem="DTOSystemLog" Property="LogType" Title="log Type" Width="200px" />
+			<RadzenDataGridColumn TItem="DTOSystemLog" Property="CreatedDate" Title="Log Date" Width="175px" />
+			<RadzenDataGridColumn TItem="DTOSystemLog" Property="LogMessage" Title="Log Text">
+				<Template Context="SystemLog">
+					<p style="white-space:pre-wrap">@SystemLog.LogMessage</p>
+				</Template>
+        </RadzenDataGridColumn>
+		</Columns>
+	</RadzenDataGrid>
+}
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+	string strDefaultConnection;
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+	int count;
+	IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+	IEnumerable<DTOSystemLog> colSystemLogs = new List<DTOSystemLog>();
+
+	public bool IsSuperAdmin = false;
+	public string Message = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
+
+		_SystemLogController = (SystemLogController)ScopedServices.GetService(typeof(SystemLogController));
+
+		RefreshGrid();
+	}
+
+	void RefreshGrid()
+	{
+		var filter = new LoadDataArgs();
+		filter.Skip = 0;
+		filter.Top = 10;
+		filter.Filter = "";
+		filter.OrderBy = "";
+
+		LoadData(filter);
+	}
+
+	void LoadData(LoadDataArgs args)
+	{
+		SearchParameters objSearchParameters = new SearchParameters();
+		objSearchParameters.pageNumber = args.Skip.Value;
+		objSearchParameters.rowsPerPage = args.Top.Value;
+
+		SystemLogSearchResult objSystemLogSearchResult = _SystemLogController.SystemLogs(objSearchParameters);
+
+		Message = objSystemLogSearchResult.errorMessage;
+		colSystemLogs = objSystemLogSearchResult.SystemLogList;
+		count = objSystemLogSearchResult.totalRows;
+	}
 }
