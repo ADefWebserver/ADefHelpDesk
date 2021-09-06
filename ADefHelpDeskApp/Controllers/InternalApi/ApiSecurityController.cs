@@ -87,6 +87,10 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         public DTOStatus Put(int id, ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                return new DTOStatus();
+            }
 
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -176,6 +180,10 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         public DTOStatus Post(ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                return new DTOStatus();
+            }
 
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -258,8 +266,13 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         #region public DTOStatus Delete(int id, string CurrentUserName)
         public DTOStatus Delete(int id, string CurrentUserName)
         {
-            // Must be a Super Administrator to call this Method
             DTOStatus objDTOStatus = new DTOStatus();
+
+            // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                return objDTOStatus;
+            }
 
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
             optionsBuilder.UseSqlServer(GetConnectionString());

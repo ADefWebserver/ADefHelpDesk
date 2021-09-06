@@ -80,6 +80,10 @@ namespace AdefHelpDeskBase.Controllers
         public DTOStatus Put(int id, DTOUser DTOUser, string CurrentUserName)
         {
             // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                return new DTOStatus();
+            }
 
             return UpdateUser(id, DTOUser, _userManager, GetConnectionString(), CurrentUserName);
         }
@@ -101,6 +105,10 @@ namespace AdefHelpDeskBase.Controllers
             objDTOStatus.Success = false;
 
             // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                return objDTOStatus;
+            }
 
             var result = DeleteUser(id, _userManager, GetConnectionString(), CurrentUserName);
 
