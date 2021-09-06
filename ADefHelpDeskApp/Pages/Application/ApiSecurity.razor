@@ -1,21 +1,87 @@
 ﻿@page "/apisecurity"
 @inherits OwningComponentBase
-@using AdefHelpDeskBase.Controllers
-@inject UserManagerController _UserManagerController
-<h3>ApiSecurity</h3>
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
+@inject ApiSecurityController _ApiSecurityController
+
 <h4>API Security (for use with <a href="https://adefhelpdesk.com/"><u>ADefHelpDesk Premium Services</u>)</a></h4>
 
+@if (@IsSuperAdmin)
+{
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<RadzenDataGrid Data="@colApiSecuritys" Count="@count" LoadData="@LoadData"
+				PageSize="10" TItem="ApiSecurityDTO"
+				AllowPaging="true" AllowSorting="true">
+		<Columns>
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="username" Title="Username" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactName" Title="Name" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactCompany" Title="Company" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactPhone" Title="Phone" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="isActive" Title="isActive" Width="200px" />
+		</Columns>
+	</RadzenDataGrid>
+}
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
+	string strDefaultConnection;
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Get the current user
-        CurrentUser = (await authenticationStateTask).User;
+	int count;
+	IEnumerable<ApiSecurityDTO> colApiSecuritys = new List<ApiSecurityDTO>();
 
-        _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
-    }
+	public bool IsSuperAdmin = false;
+	public string Message = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
+
+		_ApiSecurityController = (ApiSecurityController)ScopedServices.GetService(typeof(ApiSecurityController));
+
+		RefreshGrid();
+	}
+
+	void RefreshGrid()
+	{
+		var filter = new LoadDataArgs();
+		LoadData(filter);
+	}
+
+	void LoadData(LoadDataArgs args)
+	{
+		try
+		{
+			Message = "";
+			colApiSecuritys = _ApiSecurityController.Get(CurrentUser.Identity.Name);
+			count = colApiSecuritys.Count();
+		}
+		catch (Exception ex)
+		{
+			Message = ex.GetBaseException().Message;
+		}
+	}
 }

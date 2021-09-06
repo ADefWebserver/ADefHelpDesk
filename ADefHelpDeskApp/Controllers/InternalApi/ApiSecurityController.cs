@@ -76,7 +76,6 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                           password = objApiSecurity.Password,
                                           isActive = objApiSecurity.IsActive,
                                       }).OrderBy(x => x.username).ToList();
-
             }
 
             return colApiSecurityDTOs;
