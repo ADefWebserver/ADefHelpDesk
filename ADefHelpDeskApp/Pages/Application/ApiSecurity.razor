@@ -13,6 +13,7 @@
 @using System.Linq
 @using Microsoft.EntityFrameworkCore
 @using System.Linq.Dynamic.Core
+@inject DialogService DialogService
 @inject IConfiguration _configuration
 @inject ADefHelpDeskContext context
 @inject ApiSecurityController _ApiSecurityController
@@ -25,10 +26,15 @@
 	{
 		<h4 style="color:red">@Message</h4>
 	}
-	<RadzenDataGrid Data="@colApiSecuritys" Count="@count" LoadData="@LoadData"
+	<RadzenDataGrid Data="@colApiSecuritys" Count="@count" 
 				PageSize="10" TItem="ApiSecurityDTO"
 				AllowPaging="true" AllowSorting="true">
 		<Columns>
+			<RadzenDataGridColumn Width="80px" TItem="ApiSecurityDTO" Property="id" Title="Edit" Sortable=false Filterable=false>
+				<Template Context="data">
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditAPI(data)) />
+				</Template>
+			</RadzenDataGridColumn>
 			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="username" Title="Username" Width="200px" />
 			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactName" Title="Name" Width="200px" />
 			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactCompany" Title="Company" Width="200px" />
@@ -83,5 +89,14 @@
 		{
 			Message = ex.GetBaseException().Message;
 		}
+	}
+
+	async Task EditAPI(ApiSecurityDTO ApiSecurity)
+	{
+		Message = "";
+
+		var result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
+		new Dictionary<string, object>() { { "SelectedApiSecurity", ApiSecurity } },
+		new DialogOptions() { Width = "500px", Height = "380px" });
 	}
 }
