@@ -299,7 +299,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             }
 
             objDTOStatus.StatusMessage = "Deleted User";
-            objDTOStatus.Success = false;
+            objDTOStatus.Success = true;
             return objDTOStatus; 
         }
         #endregion

@@ -18,7 +18,7 @@
 @inject ADefHelpDeskContext context
 @inject ApiSecurityController _ApiSecurityController
 
-<h4>API Security (for use with <a href="https://adefhelpdesk.com/"><u>ADefHelpDesk Premium Services</u> (coming soon))</a></h4>
+<h4>API Security</h4>
 
 @if (@IsSuperAdmin)
 {
@@ -26,7 +26,9 @@
 	{
 		<h4 style="color:red">@Message</h4>
 	}
-	<RadzenDataGrid Data="@colApiSecuritys" Count="@count" 
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddAPI()) Text="Add" Style="margin-bottom: 10px" />
+	<br />
+	<RadzenDataGrid Data="@colApiSecuritys" Count="@count"
 				PageSize="10" TItem="ApiSecurityDTO"
 				AllowPaging="true" AllowSorting="true">
 		<Columns>
@@ -91,12 +93,23 @@
 		}
 	}
 
+	async Task AddAPI()
+	{
+		ApiSecurityDTO NewApiSecurity = new ApiSecurityDTO();
+		NewApiSecurity.id = -1;
+		await EditAPI(NewApiSecurity);
+	}
 	async Task EditAPI(ApiSecurityDTO ApiSecurity)
 	{
 		Message = "";
 
-		var result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
+		ApiSecurityDTO result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
 		new Dictionary<string, object>() { { "SelectedApiSecurity", ApiSecurity } },
-		new DialogOptions() { Width = "500px" });
+		new DialogOptions() { Width = "650px" });
+
+		if (result != null)
+		{
+			RefreshGrid();
+		}
 	}
 }
