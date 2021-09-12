@@ -1,5 +1,4 @@
-﻿<h3>Api Security Edit Control</h3>
-@inherits OwningComponentBase
+﻿@inherits OwningComponentBase
 @using Radzen
 @using Radzen.Blazor
 @using ADefHelpDeskApp.Models
@@ -20,85 +19,98 @@
 @inject ApiSecurityController _ApiSecurityController
 
 @strError
-<RadzenCard Style="margin-bottom: 20px;">
-    <div class="row">
-        <div class="col-md-12">
-            <div>UserName:</div>
-            <RadzenTextBox @bind-Value="SelectedApiSecurity.username" Style="width: 400px" />
-            <br />
-        </div>
-    </div>
-</RadzenCard>
-<RadzenButton Click="UpdateApiSecurity"
-              Text="Save" ButtonStyle="ButtonStyle.Success"
-              Style="margin-bottom: 10px; width: 150px" />
-@if (SelectedApiSecurity.id > 0)
-{
-    <RadzenButton Click="DeleteApiSecurityDialog"
-                  ButtonStyle="ButtonStyle.Danger"
-                  Text="Delete"
-                  Style="margin-bottom: 10px; width: 150px" />
-}
+<div class="row">
+	<div class="col-md-12">
+		<RadzenTabs RenderMode="TabRenderMode.Server">
+			<Tabs>
+				<RadzenTabsItem Text="Details">
+					<div>UserName:</div>
+					<RadzenTextBox @bind-Value="SelectedApiSecurity.username" Style="width: 400px" />
+				</RadzenTabsItem>
+				<RadzenTabsItem Text="Connection Information">
+
+				</RadzenTabsItem>
+			</Tabs>
+		</RadzenTabs>
+	</div>
+</div>
+<br />
+<div class="row">
+	<div class="col-md-12">
+		<RadzenButton Click="UpdateApiSecurity"
+					  Text="Save" ButtonStyle="ButtonStyle.Success"
+					  Style="margin-bottom: 10px; width: 150px" />
+		&nbsp;
+		@if (SelectedApiSecurity.id > 0)
+		{
+			<RadzenButton Click="DeleteApiSecurityDialog"
+					  ButtonStyle="ButtonStyle.Danger"
+					  Text="Delete"
+					  Style="margin-bottom: 10px; width: 150px" />
+		}
+	</div>
+</div>
 @code {
-    [Parameter] public ApiSecurityDTO SelectedApiSecurity { get; set; }
+	[Parameter] public ApiSecurityDTO SelectedApiSecurity { get; set; }
 
-    string strError = "";
-    System.Security.Claims.ClaimsPrincipal user;
-    int UserId = 1;
+	string strError = "";
+	System.Security.Claims.ClaimsPrincipal user;
+	int UserId = 1;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
 
-        }
-        catch (Exception ex)
-        {
-            strError = ex.GetBaseException().Message;
-        }
-    }
+		}
+		catch (Exception ex)
+		{
+			strError = ex.GetBaseException().Message;
+		}
+	}
 
-    async Task UpdateApiSecurity()
-    {
-        try
-        {
-            //if (SelectedSurvey.Id == -1)
-            //{
-            //    SelectedSurvey = await @Service.CreateSurveyAsync(SelectedSurvey);
-            //}
-            //else
-            //{
-            //    SelectedSurvey = await @Service.UpdateSurveyAsync(SelectedSurvey);
-            //}
+	async Task UpdateApiSecurity()
+	{
+		try
+		{
+			//if (SelectedSurvey.Id == -1)
+			//{
+			//    SelectedSurvey = await @Service.CreateSurveyAsync(SelectedSurvey);
+			//}
+			//else
+			//{
+			//    SelectedSurvey = await @Service.UpdateSurveyAsync(SelectedSurvey);
+			//}
 
-            dialogService.Close(SelectedApiSecurity);
-        }
-        catch (Exception ex)
-        {
-            strError = ex.GetBaseException().Message;
-        }
-    }
+			dialogService.Close(SelectedApiSecurity);
+		}
+		catch (Exception ex)
+		{
+			strError = ex.GetBaseException().Message;
+		}
+	}
 
-    async Task DeleteApiSecurityDialog() => await dialogService
-     .OpenAsync("Delete ApiSecurity", ds =>
-    @<RadzenCard Style="padding: 20px;">
-        <p Style="margin-bottom: 10px;">Confirm?</p>
-        <div class="row">
-            <div class="col-md-12">
-                <RadzenButton Text="Yes" Click="DeleteApiSecurity"
-                              Style="margin-bottom: 10px; width: 150px" />
-                <RadzenButton Text="No" Click="()=> ds.Close(false)"
-                              ButtonStyle="ButtonStyle.Secondary"
-                              Style="margin-bottom: 10px; width: 150px" />
-            </div>
-        </div>
-    </RadzenCard>);
+	async Task DeleteApiSecurityDialog() => await dialogService
+		.OpenAsync("Delete ApiSecurity", ds =>
+	@<RadzenCard Style="padding: 20px;">
+		<p Style="margin-bottom: 10px;">Confirm?</p>
+		<div class="row">
+			<div class="col-md-12">
+				<RadzenButton Text="Yes" Click="DeleteApiSecurity"
+						  Style="margin-bottom: 10px; width: 150px" />
+				<RadzenButton Text="No" Click="()=> ds.Close(false)"
+						  ButtonStyle="ButtonStyle.Secondary"
+						  Style="margin-bottom: 10px; width: 150px" />
+			</div>
+		</div>
+	</RadzenCard>
+	);
 
-    async Task DeleteApiSecurity()
-    {
-        //var result = await @Service.DeleteSurveyAsync(SelectedSurvey);
+	async Task DeleteApiSecurity()
+	{
+		//var result = await @Service.DeleteSurveyAsync(SelectedSurvey);
 
-        //dialogService.Close(SelectedSurvey.Id);
-        //dialogService.Close(SelectedSurvey.Id);
-    }
+		//dialogService.Close(SelectedSurvey.Id);
+		//dialogService.Close(SelectedSurvey.Id);
+	}
 }

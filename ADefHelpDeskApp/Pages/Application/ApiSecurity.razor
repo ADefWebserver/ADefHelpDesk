@@ -18,7 +18,7 @@
 @inject ADefHelpDeskContext context
 @inject ApiSecurityController _ApiSecurityController
 
-<h4>API Security (for use with <a href="https://adefhelpdesk.com/"><u>ADefHelpDesk Premium Services</u>)</a></h4>
+<h4>API Security (for use with <a href="https://adefhelpdesk.com/"><u>ADefHelpDesk Premium Services</u> (coming soon))</a></h4>
 
 @if (@IsSuperAdmin)
 {
@@ -97,6 +97,6 @@
 
 		var result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
 		new Dictionary<string, object>() { { "SelectedApiSecurity", ApiSecurity } },
-		new DialogOptions() { Width = "500px", Height = "380px" });
+		new DialogOptions() { Width = "500px" });
 	}
 }
