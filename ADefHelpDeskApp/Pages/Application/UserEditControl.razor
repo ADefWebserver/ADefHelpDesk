@@ -1,0 +1,261 @@
+﻿@inherits OwningComponentBase
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Linq.Dynamic.Core
+@using Radzen
+@using Radzen.Blazor
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using AdefHelpDeskBase.Controllers
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@inject NavigationManager NavigationManager
+@inject DialogService dialogService
+@inject IConfiguration _configuration
+@inject UserManagerController _UserManagerController
+
+@if (@strError != "")
+{
+	<h4 style="color:red">@strError</h4>
+}
+<div class="row">
+	<div class="col-md-12">
+		<RadzenTabs RenderMode="TabRenderMode.Server">
+			<Tabs>
+				<RadzenTabsItem Text="Details">
+@*					<table class="form-group" cellpadding="4" cellspacing="4">
+						<tbody>
+							<tr>
+								<td>
+									<label for="User Name" class="control-label" style="font-weight: bold">User Name: </label>
+								</td>
+								<td>
+									@if (@SelectedApiSecurity.id == -1)
+									{
+										<RadzenTextBox @bind-Value="SelectedApiSecurity.username" style="width: 100%;" />
+									}
+									else
+									{
+										<b>@SelectedApiSecurity.username</b>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Password" class="control-label" style="font-weight: bold">Password: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.password" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Name" class="control-label" style="font-weight: bold">Name: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactName" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Company" class="control-label" style="font-weight: bold">Company: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactCompany" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Website" class="control-label" style="font-weight: bold">Website: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactWebsite" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Email" class="control-label" style="font-weight: bold">Email: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactEmail" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Phone" class="control-label" style="font-weight: bold">Phone: </label>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactPhone" style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label for="Active" class="control-label" style="font-weight: bold">Active: </label>
+								</td>
+								<td>
+									<RadzenCheckBox TValue="bool" @bind-Value=@SelectedApiSecurity.isActive />
+								</td>
+							</tr>
+						</tbody>
+					</table>*@
+				</RadzenTabsItem>
+				<RadzenTabsItem Text="Connection Information">
+					@if (SelectedDTOUser.userId > -1)
+					{
+@*						<table class="form-group" cellpadding="4" cellspacing="4">
+							<tbody>
+								<tr>
+									<td>
+										<label for="API Web Address" class="control-label">API Web Address:</label>
+									</td>
+									<td>
+										<b>@AppicationURL</b>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="Application GUID" class="control-label">Application GUID:</label>
+									</td>
+									<td>
+										<b>@AppicationGUID</b>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="User Name" class="control-label">User Name:</label>
+									</td>
+									<td>
+										<b>@SelectedApiSecurity.username</b>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label for="Password" class="control-label">Password: </label>
+									</td>
+									<td>
+										<b>@SelectedApiSecurity.password</b>
+									</td>
+								</tr>
+							</tbody>
+						</table>*@
+					}
+					else
+					{
+						<p>Must save record first</p>
+					}
+				</RadzenTabsItem>
+			</Tabs>
+		</RadzenTabs>
+	</div>
+</div>
+<br />
+<div class="row">
+	<div class="col-md-12">
+		<RadzenButton Click="UpdateUser"
+					  Text="Save" ButtonStyle="ButtonStyle.Success"
+					  Style="margin-bottom: 10px; width: 150px" />
+		&nbsp;
+		@if (SelectedDTOUser.userId > 0)
+		{
+			<RadzenButton Click="DeleteUserDialog"
+					  ButtonStyle="ButtonStyle.Danger"
+					  Text="Delete"
+					  Style="margin-bottom: 10px; width: 150px" />
+		}
+	</div>
+</div>
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+	[Parameter] public DTOUser SelectedDTOUser { get; set; }
+
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
+	string strError = "";
+	string AppicationGUID = "";
+	string AppicationURL = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+
+        _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
+	}
+
+	private void UpdateUser()
+	{
+		try
+		{
+			strError = "";
+			DTOStatus Result;
+
+			//if (SelectedApiSecurity.id == -1)
+			//{
+			//	Result = _ApiSecurityController.Post(SelectedApiSecurity, CurrentUser.Identity.Name);
+			//}
+			//else
+			//{
+			//	Result = _ApiSecurityController.Put(SelectedApiSecurity.id, SelectedApiSecurity, CurrentUser.Identity.Name);
+			//}
+
+			//if (Result.Success)
+			//{
+			//	dialogService.Close(SelectedApiSecurity);
+			//}
+			//else
+			//{
+			//	strError = Result.StatusMessage;
+			//}
+		}
+		catch (Exception ex)
+		{
+			strError = ex.GetBaseException().Message;
+		}
+	}
+
+	async Task DeleteUserDialog() => await dialogService
+		.OpenAsync("Delete ApiSecurity", ds =>
+	@<RadzenCard Style="padding: 20px;">
+		<p Style="margin-bottom: 10px;">Confirm?</p>
+		<div class="row">
+			<div class="col-md-12">
+				<RadzenButton Text="Yes" Click="DeleteUser"
+						  Style="margin-bottom: 10px; width: 150px" />
+				<RadzenButton Text="No" Click="()=> ds.Close(false)"
+						  ButtonStyle="ButtonStyle.Secondary"
+						  Style="margin-bottom: 10px; width: 150px" />
+			</div>
+		</div>
+	</RadzenCard>
+	);
+
+	private void DeleteUser()
+	{
+		try
+		{
+			strError = "";
+			DTOStatus Result;
+
+			//Result = _ApiSecurityController.Delete(SelectedApiSecurity.id, CurrentUser.Identity.Name);
+
+			//if (Result.Success)
+			//{
+			//	SelectedApiSecurity.id = -1;
+			//	dialogService.Close(false);
+			//	dialogService.Close(SelectedApiSecurity);
+			//}
+			//else
+			//{
+			//	strError = Result.StatusMessage;
+			//}
+		}
+		catch (Exception ex)
+		{
+			strError = ex.GetBaseException().Message;
+		}
+	}
+}

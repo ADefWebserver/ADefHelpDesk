@@ -1,19 +1,48 @@
 ﻿@page "/usermanager"
 @inherits OwningComponentBase
-@using ADefHelpDeskApp.Classes
-@using AdefHelpDeskBase.Controllers
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Linq.Dynamic.Core
+@using Radzen
+@using Radzen.Blazor
 @using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using AdefHelpDeskBase.Controllers
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@inject DialogService DialogService
+@inject IConfiguration _configuration
 @inject UserManagerController _UserManagerController
-<h3>User Manager</h3>
-<ul>
-@foreach (DTOUser user in _userSearchResult.userList)
-{
-  <li>
-    @user.userId @user.userName @user.email
-  </li>
-}
-</ul>
+<h4>User Manager</h4>
 
+@if (@IsSuperAdmin)
+{
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddUser()) Text="Add" Style="margin-bottom: 10px" />
+	<br />
+	<RadzenDataGrid Data="@_userSearchResult.userList" Count="@count"
+				PageSize="10" TItem="DTOUser"
+				AllowPaging="true" AllowSorting="true">
+		<Columns>
+			<RadzenDataGridColumn Width="80px" TItem="DTOUser" Property="id" Title="Edit" Sortable=false Filterable=false>
+				<Template Context="data">
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditUser(data)) />
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="DTOUser" Property="userName" Title="Username" Width="200px" />
+			<RadzenDataGridColumn TItem="DTOUser" Property="firstName" Title="First Name" Width="200px" />
+			<RadzenDataGridColumn TItem="DTOUser" Property="lastName" Title="Last Name" Width="200px" />
+			<RadzenDataGridColumn TItem="DTOUser" Property="email" Title="Email" Width="200px" />
+			<RadzenDataGridColumn TItem="DTOUser" Property="isSuperUser" Title="isSuperUser" Width="200px" />
+		</Columns>
+	</RadzenDataGrid>
+}
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -21,13 +50,66 @@
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     UserSearchResult _userSearchResult = new UserSearchResult();
 
+	string strDefaultConnection;
+
+	int count;
+	IEnumerable<DTOUser> colApiSecuritys = new List<DTOUser>();
+
+	public bool IsSuperAdmin = false;
+	public string Message = "";
+
     protected override async Task OnInitializedAsync()
     {
-        // Get the current user
-        CurrentUser = (await authenticationStateTask).User;
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
 
         _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
 
-        _userSearchResult = _UserManagerController.SearchUsers(new SearchParameters() { searchString = "", rowsPerPage = 10, pageNumber = 1 });
+       RefreshGrid();
     }
+
+	void RefreshGrid()
+	{
+		var filter = new LoadDataArgs();
+		LoadData(filter);
+	}
+
+	void LoadData(LoadDataArgs args)
+	{
+		try
+		{
+			Message = "";
+			_userSearchResult = _UserManagerController.SearchUsers(new SearchParameters() { searchString = "", rowsPerPage = 10, pageNumber = 1 });
+			count = _userSearchResult.totalRows;
+		}
+		catch (Exception ex)
+		{
+			Message = ex.GetBaseException().Message;
+		}
+	}
+
+	async Task AddUser()
+	{
+		DTOUser NewDTOUser = new DTOUser();
+		NewDTOUser.userId = -1;
+		await EditUser(NewDTOUser);
+	}
+	async Task EditUser(DTOUser DTOUser)
+	{
+		Message = "";
+
+		DTOUser result = await DialogService.OpenAsync<UserEditControl>($"Edit User",
+		new Dictionary<string, object>() { { "SelectedDTOUser", DTOUser } },
+		new DialogOptions() { Width = "650px" });
+
+		if (result != null)
+		{
+			RefreshGrid();
+		}
+	}
 }

@@ -54,8 +54,8 @@ namespace AdefHelpDeskBase.Controllers
             _signInManager = signInManager;
         }
 
-        #region public DTOUser GetUser( int id)
-        public DTOUser GetUser( int id)
+        #region public DTOUser GetUser(int id)
+        public DTOUser GetUser(int id)
         {
             DTOUser objDTOUser = new DTOUser();
 
@@ -66,7 +66,7 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public UserSearchResult SearchUsers(SearchParameters searchData)
-        public UserSearchResult SearchUsers( SearchParameters searchData)
+        public UserSearchResult SearchUsers(SearchParameters searchData)
         {
             UserSearchResult objUserSearchResult = new UserSearchResult();
 
