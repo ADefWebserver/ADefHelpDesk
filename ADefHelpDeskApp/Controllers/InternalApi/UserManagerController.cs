@@ -221,7 +221,7 @@ namespace AdefHelpDeskBase.Controllers
                 // Paginate results
                 var QueryResult = (from user in Result
                                    select user).OrderByDescending(x => x.LastName)
-                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber - 1))
+                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber))
                                    .Take(searchData.rowsPerPage).ToList();
 
                 List<DTOUser> colDTOUser = new List<DTOUser>();
