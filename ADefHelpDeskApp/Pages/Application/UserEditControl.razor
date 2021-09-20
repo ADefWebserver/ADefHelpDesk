@@ -26,20 +26,20 @@
 		<RadzenTabs RenderMode="TabRenderMode.Server">
 			<Tabs>
 				<RadzenTabsItem Text="Details">
-@*					<table class="form-group" cellpadding="4" cellspacing="4">
+					<table class="form-group" cellpadding="4" cellspacing="4">
 						<tbody>
 							<tr>
 								<td>
 									<label for="User Name" class="control-label" style="font-weight: bold">User Name: </label>
 								</td>
 								<td>
-									@if (@SelectedApiSecurity.id == -1)
+									@if (@SelectedDTOUser.userId == -1)
 									{
-										<RadzenTextBox @bind-Value="SelectedApiSecurity.username" style="width: 100%;" />
+										<RadzenTextBox @bind-Value="SelectedDTOUser.userName" style="width: 100%;" />
 									}
 									else
 									{
-										<b>@SelectedApiSecurity.username</b>
+										<b>@SelectedDTOUser.userName</b>
 									}
 								</td>
 							</tr>
@@ -48,31 +48,23 @@
 									<label for="Password" class="control-label" style="font-weight: bold">Password: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.password" style="width: 100%;" />
+									<RadzenTextBox @bind-Value="SelectedDTOUser.password" style="width: 100%;" />
 								</td>
 							</tr>
 							<tr>
 								<td>
-									<label for="Name" class="control-label" style="font-weight: bold">Name: </label>
+									<label for="Name" class="control-label" style="font-weight: bold">First Name: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactName" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Company" class="control-label" style="font-weight: bold">Company: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactCompany" style="width: 100%;" />
+									<RadzenTextBox @bind-Value="SelectedDTOUser.firstName " style="width: 100%;" />
 								</td>
 							</tr>
 							<tr>
 								<td>
-									<label for="Website" class="control-label" style="font-weight: bold">Website: </label>
+									<label for="Company" class="control-label" style="font-weight: bold">Last NAme: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactWebsite" style="width: 100%;" />
+									<RadzenTextBox @bind-Value="SelectedDTOUser.lastName" style="width: 100%;" />
 								</td>
 							</tr>
 							<tr>
@@ -80,29 +72,21 @@
 									<label for="Email" class="control-label" style="font-weight: bold">Email: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactEmail" style="width: 100%;" />
+									<RadzenTextBox @bind-Value="SelectedDTOUser.email" style="width: 100%;" />
 								</td>
 							</tr>
 							<tr>
 								<td>
-									<label for="Phone" class="control-label" style="font-weight: bold">Phone: </label>
+									<label for="Active" class="control-label" style="font-weight: bold">is SuperUser: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactPhone" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Active" class="control-label" style="font-weight: bold">Active: </label>
-								</td>
-								<td>
-									<RadzenCheckBox TValue="bool" @bind-Value=@SelectedApiSecurity.isActive />
+									<RadzenCheckBox TValue="bool" @bind-Value="SelectedDTOUser.isSuperUser" />
 								</td>
 							</tr>
 						</tbody>
-					</table>*@
+					</table>
 				</RadzenTabsItem>
-				<RadzenTabsItem Text="Connection Information">
+				<RadzenTabsItem Text="Roles">
 					@if (SelectedDTOUser.userId > -1)
 					{
 @*						<table class="form-group" cellpadding="4" cellspacing="4">
@@ -186,30 +170,30 @@
         _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
 	}
 
-	private void UpdateUser()
+	private async Task UpdateUser()
 	{
 		try
 		{
 			strError = "";
 			DTOStatus Result;
 
-			//if (SelectedApiSecurity.id == -1)
-			//{
-			//	Result = _ApiSecurityController.Post(SelectedApiSecurity, CurrentUser.Identity.Name);
-			//}
-			//else
-			//{
-			//	Result = _ApiSecurityController.Put(SelectedApiSecurity.id, SelectedApiSecurity, CurrentUser.Identity.Name);
-			//}
+			if (SelectedDTOUser.userId == -1)
+			{
+				Result = await _UserManagerController.CreateUser(SelectedDTOUser, NavigationManager.BaseUri);
+			}
+			else
+			{
+				Result = _UserManagerController.Put(SelectedDTOUser.userId, SelectedDTOUser, CurrentUser.Identity.Name);
+			}
 
-			//if (Result.Success)
-			//{
-			//	dialogService.Close(SelectedApiSecurity);
-			//}
-			//else
-			//{
-			//	strError = Result.StatusMessage;
-			//}
+			if (Result.Success)
+			{
+				dialogService.Close(SelectedDTOUser);
+			}
+			else
+			{
+				strError = Result.StatusMessage;
+			}
 		}
 		catch (Exception ex)
 		{
@@ -240,18 +224,18 @@
 			strError = "";
 			DTOStatus Result;
 
-			//Result = _ApiSecurityController.Delete(SelectedApiSecurity.id, CurrentUser.Identity.Name);
+			Result = _UserManagerController.Delete(SelectedDTOUser.userId, CurrentUser.Identity.Name);
 
-			//if (Result.Success)
-			//{
-			//	SelectedApiSecurity.id = -1;
-			//	dialogService.Close(false);
-			//	dialogService.Close(SelectedApiSecurity);
-			//}
-			//else
-			//{
-			//	strError = Result.StatusMessage;
-			//}
+			if (Result.Success)
+			{
+				SelectedDTOUser.userId = -1;
+				dialogService.Close(false);
+				dialogService.Close(SelectedDTOUser);
+			}
+			else
+			{
+				strError = Result.StatusMessage;
+			}
 		}
 		catch (Exception ex)
 		{
