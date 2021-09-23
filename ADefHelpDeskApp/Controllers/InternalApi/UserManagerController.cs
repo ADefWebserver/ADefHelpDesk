@@ -379,7 +379,8 @@ namespace AdefHelpDeskBase.Controllers
 
             #region Migrate User (if needed)
             // Get user in UserManager
-            var user = _userManager.FindByNameAsync(DTOUser.userName).Result;
+            var user = Task.Run(() => _userManager.FindByNameAsync(DTOUser.userName)).Result;
+
             if (user == null)
             {
                 // The user is in the old memebership API
@@ -405,7 +406,8 @@ namespace AdefHelpDeskBase.Controllers
                     // Membership API
 
                     user = new ApplicationUser { UserName = DTOUser.userName, Email = DTOUser.email };
-                    var RegisterStatus = _userManager.CreateAsync(user, DTOUser.password).Result;
+
+                    var RegisterStatus = Task.Run(() => _userManager.CreateAsync(user, DTOUser.password)).Result;
 
                     if (!RegisterStatus.Succeeded)
                     {
@@ -433,15 +435,15 @@ namespace AdefHelpDeskBase.Controllers
             #endregion
 
             // Update Email
-            var result = _userManager.SetEmailAsync(user, DTOUser.email).Result;
+            var result = Task.Run(() => _userManager.SetEmailAsync(user, DTOUser.email)).Result;
 
             // Only update password if it is passed
             if ((DTOUser.password != null) && (DTOUser.password.Trim().Length > 1))
             {
                 try
                 {
-                    var resetToken = _userManager.GeneratePasswordResetTokenAsync(user).Result;
-                    var passwordResult = _userManager.ResetPasswordAsync(user, resetToken, DTOUser.password).Result;
+                    var resetToken = Task.Run(() => _userManager.GeneratePasswordResetTokenAsync(user)).Result;
+                    var passwordResult = Task.Run(() => _userManager.ResetPasswordAsync(user, resetToken, DTOUser.password)).Result;
 
                     if (!passwordResult.Succeeded)
                     {
@@ -574,12 +576,12 @@ namespace AdefHelpDeskBase.Controllers
                 }
 
                 // Get user in UserManager
-                var objUser = _userManager.FindByNameAsync(objDTOUser.Username).Result;
+                var objUser = Task.Run(() => _userManager.FindByNameAsync(objDTOUser.Username)).Result;
 
                 // Delete all roles
                 foreach (var itemRole in objDTOUser.AdefHelpDeskUserRoles)
                 {
-                    var objUserRole = context.AdefHelpDeskUserRoles.SingleOrDefaultAsync(x => x.UserRoleId == itemRole.UserRoleId).Result;
+                    var objUserRole = Task.Run(() => context.AdefHelpDeskUserRoles.SingleOrDefaultAsync(x => x.UserRoleId == itemRole.UserRoleId)).Result;
                     context.AdefHelpDeskUserRoles.Remove(objUserRole);
                 }
 

@@ -26,7 +26,7 @@
 		<RadzenTabs RenderMode="TabRenderMode.Server">
 			<Tabs>
 				<RadzenTabsItem Text="Details">
-					<table class="form-group" cellpadding="4" cellspacing="4">
+					<table class="form-group" cellpadding="4" cellspacing="4" style="width: 100%;">
 						<tbody>
 							<tr>
 								<td>
@@ -48,7 +48,7 @@
 									<label for="Password" class="control-label" style="font-weight: bold">Password: </label>
 								</td>
 								<td>
-									<RadzenTextBox @bind-Value="SelectedDTOUser.password" style="width: 100%;" />
+									<RadzenPassword Placeholder="Enter new password to change..." @bind-Value="SelectedDTOUser.password" style="width: 100%;" />
 								</td>
 							</tr>
 							<tr>
@@ -61,7 +61,7 @@
 							</tr>
 							<tr>
 								<td>
-									<label for="Company" class="control-label" style="font-weight: bold">Last NAme: </label>
+									<label for="Company" class="control-label" style="font-weight: bold">Last Name: </label>
 								</td>
 								<td>
 									<RadzenTextBox @bind-Value="SelectedDTOUser.lastName" style="width: 100%;" />
@@ -77,7 +77,7 @@
 							</tr>
 							<tr>
 								<td>
-									<label for="Active" class="control-label" style="font-weight: bold">is SuperUser: </label>
+									<label for="Active" class="control-label" style="font-weight: bold">Is SuperUser: </label>
 								</td>
 								<td>
 									<RadzenCheckBox TValue="bool" @bind-Value="SelectedDTOUser.isSuperUser" />

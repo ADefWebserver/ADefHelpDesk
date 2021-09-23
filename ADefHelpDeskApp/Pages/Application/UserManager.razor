@@ -44,7 +44,12 @@
 			<RadzenDataGridColumn TItem="DTOUser" Property="firstName" Title="First Name" Width="200px" />
 			<RadzenDataGridColumn TItem="DTOUser" Property="lastName" Title="Last Name" Width="200px" />
 			<RadzenDataGridColumn TItem="DTOUser" Property="email" Title="Email" Width="200px" />
-			<RadzenDataGridColumn TItem="DTOUser" Property="isSuperUser" Title="isSuperUser" Width="200px" />
+			<RadzenDataGridColumn Width="80px" TItem="DTOUser" 
+							  Property="isSuperUser" Title="Is SuperUser" Sortable=false Filterable=false>
+				<Template Context="data">
+					<RadzenCheckBox TValue="bool" Disabled="true" @bind-Value="data.isSuperUser" />
+				</Template>
+			</RadzenDataGridColumn>		
 		</Columns>
 	</RadzenDataGrid>
 }
