@@ -88,17 +88,16 @@
 					</table>
 				</RadzenTabsItem>
 				<RadzenTabsItem Text="Roles">
-					<p>
+					<div style="display: flex; align-items: center">
 					<RadzenDropDown Data=@colRoles @bind-Value=@newRole
 									TValue="RoleDTO"
 									TextProperty="roleName"
 									Style="width:300px" />&nbsp;
 					<RadzenButton Click=@(args => AddRole())
-								  Style="margin-bottom: 10px"
 								  Text="Add Role" ButtonStyle="ButtonStyle.Success" />
-					</p><br />
+					</div><br />
 					<RadzenDataGrid Data="SelectedDTOUser.userRoles" TItem="RoleDTO"
-									AllowVirtualization="false" Style="height:400px"
+									AllowVirtualization="false" Style="height:200px"
 									AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
 									LogicalFilterOperator="LogicalFilterOperator.Or"
 									AllowSorting="true">
@@ -227,11 +226,24 @@
 		}
 	}
 
-	async Task AddRole()
+	void AddRole()
 	{
+		// Add Role
+		SelectedDTOUser.userRoles.Add(newRole);
+
+		// Update Role Dropdown
+		// UpdateRoleDropdown();
+
+		StateHasChanged();
 	}
 
 	async Task DeleteRole(RoleDTO Role)
 	{
+	}
+
+	void UpdateRoleDropdown()
+	{
+		List<RoleDTO> NewRoleList = SelectedDTOUser.userRoles.Intersect<RoleDTO>(colRoles).ToList();
+		colRoles = NewRoleList;
 	}
 }
