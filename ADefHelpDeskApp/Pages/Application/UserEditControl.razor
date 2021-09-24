@@ -89,14 +89,14 @@
 				</RadzenTabsItem>
 				<RadzenTabsItem Text="Roles">
 					<div style="display: flex; align-items: center">
-					<RadzenDropDown Data=@colRoles @bind-Value=@newRole
-									TValue="RoleDTO"
-									TextProperty="roleName"
-									Style="width:300px" />&nbsp;
-					<RadzenButton Click=@(args => AddRole())
-								  Text="Add Role" ButtonStyle="ButtonStyle.Success" />
+						<RadzenDropDown Data=@colRoles @bind-Value=@newRole
+										TValue="RoleDTO" Count="@count"
+										TextProperty="roleName"
+										Style="width:300px" />&nbsp;
+						<RadzenButton Click=@(args => AddRole())
+									  Text="Add Role" ButtonStyle="ButtonStyle.Success" />
 					</div><br />
-					<RadzenDataGrid Data="SelectedDTOUser.userRoles" TItem="RoleDTO"
+					<RadzenDataGrid Data="SelectedDTOUser.userRoles" @ref="grid" TItem="RoleDTO"
 									AllowVirtualization="false" Style="height:200px"
 									AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
 									LogicalFilterOperator="LogicalFilterOperator.Or"
@@ -138,7 +138,9 @@
 	[Parameter] public DTOUser SelectedDTOUser { get; set; }
 
 	System.Security.Claims.ClaimsPrincipal CurrentUser;
+	RadzenDataGrid<RoleDTO> grid;
 	IEnumerable<RoleDTO> colRoles = new List<RoleDTO>();
+	int count;
 	RoleDTO newRole = new RoleDTO();
 	string strError = "";
 
@@ -146,6 +148,8 @@
 	{
 		// Get the current user
 		CurrentUser = (await authenticationStateTask).User;
+
+		count = SelectedDTOUser.userRoles.Count;
 
 		_UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
 		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
@@ -226,15 +230,19 @@
 		}
 	}
 
-	void AddRole()
+	async Task AddRole()
 	{
-		// Add Role
-		SelectedDTOUser.userRoles.Add(newRole);
+		// Add Role - if not already exist
+		if (SelectedDTOUser.userRoles.Where(x => x.iD == newRole.iD).Count() == 0)
+		{
+			SelectedDTOUser.userRoles.Add(newRole);
+			count = SelectedDTOUser.userRoles.Count;
 
-		// Update Role Dropdown
-		// UpdateRoleDropdown();
+			// Update Role Dropdown
+			// UpdateRoleDropdown();
+		}
 
-		StateHasChanged();
+		await grid.Reload();
 	}
 
 	async Task DeleteRole(RoleDTO Role)
