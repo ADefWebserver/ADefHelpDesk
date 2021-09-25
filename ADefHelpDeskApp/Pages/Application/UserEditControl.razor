@@ -154,7 +154,21 @@
 		_UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
 		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
 
+		// Get all Roles
 		colRoles = _RoleController.GetRoles();
+
+		// Update Role Dropdown
+		List<RoleDTO> NewRoleList = new List<RoleDTO>();
+
+		foreach (var role in colRoles)
+		{
+			if(!SelectedDTOUser.userRoles.Any(x => x.iD == role.iD))
+			{
+				NewRoleList.Add(role);
+			}
+		}
+
+		colRoles = NewRoleList.OrderBy(x => x.roleName);
 	}
 
 	private async Task UpdateUser()
@@ -232,26 +246,40 @@
 
 	async Task AddRole()
 	{
-		// Add Role - if not already exist
-		if (SelectedDTOUser.userRoles.Where(x => x.iD == newRole.iD).Count() == 0)
+		if (newRole.iD > 0)
 		{
-			SelectedDTOUser.userRoles.Add(newRole);
-			count = SelectedDTOUser.userRoles.Count;
+			// Add Role - if not already exist
+			if (SelectedDTOUser.userRoles.Where(x => x.iD == newRole.iD).Count() == 0)
+			{
+				SelectedDTOUser.userRoles.Add(newRole);
+				count = SelectedDTOUser.userRoles.Count;
 
-			// Update Role Dropdown
-			// UpdateRoleDropdown();
+				// Update Role Dropdown
+				List<RoleDTO> NewRoleList = colRoles.Except(SelectedDTOUser.userRoles).ToList();
+				colRoles = NewRoleList;
+
+				newRole = new RoleDTO();
+			}
+
+			await grid.Reload();
 		}
-
-		await grid.Reload();
 	}
 
 	async Task DeleteRole(RoleDTO Role)
 	{
-	}
+		// Remove Role - if exist
+		if (SelectedDTOUser.userRoles.Where(x => x.iD == Role.iD).Count() > 0)
+		{
+			SelectedDTOUser.userRoles.Remove(Role);
+			count = SelectedDTOUser.userRoles.Count;
 
-	void UpdateRoleDropdown()
-	{
-		List<RoleDTO> NewRoleList = SelectedDTOUser.userRoles.Intersect<RoleDTO>(colRoles).ToList();
-		colRoles = NewRoleList;
+			// Update Role Dropdown
+			List<RoleDTO> NewRoleList = colRoles.Append(Role).OrderBy(x => x.roleName).ToList(); 
+			colRoles = NewRoleList;
+
+			newRole = new RoleDTO();
+		}
+
+		await grid.Reload();
 	}
 }
