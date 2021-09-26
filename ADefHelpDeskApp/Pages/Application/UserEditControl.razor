@@ -180,7 +180,7 @@
 
 			if (SelectedDTOUser.userId == -1)
 			{
-				Result = await _UserManagerController.CreateUser(SelectedDTOUser, NavigationManager.BaseUri);
+				Result = await _UserManagerController.CreateUser(SelectedDTOUser, CurrentUser.Identity.Name, NavigationManager.BaseUri);
 			}
 			else
 			{
@@ -218,14 +218,14 @@
 	</RadzenCard>
 	);
 
-	private void DeleteUser()
+	private async Task DeleteUser()
 	{
 		try
 		{
 			strError = "";
 			DTOStatus Result;
 
-			Result = _UserManagerController.Delete(SelectedDTOUser.userId, CurrentUser.Identity.Name);
+			Result = await _UserManagerController.Delete(SelectedDTOUser.userId, CurrentUser.Identity.Name);
 
 			if (Result.Success)
 			{

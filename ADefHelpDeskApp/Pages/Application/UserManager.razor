@@ -127,6 +127,7 @@
 	{
 		DTOUser NewDTOUser = new DTOUser();
 		NewDTOUser.userId = -1;
+		NewDTOUser.userRoles = new List<RoleDTO>();
 		await EditUser(NewDTOUser);
 	}
 	async Task EditUser(DTOUser DTOUser)

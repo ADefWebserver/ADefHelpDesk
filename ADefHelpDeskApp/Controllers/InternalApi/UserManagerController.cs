@@ -90,14 +90,21 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         #region public Task<DTOStatus> CreateUser(DTOUser DTOUser, string BaseWebAddress)
-        public Task<DTOStatus> CreateUser(DTOUser DTOUser, string BaseWebAddress)
+        public Task<DTOStatus> CreateUser(DTOUser DTOUser, string CurrentUserName, string BaseWebAddress)
         {
+            // Must be a Super Administrator to call this Method
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
+            {
+                var objDTOStatus = new DTOStatus();
+                return Task.FromResult(objDTOStatus);
+            }
+
             return CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, GetConnectionString(), BaseWebAddress);
         }
         #endregion
 
-        #region public DTOStatus Delete(int id,string CurrentUserName)
-        public DTOStatus Delete(int id, string CurrentUserName)
+        #region public Task<DTOStatus> Delete(int id, string CurrentUserName)
+        public Task<DTOStatus> Delete(int id, string CurrentUserName)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -107,7 +114,7 @@ namespace AdefHelpDeskBase.Controllers
             // Must be a Super Administrator to call this Method
             if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
             {
-                return objDTOStatus;
+                return Task.FromResult(objDTOStatus);
             }
 
             var result = DeleteUser(id, _userManager, GetConnectionString(), CurrentUserName);
@@ -116,13 +123,13 @@ namespace AdefHelpDeskBase.Controllers
             {
                 objDTOStatus.Success = false;
                 objDTOStatus.StatusMessage = result;
-                return objDTOStatus;
+                return Task.FromResult(objDTOStatus);
             }
             else
             {
                 objDTOStatus.Success = true;
                 objDTOStatus.StatusMessage = "";
-                return objDTOStatus;
+                return Task.FromResult(objDTOStatus);
             }
         }
         #endregion
@@ -482,6 +489,44 @@ namespace AdefHelpDeskBase.Controllers
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = "Failure";
             objDTOStatus.Success = false;
+
+            #region Validation ****************************
+            EmailValidation objEmailValidation = new EmailValidation();
+            if (!objEmailValidation.IsValidEmail(DTOUser.email))
+            {
+                objDTOStatus.StatusMessage = "This Email is not valid.";
+                objDTOStatus.Success = false;
+                return objDTOStatus;
+            }
+
+            if ((DTOUser.firstName == null) || (DTOUser.firstName.Length < 1))
+            {
+                objDTOStatus.StatusMessage = "This First Name is not long enough.";
+                objDTOStatus.Success = false;
+                return objDTOStatus;
+            }
+
+            if ((DTOUser.lastName == null) || (DTOUser.lastName.Length < 1))
+            {
+                objDTOStatus.StatusMessage = "This Last Name is not long enough.";
+                objDTOStatus.Success = false;
+                return objDTOStatus;
+            }
+
+            if ((DTOUser.userName == null) || (DTOUser.userName.Length < 1))
+            {
+                objDTOStatus.StatusMessage = "This User Name is not long enough.";
+                objDTOStatus.Success = false;
+                return objDTOStatus;
+            }
+
+            if ((DTOUser.password == null) || (DTOUser.password.Length < 3))
+            {
+                objDTOStatus.StatusMessage = "This Password is not long enough.";
+                objDTOStatus.Success = false;
+                return objDTOStatus;
+            }
+            #endregion
 
             try
             {
