@@ -40,7 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
-               .AddEntityFrameworkStores<ApplicationDbContext>();
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders(); 
 
             services.AddRazorPages();
             services.AddServerSideBlazor()
