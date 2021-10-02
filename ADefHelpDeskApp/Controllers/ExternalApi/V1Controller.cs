@@ -1047,7 +1047,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public DTONode SystemFiles()
         {
-            return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
+            //return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
+            return new DTONode();
         }
         #endregion
 
@@ -1063,7 +1064,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public DTOResponse GetSystemFile([FromBody]DTONode paramDTONode)
         {
-            return FilesController.GetFileContentMethod(paramDTONode, _SystemFiles);
+            // return FilesController.GetFileContentMethod(paramDTONode, _SystemFiles);
+            return new DTOResponse();
         }
         #endregion
 
@@ -1087,8 +1089,10 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             paramDTOFileParameter.taskId = paramDTOAPIFile.taskId;
             paramDTOFileParameter.ticketPassword = paramDTOAPIFile.ticketPassword;
 
-            var fileResult = FilesController.ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
-            return fileResult;
+            //var fileResult = FilesController.ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
+            //return fileResult;
+
+            return new DTOFile();
         }
         #endregion
 

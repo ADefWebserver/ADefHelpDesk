@@ -1,6 +1,96 @@
 ﻿@page "/filemanager"
-<h3>FileManager</h3>
+@inherits OwningComponentBase
+@using Excubo.Blazor.TreeViews
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject DialogService DialogService
+@inject IConfiguration _configuration
+@inject FilesController _FilesController
 
+<h4>File Manager</h4>
+
+@if (@IsSuperAdmin)
+{
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<div>
+		<div class="row">
+			<div class="col-md-12">
+				<TreeView Items="colAllFiles.children"
+					  GetChildren="(treenode) => treenode.children">
+					<ItemTemplate Context="treenode">
+						<RadzenIcon Icon="@treenode.Item.collapsedIcon" />
+						<a href="@treenode.Item.label" style="vertical-align: top;"
+					   @onclick="@(args => SelectNode(@treenode.Item))"
+					   @onclick:preventDefault="true"
+					   @onclick:stopPropagation="true">
+							@treenode.Item.label
+						</a>
+					</ItemTemplate>
+				</TreeView>
+			</div>
+		</div>
+	</div>
+}
 @code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+	string strDefaultConnection;
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+	int count;
+	DTONode colAllFiles = new DTONode();
+
+	public bool IsSuperAdmin = false;
+	public string Message = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
+
+		_FilesController = (FilesController)ScopedServices.GetService(typeof(FilesController));
+
+		Reload();
+	}
+
+	private void Reload()
+	{
+		colAllFiles = _FilesController.SystemFiles(CurrentUser.Identity.Name);
+
+		StateHasChanged();
+	}
+
+	void SelectNode(DTONode selectedNode)
+	{
+		//EditLabel = "Edit Node";
+		//SelectedTreeNode = selectedNode;
+
+		//SelectedTreeNodeParentId = "0";
+		//if (selectedNode.parentId > 0)
+		//{
+		//	SelectedTreeNodeParentId = selectedNode.parentId.ToString();
+		//}
+
+		Reload();
+	}
 }

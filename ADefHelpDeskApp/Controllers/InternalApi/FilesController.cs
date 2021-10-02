@@ -40,12 +40,8 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.AspNetCore.Http;
 
-namespace AdefHelpDeskBase.Controllers
+namespace ADefHelpDeskApp.Controllers.InternalApi
 {
-    //api/Files
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "internal")]
     public class FilesController : Controller
     {
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -76,13 +72,11 @@ namespace AdefHelpDeskBase.Controllers
             }
         }
 
-        // api/Files/SystemFiles
-        [HttpGet("[action]")]
-        #region public DTONode SystemFiles()
-        public DTONode SystemFiles()
+        #region public DTONode SystemFiles(string CurrentUserName)
+        public DTONode SystemFiles(string CurrentUserName)
         {
             // Must be a Super User to proceed
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
             {
                 return new DTONode();
             }
@@ -91,15 +85,13 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        // api/Files/ReturnContent (get File content)
-        [HttpPost("[action]")]
-        #region public DTOResponse ReturnContent([FromBody]DTONode paramDTONode)
-        public DTOResponse ReturnContent([FromBody] DTONode paramDTONode)
+        #region public DTOResponse ReturnContent(DTONode paramDTONode, string CurrentUserName)
+        public DTOResponse ReturnContent(DTONode paramDTONode, string CurrentUserName)
         {
             DTOResponse objDTOResponse = new DTOResponse();
 
             // Must be a Super User to proceed
-            if (!UtilitySecurity.IsSuperUser(_httpContextAccessor.HttpContext.User.Identity.Name, GetConnectionString()))
+            if (!UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
             {
                 objDTOResponse.isSuccess = false;
                 objDTOResponse.message = "Must be a Super User to proceed";
@@ -110,10 +102,8 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        // api/Files/ReturnFile
-        [HttpPost("[action]")]
-        #region public FileContentResult ReturnFile([FromBody]DTOFileParameter paramDTOFileParameter)
-        public FileContentResult ReturnFile([FromBody] DTOFileParameter paramDTOFileParameter)
+        #region public FileContentResult ReturnFile(DTOFileParameter paramDTOFileParameter)
+        public FileContentResult ReturnFile(DTOFileParameter paramDTOFileParameter)
         {
             var fileResult = ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
             return File(fileResult.Buffer, "application/octet-stream", fileResult.FileName);
@@ -132,8 +122,8 @@ namespace AdefHelpDeskBase.Controllers
             {
                 objDTONode.label = "Root";
                 objDTONode.data = "Root";
-                objDTONode.expandedIcon = "fa fa-fw fa fa-folder-open";
-                objDTONode.collapsedIcon = "fa fa-fw fa fa-folder";
+                objDTONode.expandedIcon = "description";
+                objDTONode.collapsedIcon = "description";
                 objDTONode.children = new List<DTONode>();
 
                 // Get Files
@@ -329,8 +319,8 @@ namespace AdefHelpDeskBase.Controllers
                 DTONode objDTONode = new DTONode();
                 objDTONode.label = subdirectoryLabel;
                 objDTONode.data = subdirectory.Replace(WebRootPath, "");
-                objDTONode.expandedIcon = "fa fa-fw fa fa-folder-open";
-                objDTONode.collapsedIcon = "fa fa-fw fa fa-folder";
+                objDTONode.expandedIcon = "description";
+                objDTONode.collapsedIcon = "description";
                 objDTONode.children = new List<DTONode>();
                 objDTONode.type = "folder";
 
@@ -352,8 +342,8 @@ namespace AdefHelpDeskBase.Controllers
             DTONode objDTONode = new DTONode();
             objDTONode.label = FileName;
             objDTONode.data = FilePath.Replace(WebRootPath, "");
-            objDTONode.expandedIcon = "fas fa-file";
-            objDTONode.collapsedIcon = "fas fa-file";
+            objDTONode.expandedIcon = "description";
+            objDTONode.collapsedIcon = "description";
             objDTONode.type = "file";
 
             paramDTONode.children.Add(objDTONode);
