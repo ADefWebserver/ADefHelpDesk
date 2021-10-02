@@ -26,6 +26,7 @@
 	{
 		<h4 style="color:red">@Message</h4>
 	}
+	<br />
 	<div>
 		<div class="row">
 			<div class="col-md-12">
@@ -43,6 +44,13 @@
 				</TreeView>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<h4>Upload Files</h4>
+				<RadzenUpload ChooseText="Select File" @ref="upload" Auto="true" Multiple="false" Accept=".txt" 
+				Url="api/UploadSystemFiles" Style="margin-bottom: 20px;" Complete=@OnComplete />
+			</div>
+		</div>
 	</div>
 }
 @code {
@@ -52,7 +60,7 @@
 	string strDefaultConnection;
 	System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-	int count;
+	RadzenUpload upload;
 	DTONode colAllFiles = new DTONode();
 
 	public bool IsSuperAdmin = false;
@@ -91,6 +99,11 @@
 		//	SelectedTreeNodeParentId = selectedNode.parentId.ToString();
 		//}
 
+		Reload();
+	}
+
+	void OnComplete(UploadCompleteEventArgs args)
+	{
 		Reload();
 	}
 }

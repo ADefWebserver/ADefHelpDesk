@@ -90,9 +90,6 @@ namespace AdefHelpDeskBase.Controllers
             // Retrieve data from Form
             var form = Request.Form;
 
-            // Retrieve SelectedFolder
-            string SelectedFolder = form["selectedFolder"].First();
-
             // Process all Files
             foreach (var file in form.Files)
             {
@@ -101,7 +98,7 @@ namespace AdefHelpDeskBase.Controllers
                 {
                     var filename = file.FileName.Replace("\"", "").ToString();
 
-                    filename = _SystemFiles + $@"\{SelectedFolder}\{filename}";
+                    filename = _SystemFiles + $@"\{filename}";
 
                     //Save file to harddrive
                     using (FileStream fs = System.IO.File.Create(filename))
