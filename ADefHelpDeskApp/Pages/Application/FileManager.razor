@@ -88,18 +88,18 @@
 		StateHasChanged();
 	}
 
-	void SelectNode(DTONode selectedNode)
+	async Task SelectNode(DTONode selectedNode)
 	{
-		//EditLabel = "Edit Node";
-		//SelectedTreeNode = selectedNode;
+		var FileContent = _FilesController.ReturnContent(selectedNode, CurrentUser.Identity.Name);
 
-		//SelectedTreeNodeParentId = "0";
-		//if (selectedNode.parentId > 0)
-		//{
-		//	SelectedTreeNodeParentId = selectedNode.parentId.ToString();
-		//}
-
-		Reload();
+        var result = await DialogService.OpenAsync(selectedNode.label, ds =>
+        @<div>
+            <div class="row">
+                <div class="col-md-12">
+                    @FileContent.message
+                </div>
+            </div>
+        </div>);
 	}
 
 	void OnComplete(UploadCompleteEventArgs args)
