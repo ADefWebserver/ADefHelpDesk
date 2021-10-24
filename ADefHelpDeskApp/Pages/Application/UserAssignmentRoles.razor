@@ -155,6 +155,11 @@
 				if(!DeleteResult.Success)
 				{
 					Message = DeleteResult.StatusMessage;
+
+					if(Message.Contains("FK_UserRoles_ADefHelpDesk_Roles"))
+					{
+						Message = "Cannot Delete Role, it is in use";
+					}
 				}
 				else
 				{
