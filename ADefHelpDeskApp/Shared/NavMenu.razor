@@ -10,7 +10,7 @@
     {
         <RadzenMenuItem Text="Existing Tickets" Path="tickets" Icon="confirmation_number"></RadzenMenuItem>
         <RadzenMenuItem Text="Reports" Path="reports" Icon="analytics"></RadzenMenuItem>
-        @if (IsAdmin)
+        @if (IsSuperAdmin)
         {
             <RadzenMenuItem Text="Administration" Icon="table_chart">
                 <RadzenMenuItem Text="User Manager" Path="usermanager" Icon="groups"></RadzenMenuItem>
@@ -31,7 +31,7 @@
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     bool IsAuthenticated = false;
-    bool IsAdmin = false;
+    bool IsSuperAdmin = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     string strDefaultConnection = "";
 
@@ -44,10 +44,10 @@
         CurrentUser = (await authenticationStateTask).User;
 
         IsAuthenticated = CurrentUser.Identity.IsAuthenticated;
-        IsAdmin = await IsAdminAsync();
+        IsSuperAdmin = await IsSuperUserAsync();
     }
 
-    public async Task<bool> IsAdminAsync()
+    public async Task<bool> IsSuperUserAsync()
     {
         bool result = false;
 

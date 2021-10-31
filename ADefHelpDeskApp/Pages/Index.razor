@@ -3,11 +3,12 @@
 @using ADefHelpDeskApp.Classes
 @using AdefHelpDeskBase.Models.DataContext
 @using Microsoft.EntityFrameworkCore
+@using ADefHelpDeskApp.Pages.TicketControls
 @inject IConfiguration _configuration
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
 
-<ADefHelpDeskApp.Pages.TicketControls.TicketCreate />
+<TicketCreate />
 
 @code {
     [CascadingParameter]

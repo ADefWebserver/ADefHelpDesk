@@ -1,147 +1,153 @@
-﻿@using ADefHelpDeskApp.Classes
+﻿@inherits OwningComponentBase
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Models
 @using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
 @using Microsoft.EntityFrameworkCore
 @inject IConfiguration _configuration
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
 
 <RadzenTabs RenderMode="TabRenderMode.Server">
 	<Tabs>
 		<RadzenTabsItem Text="New Ticket">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<b>Name:</b>&nbsp;
-					</div>
-					<div class="col">
-						<label class="control-label" style="font-weight: bold">Label: </label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col">
-						<b>Name:</b>&nbsp;
-					</div>
-					<div class="col">
-						<label class="control-label" style="font-weight: bold">Label: </label>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Email:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Phone:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Description:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Detail:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Due Date:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Priority:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
+			<table class="form-group" cellpadding="4" cellspacing="4">
+				<tbody>
+					<tr>
+						<td>
+							<b>Name:</b>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Email:</b>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Phone:</b>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=NewTask.RequesterPhone style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Description:</b>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=NewTask.Description style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Detail:</b>
+						</td>
+						<td>
+							<RadzenTextArea @bind-Value=@NewTaskDetail.Description Cols="30" Rows="3" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Due Date:</b>
+						</td>
+						<td>
+							<RadzenDatePicker @bind-Value=@NewTask.DueDate DateFormat="d" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Priority:</b>
+						</td>
+						<td>
+							<RadzenDropDown Data=@priorityDropdown @bind-Value=@NewTask.Priority
+											TextProperty="ItemLabel"
+											ValueProperty="ItemStringValue"
+											Style="width:300px" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</RadzenTabsItem>
 		<RadzenTabsItem Text="Ticket Details">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<b>Status:</b>&nbsp;
-					</div>
-					<div class="col">
-						<label class="control-label" style="font-weight: bold">Label: </label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col">
-						<b>Assigned Role:</b>&nbsp;
-					</div>
-					<div class="col">
-						<label class="control-label" style="font-weight: bold">Label: </label>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Estimated Start:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Estimated Completion:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Estimated Hours:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Start Time:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col">
-					<b>Stop Time:</b>&nbsp;
-				</div>
-				<div class="col">
-					<label class="control-label" style="font-weight: bold">Label: </label>
-				</div>
-			</div>
+			<table class="form-group" cellpadding="4" cellspacing="4">
+				<tbody>
+					<tr>
+						<td>
+							<b>Status:</b>
+						</td>
+						<td>
+							<RadzenDropDown Data=@statusDropdown @bind-Value=@NewTask.Priority
+											TextProperty="ItemLabel"
+											ValueProperty="ItemStringValue"
+											Style="width:300px" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Assigned Role:</b>
+						</td>
+						<td>
+							<RadzenDropDown Data=@rolesDropdown @bind-Value=@NewTask.AssignedRoleId
+											TextProperty="ItemLabel"
+											ValueProperty="ItemStringValue"
+											Style="width:300px" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Estimated Start:</b>
+						</td>
+						<td>
+							<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Estimated Completion:</b>
+						</td>
+						<td>
+							<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Estimated Hours:</b>
+						</td>
+						<td>
+							<RadzenNumeric @bind-Value=@NewTask.EstimatedHours TValue="int?" Min="0" Max="10000" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Start Time:</b>
+						</td>
+						<td>
+							<RadzenDatePicker @bind-Value=@NewTaskDetail.StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<b>Stop Time:</b>
+						</td>
+						<td>
+							<RadzenDatePicker @bind-Value=@NewTaskDetail.StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</RadzenTabsItem>
 	</Tabs>
 </RadzenTabs>
@@ -157,14 +163,39 @@
 		&nbsp;
 	</div>
 </div>
-
+@if (@showWaitGraphic)
+{
+	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+}
+@if (@Message != "")
+{
+	<h4 style="color:red">@Message</h4>
+}
 @code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-	bool IsAdmin = false;
-	System.Security.Claims.ClaimsPrincipal CurrentUser;
-	string strDefaultConnection = "";
+	private bool IsAdmin = false;
+	private System.Security.Claims.ClaimsPrincipal CurrentUser;
+	private string strDefaultConnection = "";
+	private bool showWaitGraphic = false;
+	private string Message = "";
+
+	public string applicationName = "";
+	public string fileUploadPath = "";
+	public object selectedStoragefiletype;
+	public string azurestorageconnection = "";
+	public object selectedPermission = "";
+	public string applicationGUID = "";
+
+	private DTOTaskForm NewTask = new DTOTaskForm();
+	private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
+
+	private List<SelectItem> priorityDropdown = new List<SelectItem>();
+	private List<SelectItem> statusDropdown = new List<SelectItem>();
+	private List<SelectItem> rolesDropdown = new List<SelectItem>();
+
+	List<RoleDTO> AllRoles = new List<RoleDTO>();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -175,6 +206,11 @@
 		CurrentUser = (await authenticationStateTask).User;
 
 		IsAdmin = await IsAdminAsync();
+
+		_ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
+		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+
+		populateDropdowns();
 	}
 
 	public async Task<bool> IsAdminAsync()
@@ -210,5 +246,96 @@
 		}
 
 		return result;
+	}
+
+	private void populateDropdowns()
+	{
+		// ** Priority Dropdown
+		priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+		priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+		priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+
+		// ** Status Dropdown
+		statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+		statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+		statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+		statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+		statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+		// ** Roles Dropdown
+		AllRoles = _RoleController.GetRoles();
+		foreach (var role in AllRoles)
+		{
+			rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+		}
+
+		// Get current settings
+		GetCurrentSettings();
+	}
+
+	private void GetCurrentSettings()
+	{
+		var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
+
+		applicationName = DTOSettings.applicationName;
+		fileUploadPath = DTOSettings.fileUploadPath;
+		azurestorageconnection = DTOSettings.azurestorageconnection;
+		applicationGUID = DTOSettings.applicationGUID;
+
+		selectedStoragefiletype = DTOSettings.storagefiletype;
+		selectedPermission = DTOSettings.uploadPermission;
+
+		StateHasChanged();
+	}
+
+	private void Save()
+	{
+		try
+		{
+			Message = "";
+			showWaitGraphic = true;
+			StateHasChanged();
+
+			// Get the form values
+			//DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
+			//{
+			//    applicationName = applicationName,
+			//    applicationGUID = applicationGUID,
+			//    fileUploadPath = fileUploadPath,
+			//    storagefiletype = (String)selectedStoragefiletype,
+			//    azurestorageconnection = this.azurestorageconnection,
+			//    uploadPermission = (String)selectedPermission,
+			//    allowRegistration = (bool)selectedAllowUserRegistration,
+			//    verifiedRegistration = (bool)selectedVerifiedRegistration,
+			//    status = "",
+			//    valid = true,
+			//    termsOfUse = "",
+			//    privacyStatement = "",
+			//    swaggerWebAddress = ""
+			//};
+
+			//// Call the service
+			//DTOApplicationSetting result = _ApplicationSettingsController.SetSettings(ApplicationSettings, CurrentUser.Identity.Name);
+
+			//// Was update successful?
+			//if (!result.valid)
+			//{
+			//    Message = result.status;
+			//}
+			//else
+			//{
+			//    Message = "Saved";
+			//}
+
+			showWaitGraphic = false;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			showWaitGraphic = false;
+			Message = ex.Message;
+			StateHasChanged();
+			return;
+		}
 	}
 }
