@@ -81,6 +81,8 @@
 				</tbody>
 			</table>
 		</RadzenTabsItem>
+		@if(IsAdmin==true)
+		{
 		<RadzenTabsItem Text="Ticket Details">
 			<table class="form-group" cellpadding="4" cellspacing="4">
 				<tbody>
@@ -149,6 +151,7 @@
 				</tbody>
 			</table>
 		</RadzenTabsItem>
+		}
 	</Tabs>
 </RadzenTabs>
 
@@ -205,47 +208,19 @@
 		// Get the current user
 		CurrentUser = (await authenticationStateTask).User;
 
-		IsAdmin = await IsAdminAsync();
+		if (CurrentUser.Identity.IsAuthenticated)
+		{
+			IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+		}
+		else
+		{
+			IsAdmin = false;
+		}
 
 		_ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
 		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
 
 		populateDropdowns();
-	}
-
-	public async Task<bool> IsAdminAsync()
-	{
-		bool result = false;
-
-		var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-		optionsBuilder.UseSqlServer(strDefaultConnection);
-
-		using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-		{
-			try
-			{
-				// Get the user
-				var objUser = await (from user in context.AdefHelpDeskUsers
-										where user.Username.ToLower() == CurrentUser.Identity.Name.ToLower()
-										where user.IsSuperUser == true
-										select user).FirstOrDefaultAsync();
-
-				if (objUser != null)
-				{
-					result = true;
-				}
-				else
-				{
-					result = false;
-				}
-			}
-			catch
-			{
-				result = false;
-			}
-		}
-
-		return result;
 	}
 
 	private void populateDropdowns()
