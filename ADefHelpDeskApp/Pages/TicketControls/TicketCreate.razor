@@ -166,7 +166,7 @@
 			<ItemTemplate Context="treenode">
 				@if (@treenode.Item.selectable)
 				{
-					&nbsp;<RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+					<RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
                         TValue="bool"
                         @onclick:stopPropagation="true" />
 }
