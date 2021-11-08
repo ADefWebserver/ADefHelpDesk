@@ -6,157 +6,175 @@
 @using ADefHelpDeskApp.Controllers
 @using ADefHelpDeskApp.Controllers.InternalApi
 @using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
 @inject IConfiguration _configuration
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
 @inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
+<div class="row">
+	<div class="col-xl-6 col-lg-6 py-2">
+		<RadzenTabs RenderMode="TabRenderMode.Server">
+			<Tabs>
+				<RadzenTabsItem Text="New Ticket">
+					<table class="form-group" cellpadding="4" cellspacing="4">
+						<tbody>
+							<tr>
+								<td>
+									<b>Name:</b>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Email:</b>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Phone:</b>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value=NewTask.RequesterPhone style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Description:</b>
+								</td>
+								<td>
+									<RadzenTextBox @bind-Value=NewTask.Description style="width: 100%;" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Detail:</b>
+								</td>
+								<td>
+									<RadzenTextArea @bind-Value=@NewTaskDetail.Description Cols="30" Rows="3" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Due Date:</b>
+								</td>
+								<td>
+									<RadzenDatePicker @bind-Value=@NewTask.DueDate DateFormat="d" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<b>Priority:</b>
+								</td>
+								<td>
+									<RadzenDropDown Data=@priorityDropdown @bind-Value=@NewTask.Priority
+													TextProperty="ItemLabel"
+													ValueProperty="ItemStringValue"
+													Style="width:300px" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</RadzenTabsItem>
+				@if (IsAdmin == true)
+				{
+					<RadzenTabsItem Text="Ticket Details">
+						<table class="form-group" cellpadding="4" cellspacing="4">
+							<tbody>
+								<tr>
+									<td>
+										<b>Status:</b>
+									</td>
+									<td>
+										<RadzenDropDown Data=@statusDropdown @bind-Value=@NewTask.Priority
+													TextProperty="ItemLabel"
+													ValueProperty="ItemStringValue"
+													Style="width:300px" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Assigned Role:</b>
+									</td>
+									<td>
+										<RadzenDropDown Data=@rolesDropdown @bind-Value=@NewTask.AssignedRoleId
+													TextProperty="ItemLabel"
+													ValueProperty="ItemStringValue"
+													Style="width:300px" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Estimated Start:</b>
+									</td>
+									<td>
+										<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Estimated Completion:</b>
+									</td>
+									<td>
+										<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Estimated Hours:</b>
+									</td>
+									<td>
+										<RadzenNumeric @bind-Value=@NewTask.EstimatedHours TValue="int?" Min="0" Max="10000" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Start Time:</b>
+									</td>
+									<td>
+										<RadzenDatePicker @bind-Value=@NewTaskDetail.StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<b>Stop Time:</b>
+									</td>
+									<td>
+										<RadzenDatePicker @bind-Value=@NewTaskDetail.StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</RadzenTabsItem>
+				}
+			</Tabs>
+		</RadzenTabs>
+	</div>
 
-<RadzenTabs RenderMode="TabRenderMode.Server">
-	<Tabs>
-		<RadzenTabsItem Text="New Ticket">
-			<table class="form-group" cellpadding="4" cellspacing="4">
-				<tbody>
-					<tr>
-						<td>
-							<b>Name:</b>
-						</td>
-						<td>
-							<RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Email:</b>
-						</td>
-						<td>
-							<RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Phone:</b>
-						</td>
-						<td>
-							<RadzenTextBox @bind-Value=NewTask.RequesterPhone style="width: 100%;" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Description:</b>
-						</td>
-						<td>
-							<RadzenTextBox @bind-Value=NewTask.Description style="width: 100%;" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Detail:</b>
-						</td>
-						<td>
-							<RadzenTextArea @bind-Value=@NewTaskDetail.Description Cols="30" Rows="3" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Due Date:</b>
-						</td>
-						<td>
-							<RadzenDatePicker @bind-Value=@NewTask.DueDate DateFormat="d" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Priority:</b>
-						</td>
-						<td>
-							<RadzenDropDown Data=@priorityDropdown @bind-Value=@NewTask.Priority
-											TextProperty="ItemLabel"
-											ValueProperty="ItemStringValue"
-											Style="width:300px" />
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</RadzenTabsItem>
-		@if(IsAdmin==true)
-		{
-		<RadzenTabsItem Text="Ticket Details">
-			<table class="form-group" cellpadding="4" cellspacing="4">
-				<tbody>
-					<tr>
-						<td>
-							<b>Status:</b>
-						</td>
-						<td>
-							<RadzenDropDown Data=@statusDropdown @bind-Value=@NewTask.Priority
-											TextProperty="ItemLabel"
-											ValueProperty="ItemStringValue"
-											Style="width:300px" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Assigned Role:</b>
-						</td>
-						<td>
-							<RadzenDropDown Data=@rolesDropdown @bind-Value=@NewTask.AssignedRoleId
-											TextProperty="ItemLabel"
-											ValueProperty="ItemStringValue"
-											Style="width:300px" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Estimated Start:</b>
-						</td>
-						<td>
-							<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Estimated Completion:</b>
-						</td>
-						<td>
-							<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Estimated Hours:</b>
-						</td>
-						<td>
-							<RadzenNumeric @bind-Value=@NewTask.EstimatedHours TValue="int?" Min="0" Max="10000" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Start Time:</b>
-						</td>
-						<td>
-							<RadzenDatePicker @bind-Value=@NewTaskDetail.StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<b>Stop Time:</b>
-						</td>
-						<td>
-							<RadzenDatePicker @bind-Value=@NewTaskDetail.StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</RadzenTabsItem>
-		}
-	</Tabs>
-</RadzenTabs>
+	<div class="col-xl-6 col-lg-6 py-2">
+		<!-- Tree Node Control -->
+		<TreeView Items="colAllTags"
+				GetChildren="(treenode) => treenode.children">
+			<ItemTemplate Context="treenode">
+				@if (@treenode.Item.selectable)
+				{
+					&nbsp;<RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                        TValue="bool"
+                        @onclick:stopPropagation="true" />
+}
+				&nbsp;@treenode.Item.label
+			</ItemTemplate>
+		</TreeView>
+	</div>
 
-<div>
-	<!-- Tree Node Control -->
 </div>
 <br />
 <div class="row">
@@ -193,6 +211,7 @@
 
 	private DTOTaskForm NewTask = new DTOTaskForm();
 	private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
+	private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
 
 	private List<SelectItem> priorityDropdown = new List<SelectItem>();
 	private List<SelectItem> statusDropdown = new List<SelectItem>();
@@ -219,8 +238,11 @@
 
 		_ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
 		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+		_CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
 
 		populateDropdowns();
+		
+		colAllTags = _CategoryTreeController.GetCategoryTree(true);
 	}
 
 	private void populateDropdowns()
