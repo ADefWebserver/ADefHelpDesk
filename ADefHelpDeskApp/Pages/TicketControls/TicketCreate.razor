@@ -16,323 +16,366 @@
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
 <div class="row">
-	<div class="col-xl-6 col-lg-6 py-2">
-		<RadzenTabs RenderMode="TabRenderMode.Server">
-			<Tabs>
-				<RadzenTabsItem Text="New Ticket">
-					<table class="form-group" cellpadding="4" cellspacing="4">
-						<tbody>
-							<tr>
-								<td>
-									<b>Name:</b>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Email:</b>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Phone:</b>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value=NewTask.RequesterPhone style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Description:</b>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value=NewTask.Description style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Detail:</b>
-								</td>
-								<td>
-									<RadzenTextArea @bind-Value=@NewTaskDetail.Description Cols="30" Rows="3" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Due Date:</b>
-								</td>
-								<td>
-									<RadzenDatePicker @bind-Value=@NewTask.DueDate DateFormat="d" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<b>Priority:</b>
-								</td>
-								<td>
-									<RadzenDropDown Data=@priorityDropdown @bind-Value=@NewTask.Priority
-													TextProperty="ItemLabel"
-													ValueProperty="ItemStringValue"
-													Style="width:300px" />
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</RadzenTabsItem>
-				@if (IsAdmin == true)
-				{
-					<RadzenTabsItem Text="Ticket Details">
-						<table class="form-group" cellpadding="4" cellspacing="4">
-							<tbody>
-								<tr>
-									<td>
-										<b>Status:</b>
-									</td>
-									<td>
-										<RadzenDropDown Data=@statusDropdown @bind-Value=@NewTask.Priority
-													TextProperty="ItemLabel"
-													ValueProperty="ItemStringValue"
-													Style="width:300px" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Assigned Role:</b>
-									</td>
-									<td>
-										<RadzenDropDown Data=@rolesDropdown @bind-Value=@NewTask.AssignedRoleId
-													TextProperty="ItemLabel"
-													ValueProperty="ItemStringValue"
-													Style="width:300px" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Estimated Start:</b>
-									</td>
-									<td>
-										<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Estimated Completion:</b>
-									</td>
-									<td>
-										<RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Estimated Hours:</b>
-									</td>
-									<td>
-										<RadzenNumeric @bind-Value=@NewTask.EstimatedHours TValue="int?" Min="0" Max="10000" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Start Time:</b>
-									</td>
-									<td>
-										<RadzenDatePicker @bind-Value=@NewTaskDetail.StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<b>Stop Time:</b>
-									</td>
-									<td>
-										<RadzenDatePicker @bind-Value=@NewTaskDetail.StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</RadzenTabsItem>
-				}
-			</Tabs>
-		</RadzenTabs>
-	</div>
+    <div class="col-xl-6 col-lg-6 py-2">
+        <RadzenTabs RenderMode="TabRenderMode.Server">
+            <Tabs>
+                <RadzenTabsItem Text="New Ticket">
+                    <table class="form-group" cellpadding="4" cellspacing="4">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <b>Name:</b>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Email:</b>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Phone:</b>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value=NewTask.RequesterPhone style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Description:</b>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value=NewTask.Description style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Detail:</b>
+                                </td>
+                                <td>
+                                    <RadzenTextArea @bind-Value=@NewTaskDetail.Description Cols="30" Rows="3" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Due Date:</b>
+                                </td>
+                                <td>
+                                    <RadzenDatePicker @bind-Value=@NewTask.DueDate DateFormat="d" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Priority:</b>
+                                </td>
+                                <td>
+                                    <RadzenDropDown Data=@priorityDropdown @bind-Value=@NewTask.Priority
+                                                    TextProperty="ItemLabel"
+                                                    ValueProperty="ItemStringValue"
+                                                    Style="width:300px" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </RadzenTabsItem>
+                @if (IsAdmin == true)
+                {
+                    <RadzenTabsItem Text="Ticket Details">
+                        <table class="form-group" cellpadding="4" cellspacing="4">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <b>Status:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDropDown Data=@statusDropdown @bind-Value=@NewTask.Priority
+                                                    TextProperty="ItemLabel"
+                                                    ValueProperty="ItemStringValue"
+                                                    Style="width:300px" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Assigned Role:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDropDown Data=@rolesDropdown @bind-Value=@NewTask.AssignedRoleId
+                                                    TextProperty="ItemLabel"
+                                                    ValueProperty="ItemStringValue"
+                                                    Style="width:300px" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Estimated Start:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Estimated Completion:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Estimated Hours:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenNumeric @bind-Value=@NewTask.EstimatedHours TValue="int?" Min="0" Max="10000" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Start Time:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDatePicker @bind-Value=@NewTaskDetail.StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Stop Time:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDatePicker @bind-Value=@NewTaskDetail.StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </RadzenTabsItem>
+                }
+            </Tabs>
+        </RadzenTabs>
+    </div>
 
-	<div class="col-xl-6 col-lg-6 py-2">
-		<!-- Tree Node Control -->
-		<TreeView Items="colAllTags"
-				GetChildren="(treenode) => treenode.children">
-			<ItemTemplate Context="treenode">&nbsp;
-				@if (@treenode.Item.data.selectable)
-				{
-					<RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
-                        TValue="bool"
-                        @onclick:stopPropagation="true" />
-				}
-				&nbsp;@treenode.Item.label
-			</ItemTemplate>
-		</TreeView>
-	</div>
+    <div class="col-xl-6 col-lg-6 py-2">
+        <!-- Tree Node Control -->
+        <TreeView Items="colAllTags"
+                  GetChildren="(treenode) => treenode.children">
+            <ItemTemplate Context="treenode">
+                &nbsp;
+                @if (@treenode.Item.data.selectable)
+                {
+                    <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                TValue="bool"
+                                @onclick:stopPropagation="true" />
+                }
+                &nbsp;@treenode.Item.label
+            </ItemTemplate>
+        </TreeView>
+    </div>
 
 </div>
 <br />
 <div class="row">
-	<div class="col">
-		<RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
-					  Style="margin-bottom: 10px; width: 150px" />
-		&nbsp;
-	</div>
+    <div class="col">
+        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
+                      Click="Save"
+                      Style="margin-bottom: 10px; width: 150px" />
+        &nbsp;
+    </div>
 </div>
 @if (@showWaitGraphic)
 {
-	<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
 }
 @if (@Message != "")
 {
-	<h4 style="color:red">@Message</h4>
+    <h4 style="color:red">@Message</h4>
 }
 @code {
-	[CascadingParameter]
-	private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-	private bool IsAdmin = false;
-	private System.Security.Claims.ClaimsPrincipal CurrentUser;
-	private string strDefaultConnection = "";
-	private bool showWaitGraphic = false;
-	private string Message = "";
+    private bool IsAdmin = false;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private string strDefaultConnection = "";
+    private bool showWaitGraphic = false;
+    private string Message = "";
 
-	public string applicationName = "";
-	public string fileUploadPath = "";
-	public object selectedStoragefiletype;
-	public string azurestorageconnection = "";
-	public object selectedPermission = "";
-	public string applicationGUID = "";
+    public string applicationName = "";
+    public string fileUploadPath = "";
+    public object selectedStoragefiletype;
+    public string azurestorageconnection = "";
+    public object selectedPermission = "";
+    public string applicationGUID = "";
 
-	private DTOTaskForm NewTask = new DTOTaskForm();
-	private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
-	private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    private DTOTaskForm NewTask = new DTOTaskForm();
+    private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
+    private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
 
-	private List<SelectItem> priorityDropdown = new List<SelectItem>();
-	private List<SelectItem> statusDropdown = new List<SelectItem>();
-	private List<SelectItem> rolesDropdown = new List<SelectItem>();
+    private List<SelectItem> priorityDropdown = new List<SelectItem>();
+    private List<SelectItem> statusDropdown = new List<SelectItem>();
+    private List<SelectItem> rolesDropdown = new List<SelectItem>();
 
-	List<RoleDTO> AllRoles = new List<RoleDTO>();
+    List<RoleDTO> AllRoles = new List<RoleDTO>();
 
-	protected override async Task OnInitializedAsync()
-	{
-		// Get database conection string
-		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 
-		// Get the current user
-		CurrentUser = (await authenticationStateTask).User;
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
 
-		if (CurrentUser.Identity.IsAuthenticated)
-		{
-			IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
-		}
-		else
-		{
-			IsAdmin = false;
-		}
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
 
-		_ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
-		_RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
-		_CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
 
-		populateDropdowns();
+        populateDropdowns();
 
-		colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
-	}
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
+    }
 
-	private void populateDropdowns()
-	{
-		// ** Priority Dropdown
-		priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
-		priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
-		priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+    private void populateDropdowns()
+    {
+        // ** Priority Dropdown
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
 
-		// ** Status Dropdown
-		statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
-		statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
-		statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
-		statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
-		statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+        // ** Status Dropdown
+        statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
 
-		// ** Roles Dropdown
-		AllRoles = _RoleController.GetRoles();
-		foreach (var role in AllRoles)
-		{
-			rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
-		}
+        // ** Roles Dropdown
+        AllRoles = _RoleController.GetRoles();
+        foreach (var role in AllRoles)
+        {
+            rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+        }
 
-		// Get current settings
-		GetCurrentSettings();
-	}
+        // Get current settings
+        GetCurrentSettings();
+    }
 
-	private void GetCurrentSettings()
-	{
-		var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
+    private void GetCurrentSettings()
+    {
+        var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
 
-		applicationName = DTOSettings.applicationName;
-		fileUploadPath = DTOSettings.fileUploadPath;
-		azurestorageconnection = DTOSettings.azurestorageconnection;
-		applicationGUID = DTOSettings.applicationGUID;
+        applicationName = DTOSettings.applicationName;
+        fileUploadPath = DTOSettings.fileUploadPath;
+        azurestorageconnection = DTOSettings.azurestorageconnection;
+        applicationGUID = DTOSettings.applicationGUID;
 
-		selectedStoragefiletype = DTOSettings.storagefiletype;
-		selectedPermission = DTOSettings.uploadPermission;
+        selectedStoragefiletype = DTOSettings.storagefiletype;
+        selectedPermission = DTOSettings.uploadPermission;
 
-		StateHasChanged();
-	}
+        StateHasChanged();
+    }
 
-	private void Save()
-	{
-		try
-		{
-			Message = "";
-			showWaitGraphic = true;
-			StateHasChanged();
+    private async void Save()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
 
-			// Get the form values
-			//DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
-			//{
-			//    applicationName = applicationName,
-			//    applicationGUID = applicationGUID,
-			//    fileUploadPath = fileUploadPath,
-			//    storagefiletype = (String)selectedStoragefiletype,
-			//    azurestorageconnection = this.azurestorageconnection,
-			//    uploadPermission = (String)selectedPermission,
-			//    allowRegistration = (bool)selectedAllowUserRegistration,
-			//    verifiedRegistration = (bool)selectedVerifiedRegistration,
-			//    status = "",
-			//    valid = true,
-			//    termsOfUse = "",
-			//    privacyStatement = "",
-			//    swaggerWebAddress = ""
-			//};
+            var SelectedTags = await GetSelected(colAllTags);
+            var TagCount = SelectedTags.Count();
 
-			//// Call the service
-			//DTOApplicationSetting result = _ApplicationSettingsController.SetSettings(ApplicationSettings, CurrentUser.Identity.Name);
+            // Get the form values
+            //DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
+            //{
+            //    applicationName = applicationName,
+            //    applicationGUID = applicationGUID,
+            //    fileUploadPath = fileUploadPath,
+            //    storagefiletype = (String)selectedStoragefiletype,
+            //    azurestorageconnection = this.azurestorageconnection,
+            //    uploadPermission = (String)selectedPermission,
+            //    allowRegistration = (bool)selectedAllowUserRegistration,
+            //    verifiedRegistration = (bool)selectedVerifiedRegistration,
+            //    status = "",
+            //    valid = true,
+            //    termsOfUse = "",
+            //    privacyStatement = "",
+            //    swaggerWebAddress = ""
+            //};
 
-			//// Was update successful?
-			//if (!result.valid)
-			//{
-			//    Message = result.status;
-			//}
-			//else
-			//{
-			//    Message = "Saved";
-			//}
+            //// Call the service
+            //DTOApplicationSetting result = _ApplicationSettingsController.SetSettings(ApplicationSettings, CurrentUser.Identity.Name);
 
-			showWaitGraphic = false;
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			showWaitGraphic = false;
-			Message = ex.Message;
-			StateHasChanged();
-			return;
-		}
-	}
+            //// Was update successful?
+            //if (!result.valid)
+            //{
+            //    Message = result.status;
+            //}
+            //else
+            //{
+            //    Message = "Saved";
+            //}
+
+            showWaitGraphic = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            showWaitGraphic = false;
+            Message = ex.Message;
+            StateHasChanged();
+            return;
+        }
+    }
+
+    // Utility
+
+    public static async Task<List<CategoryDTO>> GetSelected(List<CategoryDTO> TreeNodes)
+    {
+        List<CategoryDTO> ColSelectedTreeNodes = new List<CategoryDTO>();
+        // Get all the top level nodes
+        foreach (var node in TreeNodes)
+        {
+            if (node.data.CheckboxChecked)
+            {
+                ColSelectedTreeNodes.Add(node);
+            }
+            // Recursively call the AddChildren method adding all children
+            await Task.Run(() => AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node));
+        }
+        return ColSelectedTreeNodes;
+    }
+
+    private static void AddSelectedChildren(
+    List<CategoryDTO> colNodeItemCollection,
+    List<CategoryDTO> colTreeNodeCollection,
+    CategoryDTO paramTreeNode)
+    {
+        // Get the children of the current item
+        // This method may be called from the top level 
+        // or recursively by one of the child items
+        // Loop thru each Child of the current Node
+        foreach (var objChild in paramTreeNode.children)
+        {
+            if (objChild.data.CheckboxChecked)
+            {
+                colTreeNodeCollection.Add(objChild);
+            }
+            // Recursively call the AddChildren method adding all children
+            AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);
+        }
+    }
 }

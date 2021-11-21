@@ -897,15 +897,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <summary>
         /// Get Category Nodes
         /// </summary>
+        /// <param name="RequestorVisibleOnly"></param>
         /// <param name="UseCache"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetCategoryNodes")]
         [ApiExplorerSettings(GroupName = "external")]
-        public List<CategoryDTO> GetCategoryNodes([FromBody]bool UseCache)
+        public List<CategoryDTO> GetCategoryNodes([FromBody]bool RequestorVisibleOnly,bool UseCache)
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(false, UseCache, _cache, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
         }
         #endregion
 
