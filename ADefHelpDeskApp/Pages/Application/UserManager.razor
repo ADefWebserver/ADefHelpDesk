@@ -16,7 +16,7 @@
 @inject DialogService DialogService
 @inject IConfiguration _configuration
 @inject UserManagerController _UserManagerController
-<h4>User Manager</h4>
+<h3>User Manager</h3>
 
 @if (@IsSuperAdmin)
 {
@@ -24,10 +24,11 @@
 	{
 		<h4 style="color:red">@Message</h4>
 	}
-	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddUser()) Text="Add" Style="margin-bottom: 10px" />
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddUser()) Text="Add User" Style="margin-bottom: 10px" />
 	<br />
 	<div>
-		<p><b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) /></p>
+		<p><b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) />
+	</p>
 	</div>
 	<RadzenDataGrid @ref="grid" Data="@_userSearchResult.userList" Count="@count"
 				TItem="DTOUser" LoadData="@LoadData"

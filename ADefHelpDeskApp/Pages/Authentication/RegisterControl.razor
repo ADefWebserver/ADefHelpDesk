@@ -95,10 +95,17 @@
 @if (@Message != "")
 {
     <h4 style="color:red">@Message</h4>
-    <br />
-    <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    @if (objRegisterStatus.isSuccessful)
+    {
+        <br />
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
 }
+
 @code {
+    // RegisterStatus to return
+    RegisterStatus objRegisterStatus = new RegisterStatus();
+
     bool AllowRegistration = false;
     bool UserCreated = false;
     string Message = "";
@@ -116,6 +123,9 @@
 
         var DTOSettings = _ApplicationSettingsController.GetSettings("", NavigationManager.BaseUri);
         AllowRegistration = DTOSettings.allowRegistration;
+
+        objRegisterStatus.status = "Registration Failure";
+        objRegisterStatus.isSuccessful = false;
     }
 
     private async void CreateUser()
@@ -142,11 +152,6 @@
                 Message = "All fields are required";
                 return;
             }
-
-            // RegisterStatus to return
-            RegisterStatus objRegisterStatus = new RegisterStatus();
-            objRegisterStatus.status = "Registration Failure";
-            objRegisterStatus.isSuccessful = false;
 
             // Create the User
             string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];

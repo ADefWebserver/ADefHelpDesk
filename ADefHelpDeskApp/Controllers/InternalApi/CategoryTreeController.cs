@@ -30,7 +30,7 @@ using AdefHelpDeskBase.Models.DataContext;
 namespace ADefHelpDeskApp.Controllers.InternalApi
 {
     public class CategoryTreeController
-    {        
+    {
         private IConfiguration _config { get; set; }
         private IMemoryCache _cache;
 
@@ -102,7 +102,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     objNewNode.label = objNode.NodeName;
                     objNewNode.parentId = 0;
                     objNewNode.children = new List<CategoryDTO>();
-                    objNewNode.selectable = true;
+                    objNewNode.selectable = objNode.Selectable;
 
                     if (objNode.Selectable == true)
                     {
@@ -152,10 +152,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _cache.Set("TreeNodes", colTreeNodes, cacheEntryOptions);
 
             return colTreeNodes;
-        } 
+        }
         #endregion
-
-        // Utility
 
         #region AddChildren
         private static void AddChildren(
@@ -180,7 +178,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 objNewNode.label = objChild.NodeName;
                 objNewNode.parentId = Convert.ToInt32(paramTreeNode.categoryId);
                 objNewNode.children = new List<CategoryDTO>();
-                objNewNode.selectable = true;
+                objNewNode.selectable = objChild.Selectable;
 
                 if (objChild.Selectable == true)
                 {
@@ -250,6 +248,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             }
         }
         #endregion
+
+        // Utility
 
         #region private string GetConnectionString()
         private string GetConnectionString()

@@ -163,13 +163,13 @@
 		<!-- Tree Node Control -->
 		<TreeView Items="colAllTags"
 				GetChildren="(treenode) => treenode.children">
-			<ItemTemplate Context="treenode">
-				@if (@treenode.Item.selectable)
+			<ItemTemplate Context="treenode">&nbsp;
+				@if (@treenode.Item.data.selectable)
 				{
 					<RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
                         TValue="bool"
                         @onclick:stopPropagation="true" />
-}
+				}
 				&nbsp;@treenode.Item.label
 			</ItemTemplate>
 		</TreeView>
@@ -241,7 +241,7 @@
 		_CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
 
 		populateDropdowns();
-		
+
 		colAllTags = _CategoryTreeController.GetCategoryTree(true);
 	}
 
