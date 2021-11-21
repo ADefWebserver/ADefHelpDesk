@@ -81,6 +81,24 @@
                                                     Style="width:300px" />
                                 </td>
                             </tr>
+                            @if
+                            (
+                                (FileUploadPermission == "All")
+                                ||
+                                ((CurrentUser.Identity.IsAuthenticated) && (FileUploadPermission == "Administrator/Registered Users"))
+                                ||
+                                ((IsAdmin == true) && (FileUploadPermission == "Administrator"))
+                            )
+                            {
+                                <tr>
+                                    <td>
+                                        <b>File Upload:</b>
+                                    </td>
+                                    <td>
+                                        <p>File Upload control</p>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </RadzenTabsItem>
@@ -204,12 +222,9 @@
     private bool showWaitGraphic = false;
     private string Message = "";
 
-    public string applicationName = "";
-    public string fileUploadPath = "";
-    public object selectedStoragefiletype;
-    public string azurestorageconnection = "";
-    public object selectedPermission = "";
-    public string applicationGUID = "";
+    public string ApplicationName = "";
+    public string ApplicationGUID = "";
+    public string FileUploadPermission = "";
 
     private DTOTaskForm NewTask = new DTOTaskForm();
     private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
@@ -276,13 +291,9 @@
     {
         var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
 
-        applicationName = DTOSettings.applicationName;
-        fileUploadPath = DTOSettings.fileUploadPath;
-        azurestorageconnection = DTOSettings.azurestorageconnection;
-        applicationGUID = DTOSettings.applicationGUID;
-
-        selectedStoragefiletype = DTOSettings.storagefiletype;
-        selectedPermission = DTOSettings.uploadPermission;
+        ApplicationName = DTOSettings.applicationName;
+        ApplicationGUID = DTOSettings.applicationGUID;
+        FileUploadPermission = DTOSettings.uploadPermission;
 
         StateHasChanged();
     }
