@@ -42,17 +42,17 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             _cache = memoryCache;
         }
 
-        #region public List<CategoryDTO> GetCategoryTree(bool UseCache)
-        public List<CategoryDTO> GetCategoryTree(bool UseCache)
+        #region public List<CategoryDTO> GetCategoryTree(bool RequestorVisible, bool UseCache)
+        public List<CategoryDTO> GetCategoryTree(bool RequestorVisibleOnly, bool UseCache)
         {
-            return GetNodesMethod(UseCache, _cache, GetConnectionString());
+            return GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
         }
         #endregion
 
         // Methods
 
-        #region public static List<CategoryDTO> GetNodesMethod(bool UseCache, IMemoryCache _cache, string strConectionString)
-        public static List<CategoryDTO> GetNodesMethod(bool UseCache, IMemoryCache _cache, string strConectionString)
+        #region public static List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, string strConectionString)
+        public static List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, string strConectionString)
         {
             // Collection to hold final TreeNodes
             List<CategoryDTO> colTreeNodes = new List<CategoryDTO>();
@@ -60,9 +60,19 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             if (Convert.ToBoolean(UseCache))
             {
                 // Look for tree in cache
-                if (_cache.TryGetValue("TreeNodes", out colTreeNodes))
+                if (RequestorVisibleOnly)
                 {
-                    return colTreeNodes;
+                    if (_cache.TryGetValue("TreeNodesRequestorVisibleOnly", out colTreeNodes))
+                    {
+                        return colTreeNodes;
+                    }
+                }
+                else
+                {
+                    if (_cache.TryGetValue("TreeNodesAll", out colTreeNodes))
+                    {
+                        return colTreeNodes;
+                    }
                 }
             }
 
@@ -72,8 +82,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
                 // This returns all Nodes in the database 
-                colTreeNodes = new List<CategoryDTO>();
-                var colNodes = (from objNode in context.AdefHelpDeskCategories
+                List<CategoryNode> colNodes = new List<CategoryNode>();
+
+                if (RequestorVisibleOnly)
+                {
+                    colNodes = (from objNode in context.AdefHelpDeskCategories
+                                where objNode.RequestorVisible == true
                                 select new CategoryNode
                                 {
                                     Id = objNode.CategoryId,
@@ -82,9 +96,23 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                     Selectable = objNode.Selectable,
                                     RequestorVisible = objNode.RequestorVisible
                                 }).OrderBy(x => x.ParentId).ThenBy(y => y.NodeName).ToList();
+                }
+                else
+                {
+                    colNodes = (from objNode in context.AdefHelpDeskCategories
+                                select new CategoryNode
+                                {
+                                    Id = objNode.CategoryId,
+                                    NodeName = objNode.CategoryName,
+                                    ParentId = objNode.ParentCategoryId,
+                                    Selectable = objNode.Selectable,
+                                    RequestorVisible = objNode.RequestorVisible
+                                }).OrderBy(x => x.ParentId).ThenBy(y => y.NodeName).ToList();
+                }
 
                 // Loop through Parent 'root' nodes
                 // (meaning the NodeParentData is blank)
+                colTreeNodes = new List<CategoryDTO>();
                 foreach (CategoryNode objNode in colNodes
                     .Where(x => x.ParentId == null))
                 {
@@ -149,7 +177,14 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 .SetSlidingExpiration(TimeSpan.MaxValue);
 
             // Save data in cache.
-            _cache.Set("TreeNodes", colTreeNodes, cacheEntryOptions);
+            if (RequestorVisibleOnly)
+            {
+                _cache.Set("TreeNodesRequestorVisibleOnly", colTreeNodes, cacheEntryOptions);
+            }
+            else
+            {
+                _cache.Set("TreeNodesAll", colTreeNodes, cacheEntryOptions);
+            }
 
             return colTreeNodes;
         }

@@ -905,7 +905,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ApiExplorerSettings(GroupName = "external")]
         public List<CategoryDTO> GetCategoryNodes([FromBody]bool UseCache)
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(UseCache, _cache, GetConnectionString());
+            return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(false, UseCache, _cache, GetConnectionString());
         }
         #endregion
 

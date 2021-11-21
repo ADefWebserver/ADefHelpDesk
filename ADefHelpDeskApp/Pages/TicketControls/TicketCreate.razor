@@ -242,7 +242,7 @@
 
 		populateDropdowns();
 
-		colAllTags = _CategoryTreeController.GetCategoryTree(true);
+		colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
 	}
 
 	private void populateDropdowns()

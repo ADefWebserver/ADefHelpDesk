@@ -306,7 +306,7 @@ else
 
 	private void Reload()
 	{
-		colAllTags = _CategoryTreeController.GetCategoryTree(false);
+		colAllTags = _CategoryTreeController.GetCategoryTree(false, false);
 		colTreelist = _CategoryNodesController.GetCategoryNodes(SelectedTreeNode);
 
 		StateHasChanged();
