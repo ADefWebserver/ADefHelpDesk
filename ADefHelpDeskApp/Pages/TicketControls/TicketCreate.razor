@@ -95,7 +95,12 @@
                                         <b>File Upload:</b>
                                     </td>
                                     <td>
-                                        <p>File Upload control</p>
+                                    <RadzenUpload @ref="upload" ChooseText="Select File" 
+                                      Auto="false" Multiple="false"
+                                      Url="api/UploadTask/CreateTask"
+                                      Style="margin-bottom: 20px;height: 45px"
+                                      Progress="@((args) => OnProgress(args))" 
+                                      Complete=@OnComplete />
                                     </td>
                                 </tr>
                             }
@@ -204,6 +209,24 @@
         &nbsp;
     </div>
 </div>
+@if (ShowProgressBarPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload Status</h4>
+                </div>
+                <div align="center">
+                    <RadzenProgressBar Value="@progress"
+                                       Unit="@info"
+                                       Visible="@(progress > 0)"
+                                       Style="margin-bottom: 20px" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @if (@showWaitGraphic)
 {
     <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
@@ -215,11 +238,15 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+    RadzenUpload upload;
 
     private bool IsAdmin = false;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
     private string strDefaultConnection = "";
     private bool showWaitGraphic = false;
+    private bool ShowProgressBarPopup = false;
+    private int progress;
+    private string info;
     private string Message = "";
 
     public string ApplicationName = "";
@@ -337,6 +364,8 @@
             //}
             //else
             //{
+            //    ** Upload File **
+            //    upload.Upload();
             //    Message = "Saved";
             //}
 
@@ -351,6 +380,28 @@
             return;
         }
     }
+
+    // Upload File
+
+    private void OnProgress(UploadProgressArgs args)
+    {
+        ShowProgressBarPopup = true;
+        this.info = $"{args.Loaded} of {args.Total} bytes.";
+        this.progress = args.Progress;
+
+        StateHasChanged();
+
+        if (args.Loaded == args.Total)
+        {
+            ShowProgressBarPopup = false;
+        }
+    }
+   
+    void OnComplete(UploadCompleteEventArgs args)
+	{
+		//Reload();
+	}
+
 
     // Utility
 
