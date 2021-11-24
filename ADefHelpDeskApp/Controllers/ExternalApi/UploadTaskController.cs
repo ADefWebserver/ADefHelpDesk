@@ -486,8 +486,8 @@ namespace ADefHelpDeskApp.Controllers
 
         // Methods
 
-        #region public static DTOStatus CreateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, bool IsAuthenticated)
-        public static DTOStatus CreateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, bool IsAuthenticated)
+        #region public DTOStatus CreateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, bool IsAuthenticated)
+        public DTOStatus CreateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, bool IsAuthenticated)
         {
             GeneralSettings objGeneralSettings = new GeneralSettings(ConnectionString);
 

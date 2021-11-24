@@ -17,6 +17,7 @@ using ADefHelpDeskApp.Controllers;
 using AdefHelpDeskBase.Controllers;
 using Microsoft.AspNetCore.Components;
 using ADefHelpDeskApp.Controllers.InternalApi;
+using Tewr.Blazor.FileReader;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -79,12 +80,16 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<SystemLogController>();
             services.AddScoped<ApiSecurityController>();
             services.AddScoped<FilesController>();
+            services.AddScoped<UploadTaskController>();
 
             // Radzen Services
             services.AddScoped<DialogService>();
             services.AddScoped<NotificationService>();
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
+
+            // Tewr.Blazor.FileReader
+            services.AddFileReaderService();
 
             return services;
         }

@@ -5,16 +5,28 @@
 @using AdefHelpDeskBase.Models.DataContext
 @using ADefHelpDeskApp.Controllers
 @using ADefHelpDeskApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
 @using Microsoft.EntityFrameworkCore
 @using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
 @inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
 @inject RoleController _RoleController
 @inject CategoryTreeController _CategoryTreeController
 @inject ApplicationSettingsController _ApplicationSettingsController
+@inject UploadTaskController _UploadTaskController
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
 <div class="row">
     <div class="col-xl-6 col-lg-6 py-2">
         <RadzenTabs RenderMode="TabRenderMode.Server">
@@ -83,11 +95,11 @@
                             </tr>
                             @if
                             (
-                                (FileUploadPermission == "All")
-                                ||
-                                ((CurrentUser.Identity.IsAuthenticated) && (FileUploadPermission == "Administrator/Registered Users"))
-                                ||
-                                ((IsAdmin == true) && (FileUploadPermission == "Administrator"))
+                            (FileUploadPermission == "All")
+                            ||
+                            ((CurrentUser.Identity.IsAuthenticated) && (FileUploadPermission == "Administrator/Registered Users"))
+                            ||
+                            ((IsAdmin == true) && (FileUploadPermission == "Administrator"))
                             )
                             {
                                 <tr>
@@ -95,12 +107,9 @@
                                         <b>File Upload:</b>
                                     </td>
                                     <td>
-                                    <RadzenUpload @ref="upload" ChooseText="Select File" 
-                                      Auto="false" Multiple="false"
-                                      Url="api/UploadTask/CreateTask"
-                                      Style="margin-bottom: 20px;height: 45px"
-                                      Progress="@((args) => OnProgress(args))" 
-                                      Complete=@OnComplete />
+                                        <input type="file" @ref=inputElement />
+                                        <button @onclick=ReadFile class="btn btn-primary">Read file</button>
+                                        <button @onclick=ClearFile class="btn btn-primary">Clear</button>
                                     </td>
                                 </tr>
                             }
@@ -209,19 +218,16 @@
         &nbsp;
     </div>
 </div>
-@if (ShowProgressBarPopup)
+@if (Uploading)
 {
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Upload Status</h4>
+                    <h4 class="modal-title">Uploading...</h4>
                 </div>
                 <div align="center">
-                    <RadzenProgressBar Value="@progress"
-                                       Unit="@info"
-                                       Visible="@(progress > 0)"
-                                       Style="margin-bottom: 20px" />
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
                 </div>
             </div>
         </div>
@@ -238,21 +244,19 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-    RadzenUpload upload;
 
     private bool IsAdmin = false;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
     private string strDefaultConnection = "";
     private bool showWaitGraphic = false;
-    private bool ShowProgressBarPopup = false;
-    private int progress;
-    private string info;
+    private bool Uploading = false;
     private string Message = "";
 
     public string ApplicationName = "";
     public string ApplicationGUID = "";
     public string FileUploadPermission = "";
 
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
     private DTOTaskForm NewTask = new DTOTaskForm();
     private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
     private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
@@ -271,6 +275,11 @@
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
+        if (CurrentUser.Identity != null)
+        {
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        }
+
         if (CurrentUser.Identity.IsAuthenticated)
         {
             IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
@@ -283,6 +292,7 @@
         _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
         _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _UploadTaskController = (UploadTaskController)ScopedServices.GetService(typeof(UploadTaskController));
 
         populateDropdowns();
 
@@ -325,6 +335,55 @@
         StateHasChanged();
     }
 
+    IFormFile FormFile; 
+    private static string nl = Environment.NewLine;
+    public int BufferSize { get; set; } = 20480;
+    public long max;
+    public long value;
+    ElementReference inputElement;
+    public System.Threading.CancellationTokenSource cancellationTokenSource;
+    string Output { get; set; }
+
+    public bool CanCancel { get; set; }
+    public bool IsCancelDisabled => !CanCancel;
+
+    public async Task ClearFile()
+    {
+        await fileReaderService.CreateReference(inputElement).ClearValue();
+    }
+
+    public async Task ReadFile()
+    {
+        Uploading = true;
+
+        max = 0;
+        value = 0;
+        Output = string.Empty;
+        this.StateHasChanged();
+        var files = await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync();
+        foreach (var file in files)
+        {
+            var fileInfo = await file.ReadFileInfoAsync();
+
+            using (var fs = await file.OpenReadAsync())
+            {
+                FormFile = new FormFile(fs, 0, fileInfo.Size, fileInfo.Name, fileInfo.Name + "." + fileInfo.Type);
+
+                var bufferSize = 20480;
+                var buffer = new byte[bufferSize];
+                int count;
+                while ((count = await fs.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                {
+                    Output += $"Read {count} bytes. {fs.Position} / {fs.Length}{nl}";
+                }
+            }
+
+            this.StateHasChanged();
+        }
+        
+        Uploading = false;
+    }
+
     private async void Save()
     {
         try
@@ -333,41 +392,55 @@
             showWaitGraphic = true;
             StateHasChanged();
 
-            var SelectedTags = await GetSelected(colAllTags);
-            var TagCount = SelectedTags.Count();
+            var SelectedTreeNodes = await GetSelected(colAllTags);
 
-            // Get the form values
-            //DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
-            //{
-            //    applicationName = applicationName,
-            //    applicationGUID = applicationGUID,
-            //    fileUploadPath = fileUploadPath,
-            //    storagefiletype = (String)selectedStoragefiletype,
-            //    azurestorageconnection = this.azurestorageconnection,
-            //    uploadPermission = (String)selectedPermission,
-            //    allowRegistration = (bool)selectedAllowUserRegistration,
-            //    verifiedRegistration = (bool)selectedVerifiedRegistration,
-            //    status = "",
-            //    valid = true,
-            //    termsOfUse = "",
-            //    privacyStatement = "",
-            //    swaggerWebAddress = ""
-            //};
+            // Get the form values - - Convert DTOTaskForm to DTOTask
+            DTOTask NewDTOTask = new DTOTask();
 
-            //// Call the service
-            //DTOApplicationSetting result = _ApplicationSettingsController.SetSettings(ApplicationSettings, CurrentUser.Identity.Name);
+            NewDTOTask.description = NewTask.Description;
+            NewDTOTask.status = NewTask.Status;
+            NewDTOTask.priority = NewTask.Priority;
+            NewDTOTask.createdDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            NewDTOTask.estimatedStart = (NewTask.EstimatedStart.HasValue) ? NewTask.EstimatedStart.Value.ToShortDateString() + " " + NewTask.EstimatedStart.Value.ToShortTimeString() : "";
+            NewDTOTask.estimatedCompletion = NewTask.Description;
+            NewDTOTask.dueDate = (NewTask.DueDate.HasValue) ? NewTask.DueDate.Value.ToShortDateString() : "";
+            NewDTOTask.assignedRoleId = (NewTask.AssignedRoleId != null) ? Convert.ToInt32(NewTask.AssignedRoleId) : null;
+            NewDTOTask.requesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : null;
+            NewDTOTask.requesterName = NewTask.RequesterName;
+            NewDTOTask.requesterEmail = NewTask.RequesterEmail;
+            NewDTOTask.requesterPhone = NewTask.RequesterPhone;
+            NewDTOTask.estimatedHours = NewTask.EstimatedHours;
+            NewDTOTask.selectedTreeNodes = SelectedTreeNodes;
 
-            //// Was update successful?
-            //if (!result.valid)
-            //{
-            //    Message = result.status;
-            //}
-            //else
-            //{
-            //    ** Upload File **
-            //    upload.Upload();
-            //    Message = "Saved";
-            //}
+            // Get additional values
+            int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
+            bool IsSuperUser = false;
+            bool IsAdministrator = false;
+            string strCurrentUser = "[Unauthenticated]";
+            string CurrentHostLocation = NavigationManager.BaseUri;
+
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                strCurrentUser = objCurrentUser.userName;
+                IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strDefaultConnection);
+                IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strDefaultConnection);
+            }
+
+            // Call the service
+            DTOStatus result = _UploadTaskController.CreateTaskMethod(
+                strDefaultConnection, CurrentHostLocation, _IWebHostEnvironment.ContentRootPath,
+                NewDTOTask, FormFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator,
+                CurrentUser.Identity.IsAuthenticated);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+            }
+            else
+            {
+                Message = "Saved";
+            }
 
             showWaitGraphic = false;
             StateHasChanged();
@@ -381,39 +454,17 @@
         }
     }
 
-    // Upload File
-
-    private void OnProgress(UploadProgressArgs args)
-    {
-        ShowProgressBarPopup = true;
-        this.info = $"{args.Loaded} of {args.Total} bytes.";
-        this.progress = args.Progress;
-
-        StateHasChanged();
-
-        if (args.Loaded == args.Total)
-        {
-            ShowProgressBarPopup = false;
-        }
-    }
-   
-    void OnComplete(UploadCompleteEventArgs args)
-	{
-		//Reload();
-	}
-
-
     // Utility
 
-    public static async Task<List<CategoryDTO>> GetSelected(List<CategoryDTO> TreeNodes)
+    public static async Task<List<int>> GetSelected(List<CategoryDTO> TreeNodes)
     {
-        List<CategoryDTO> ColSelectedTreeNodes = new List<CategoryDTO>();
+        List<int> ColSelectedTreeNodes = new List<int>();
         // Get all the top level nodes
         foreach (var node in TreeNodes)
         {
             if (node.data.CheckboxChecked)
             {
-                ColSelectedTreeNodes.Add(node);
+                ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
             }
             // Recursively call the AddChildren method adding all children
             await Task.Run(() => AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node));
@@ -423,18 +474,18 @@
 
     private static void AddSelectedChildren(
     List<CategoryDTO> colNodeItemCollection,
-    List<CategoryDTO> colTreeNodeCollection,
+    List<int> colTreeNodeCollection,
     CategoryDTO paramTreeNode)
     {
         // Get the children of the current item
-        // This method may be called from the top level 
+        // This method may be called from the top level
         // or recursively by one of the child items
         // Loop thru each Child of the current Node
         foreach (var objChild in paramTreeNode.children)
         {
             if (objChild.data.CheckboxChecked)
             {
-                colTreeNodeCollection.Add(objChild);
+                colTreeNodeCollection.Add(Convert.ToInt32(objChild.categoryId));
             }
             // Recursively call the AddChildren method adding all children
             AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);

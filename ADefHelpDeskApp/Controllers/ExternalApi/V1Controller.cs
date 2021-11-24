@@ -283,30 +283,30 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            string strConnectionString = GetConnectionString();
-            int intUserId = -1;
-            bool IsSuperUser = true;
-            bool IsAdministrator = true;
-            bool IsAuthenticated = true;
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = -1;
+            //bool IsSuperUser = true;
+            //bool IsAdministrator = true;
+            //bool IsAuthenticated = true;
 
             try
             {
                 DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-                objDTOStatus = UploadTaskController.CreateTaskMethod(
-                    strConnectionString,
-                    CurrentHostLocation,
-                    ContentRootPath,
-                    paramTask,
-                    objFile,
-                    strCurrentUser,
-                    intUserId,
-                    IsSuperUser,
-                    IsAdministrator,
-                    IsAuthenticated);
+                //objDTOStatus = UploadTaskController.CreateTaskMethod(
+                //    strConnectionString,
+                //    CurrentHostLocation,
+                //    ContentRootPath,
+                //    paramTask,
+                //    objFile,
+                //    strCurrentUser,
+                //    intUserId,
+                //    IsSuperUser,
+                //    IsAdministrator,
+                //    IsAuthenticated);
             }
             catch (Exception ex)
             {
