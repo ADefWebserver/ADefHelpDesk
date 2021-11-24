@@ -108,8 +108,6 @@
                                     </td>
                                     <td>
                                         <input type="file" @ref=inputElement />
-                                        <button @onclick=ReadFile class="btn btn-primary">Read file</button>
-                                        <button @onclick=ClearFile class="btn btn-primary">Clear</button>
                                     </td>
                                 </tr>
                             }
@@ -218,6 +216,14 @@
         &nbsp;
     </div>
 </div>
+<div class="row">
+    <div class="col">
+        @if (@Message != "")
+        {
+            <h4 style="color:red">@Message</h4>
+        }
+    </div>
+</div>
 @if (Uploading)
 {
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
@@ -236,10 +242,6 @@
 @if (@showWaitGraphic)
 {
     <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-}
-@if (@Message != "")
-{
-    <h4 style="color:red">@Message</h4>
 }
 @code {
     [CascadingParameter]
@@ -306,12 +308,16 @@
         priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
         priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
 
+        NewTask.Priority = "Normal";
+
         // ** Status Dropdown
         statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+        NewTask.Status = "New";
 
         // ** Roles Dropdown
         AllRoles = _RoleController.GetRoles();
@@ -335,17 +341,9 @@
         StateHasChanged();
     }
 
-    IFormFile FormFile; 
-    private static string nl = Environment.NewLine;
-    public int BufferSize { get; set; } = 20480;
-    public long max;
-    public long value;
+    IFormFile FormFile;
     ElementReference inputElement;
-    public System.Threading.CancellationTokenSource cancellationTokenSource;
-    string Output { get; set; }
-
-    public bool CanCancel { get; set; }
-    public bool IsCancelDisabled => !CanCancel;
+    MemoryStream FileMemoryStream;
 
     public async Task ClearFile()
     {
@@ -354,34 +352,21 @@
 
     public async Task ReadFile()
     {
-        Uploading = true;
-
-        max = 0;
-        value = 0;
-        Output = string.Empty;
-        this.StateHasChanged();
         var files = await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync();
-        foreach (var file in files)
+
+        if (files.Count() > 0)
         {
-            var fileInfo = await file.ReadFileInfoAsync();
+            Uploading = true;
+            this.StateHasChanged();
 
-            using (var fs = await file.OpenReadAsync())
-            {
-                FormFile = new FormFile(fs, 0, fileInfo.Size, fileInfo.Name, fileInfo.Name + "." + fileInfo.Type);
+            var fileInfo = await files.FirstOrDefault().ReadFileInfoAsync();
 
-                var bufferSize = 20480;
-                var buffer = new byte[bufferSize];
-                int count;
-                while ((count = await fs.ReadAsync(buffer, 0, buffer.Length)) != 0)
-                {
-                    Output += $"Read {count} bytes. {fs.Position} / {fs.Length}{nl}";
-                }
-            }
+            FileMemoryStream = await files.FirstOrDefault().CreateMemoryStreamAsync();
+            FormFile = new FormFile(FileMemoryStream, 0, fileInfo.Size, fileInfo.Name, fileInfo.Name);
 
+            Uploading = false;
             this.StateHasChanged();
         }
-        
-        Uploading = false;
     }
 
     private async void Save()
@@ -392,7 +377,11 @@
             showWaitGraphic = true;
             StateHasChanged();
 
+            // Get Selected Tree Nodes
             var SelectedTreeNodes = await GetSelected(colAllTags);
+
+            // Get File
+            await ReadFile();
 
             // Get the form values - - Convert DTOTaskForm to DTOTask
             DTOTask NewDTOTask = new DTOTask();
@@ -411,6 +400,16 @@
             NewDTOTask.requesterPhone = NewTask.RequesterPhone;
             NewDTOTask.estimatedHours = NewTask.EstimatedHours;
             NewDTOTask.selectedTreeNodes = SelectedTreeNodes;
+
+            NewDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
+            var NewTaskDetail = new DTOTaskDetail();
+            NewTaskDetail.description = NewTask.Description;
+            NewTaskDetail.insertDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            NewTaskDetail.startTime = NewTaskDetail.startTime;
+            NewTaskDetail.stopTime = NewTaskDetail.stopTime;
+            NewTaskDetail.userId = objCurrentUser.userId;
+            NewTaskDetail.userName = NewTask.RequesterName;
+            NewDTOTask.colDTOTaskDetail.Add(NewTaskDetail);
 
             // Get additional values
             int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
