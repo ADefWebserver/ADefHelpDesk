@@ -422,7 +422,10 @@
 
             try
             {
-                FileMemoryStream.Dispose();
+                if (FileMemoryStream != null)
+                {
+                    FileMemoryStream.Dispose();
+                }
             }
             catch { }
 

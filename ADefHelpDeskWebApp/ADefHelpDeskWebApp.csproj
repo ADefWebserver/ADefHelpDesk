@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Excubo.Blazor.TreeViews" Version="2.3.3" />
+    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
@@ -34,10 +34,10 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.0.7" />
-    <PackageReference Include="Radzen.Blazor" Version="3.11.12" />
+    <PackageReference Include="Radzen.Blazor" Version="3.13.1" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="3.2.0.21211" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="6.0.0-rc.2.21480.5-4" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="6.13.2" />
     <PackageReference Include="NETCore.MailKit" Version="2.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>

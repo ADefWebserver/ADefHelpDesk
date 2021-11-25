@@ -48,6 +48,7 @@ using ADefHelpDeskApp.Controllers.ExternalApi.Classes;
 using Microsoft.Extensions.Caching.Memory;
 using ADefHelpDeskApp.Models;
 using System.IO;
+using ADefHelpDeskApp.Controllers.InternalApi;
 
 namespace AdefHelpDeskBase.Controllers.WebInterface
 {
