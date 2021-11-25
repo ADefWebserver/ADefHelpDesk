@@ -210,10 +210,12 @@
 <br />
 <div class="row">
     <div class="col">
-        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
+        @if (!@showWaitGraphic)
+        {
+            <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
                       Click="Save"
                       Style="margin-bottom: 10px; width: 150px" />
-        &nbsp;
+        } &nbsp;
     </div>
 </div>
 <div class="row">
@@ -224,21 +226,6 @@
         }
     </div>
 </div>
-@if (Uploading)
-{
-    <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Uploading...</h4>
-                </div>
-                <div align="center">
-                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-                </div>
-            </div>
-        </div>
-    </div>
-}
 @if (@showWaitGraphic)
 {
     <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
@@ -251,7 +238,6 @@
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
     private string strDefaultConnection = "";
     private bool showWaitGraphic = false;
-    private bool Uploading = false;
     private string Message = "";
 
     public string ApplicationName = "";
@@ -356,16 +342,9 @@
 
         if (files.Count() > 0)
         {
-            Uploading = true;
-            this.StateHasChanged();
-
             var fileInfo = await files.FirstOrDefault().ReadFileInfoAsync();
-
             FileMemoryStream = await files.FirstOrDefault().CreateMemoryStreamAsync();
             FormFile = new FormFile(FileMemoryStream, 0, fileInfo.Size, fileInfo.Name, fileInfo.Name);
-
-            Uploading = false;
-            this.StateHasChanged();
         }
     }
 
@@ -391,7 +370,7 @@
             NewDTOTask.priority = NewTask.Priority;
             NewDTOTask.createdDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
             NewDTOTask.estimatedStart = (NewTask.EstimatedStart.HasValue) ? NewTask.EstimatedStart.Value.ToShortDateString() + " " + NewTask.EstimatedStart.Value.ToShortTimeString() : "";
-            NewDTOTask.estimatedCompletion = NewTask.Description;
+            NewDTOTask.estimatedCompletion = (NewTask.EstimatedCompletion.HasValue) ? NewTask.EstimatedCompletion.Value.ToShortDateString() + " " + NewTask.EstimatedCompletion.Value.ToShortTimeString() : "";
             NewDTOTask.dueDate = (NewTask.DueDate.HasValue) ? NewTask.DueDate.Value.ToShortDateString() : "";
             NewDTOTask.assignedRoleId = (NewTask.AssignedRoleId != null) ? Convert.ToInt32(NewTask.AssignedRoleId) : null;
             NewDTOTask.requesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : null;
@@ -440,6 +419,12 @@
             {
                 Message = "Saved";
             }
+
+            try
+            {
+                FileMemoryStream.Dispose();
+            }
+            catch { }
 
             showWaitGraphic = false;
             StateHasChanged();
