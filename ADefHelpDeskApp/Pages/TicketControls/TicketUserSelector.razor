@@ -1,0 +1,121 @@
+﻿@inherits OwningComponentBase
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Linq.Dynamic.Core
+@using Radzen
+@using Radzen.Blazor
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using AdefHelpDeskBase.Controllers
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@inject DialogService DialogService
+@inject IConfiguration _configuration
+@inject UserManagerController _UserManagerController
+@if (@Message != "")
+{
+    <h4 style="color:red">@Message</h4>
+}
+<div>
+    <p>
+        <b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) />
+    </p>
+</div>
+<RadzenDataGrid @ref="grid" Data="@_userSearchResult.userList" Count="@count"
+                TItem="DTOUser" LoadData="@LoadData"
+                PageSizeOptions="@pageSizeOptions"
+                AllowPaging="true" AllowSorting="false">
+    <Columns>
+        <RadzenDataGridColumn Width="80px" TItem="DTOUser"
+                              Property="userId" Title="Edit" Sortable=false Filterable=false>
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="add" Click=@(() => SelectUser(data)) />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="DTOUser" Property="userName" Title="Username" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOUser" Property="firstName" Title="First Name" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOUser" Property="lastName" Title="Last Name" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOUser" Property="email" Title="Email" Width="200px" />
+        <RadzenDataGridColumn Width="80px" TItem="DTOUser"
+                              Property="isSuperUser" Title="Is SuperUser" Sortable=false Filterable=false>
+            <Template Context="data">
+                <RadzenCheckBox TValue="bool" Disabled="true" @bind-Value="data.isSuperUser" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    RadzenDataGrid<DTOUser> grid;
+    UserSearchResult _userSearchResult = new UserSearchResult();
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+
+    string strDefaultConnection;
+
+    int count;
+    string SearchString = "";
+    IEnumerable<DTOUser> colApiSecuritys = new List<DTOUser>();
+
+    public bool IsSuperAdmin = false;
+    public string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        _UserManagerController = (UserManagerController)ScopedServices.GetService(typeof(UserManagerController));
+
+        LoadGrid();
+    }
+
+    void LoadGrid()
+    {
+        var filter = new LoadDataArgs();
+        filter.Skip = 0;
+        filter.Top = 10;
+        filter.Filter = "";
+        filter.OrderBy = "";
+
+        LoadData(filter);
+    }
+
+    async Task RefreshGrid(string paramSearch)
+    {
+        SearchString = paramSearch;
+        await grid.Reload();
+    }
+
+    void LoadData(LoadDataArgs args)
+    {
+        try
+        {
+            Message = "";
+            _userSearchResult = _UserManagerController.SearchUsers(
+                new SearchParameters()
+                    {
+                        searchString = SearchString,
+                        rowsPerPage = args.Top.Value,
+                        pageNumber = args.Skip.Value
+                    });
+
+            count = _userSearchResult.totalRows;
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task SelectUser(DTOUser DTOUser)
+    {
+
+    }
+}

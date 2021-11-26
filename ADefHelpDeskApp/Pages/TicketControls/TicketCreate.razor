@@ -39,14 +39,22 @@
                                     <b>Name:</b>
                                 </td>
                                 <td>
-                                    @if(!ShowManualUser)
+                                    @if (!ShowManualUser)
                                     {
-                                        @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ");    
-                                        <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                        @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ")
+                                        ;
+                                        @if (objCurrentUser.userId != -1)
+                                        {
+                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                        }
                                     }
                                     else
                                     {
-                                       <RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
+                                        @if (IsAdmin)
+                                        {
+                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                        }
+                                        <RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
                                     }
                                 </td>
                             </tr>
@@ -55,13 +63,14 @@
                                     <b>Email:</b>
                                 </td>
                                 <td>
-                                    @if(!ShowManualUser)
+                                    @if (!ShowManualUser)
                                     {
-                                        @($"{objCurrentUser.email}");
+                                        @($"{objCurrentUser.email}")
+                                        ;
                                     }
                                     else
                                     {
-                                       <RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
+                                        <RadzenTextBox @bind-Value=NewTask.RequesterEmail style="width: 100%;" />
                                     }
                                 </td>
                             </tr>
@@ -464,6 +473,16 @@
         ShowManualUser = true;
     }
 
+    private async void SetUser()
+    {
+        DTOUser result = await DialogService.OpenAsync<TicketUserSelector>($"Select User", null, new DialogOptions() { Width = "650px" });
+
+        if (result != null)
+        {
+            //await RefreshGrid(SearchString);
+        }
+    }
+
     public async Task SetNewTaskForm()
     {
         FormFile = null;
@@ -471,7 +490,7 @@
         NewTaskDetail = new DTOTaskDetailForm();
         NewTask.Priority = "Normal";
         NewTask.Status = "New";
-        
+
         await fileReaderService.CreateReference(inputElement).ClearValue();
     }
 
