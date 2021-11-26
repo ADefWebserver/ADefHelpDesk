@@ -39,9 +39,10 @@
                                     <b>Name:</b>
                                 </td>
                                 <td>
-                                    @if(CurrentUser.Identity.IsAuthenticated)
+                                    @if(!ShowManualUser)
                                     {
-                                        @($"{objCurrentUser.firstName} {objCurrentUser.lastName}");
+                                        @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ");    
+                                        <a href="javascript: void(0)" onclick="@ClearUser"><b>[Clear User]</b></a>
                                     }
                                     else
                                     {
@@ -54,7 +55,7 @@
                                     <b>Email:</b>
                                 </td>
                                 <td>
-                                    @if(CurrentUser.Identity.IsAuthenticated)
+                                    @if(!ShowManualUser)
                                     {
                                         @($"{objCurrentUser.email}");
                                     }
@@ -262,6 +263,7 @@
     public string ApplicationGUID = "";
     public string FileUploadPermission = "";
 
+    private bool ShowManualUser = true;
     private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
     private DTOTaskForm NewTask = new DTOTaskForm();
     private DTOTaskDetailForm NewTaskDetail = new DTOTaskDetailForm();
@@ -288,6 +290,7 @@
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
+            ShowManualUser = false;
             IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
         }
         else
@@ -454,6 +457,11 @@
     }
 
     // Utility
+
+    private void ClearUser()
+    {
+        ShowManualUser = true;
+    }
 
     public async Task SetNewTaskForm()
     {
