@@ -154,7 +154,7 @@
                                         <b>Estimated Completion:</b>
                                     </td>
                                     <td>
-                                        <RadzenDatePicker @bind-Value=@NewTask.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                        <RadzenDatePicker @bind-Value=@NewTask.EstimatedCompletion TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -239,6 +239,10 @@
     private string strDefaultConnection = "";
     private bool showWaitGraphic = false;
     private string Message = "";
+
+    IFormFile FormFile;
+    ElementReference inputElement;
+    MemoryStream FileMemoryStream;
 
     public string ApplicationName = "";
     public string ApplicationGUID = "";
@@ -327,17 +331,9 @@
         StateHasChanged();
     }
 
-    IFormFile FormFile;
-    ElementReference inputElement;
-    MemoryStream FileMemoryStream;
-
-    public async Task ClearFile()
+    public async Task ReadFileIntoMemory()
     {
-        await fileReaderService.CreateReference(inputElement).ClearValue();
-    }
-
-    public async Task ReadFile()
-    {
+        FormFile = null;
         var files = await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync();
 
         if (files.Count() > 0)
@@ -360,7 +356,7 @@
             var SelectedTreeNodes = await GetSelected(colAllTags);
 
             // Get File
-            await ReadFile();
+            await ReadFileIntoMemory();
 
             // Get the form values - - Convert DTOTaskForm to DTOTask
             DTOTask NewDTOTask = new DTOTask();
@@ -379,16 +375,16 @@
             NewDTOTask.requesterPhone = NewTask.RequesterPhone;
             NewDTOTask.estimatedHours = NewTask.EstimatedHours;
             NewDTOTask.selectedTreeNodes = SelectedTreeNodes;
-
             NewDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
-            var NewTaskDetail = new DTOTaskDetail();
-            NewTaskDetail.description = NewTask.Description;
-            NewTaskDetail.insertDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-            NewTaskDetail.startTime = NewTaskDetail.startTime;
-            NewTaskDetail.stopTime = NewTaskDetail.stopTime;
-            NewTaskDetail.userId = objCurrentUser.userId;
-            NewTaskDetail.userName = NewTask.RequesterName;
-            NewDTOTask.colDTOTaskDetail.Add(NewTaskDetail);
+
+            var NewDTOTaskDetail = new DTOTaskDetail();
+            NewDTOTaskDetail.description = NewTask.Description;
+            NewDTOTaskDetail.insertDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            NewDTOTaskDetail.startTime = (NewTaskDetail.StartTime.HasValue) ? NewTaskDetail.StartTime.Value.ToShortDateString() + " " + NewTaskDetail.StartTime.Value.ToShortTimeString() : "";
+            NewDTOTaskDetail.stopTime = (NewTaskDetail.StopTime.HasValue) ? NewTaskDetail.StopTime.Value.ToShortDateString() + " " + NewTaskDetail.StopTime.Value.ToShortTimeString() : "";
+            NewDTOTaskDetail.userId = objCurrentUser.userId;
+            NewDTOTaskDetail.userName = NewTask.RequesterName;
+            NewDTOTask.colDTOTaskDetail.Add(NewDTOTaskDetail);
 
             // Get additional values
             int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
@@ -429,6 +425,8 @@
             }
             catch { }
 
+            SetNewTaskForm();
+
             showWaitGraphic = false;
             StateHasChanged();
         }
@@ -442,6 +440,15 @@
     }
 
     // Utility
+
+    public void SetNewTaskForm()
+    {
+        FormFile = null;
+        NewTask = new DTOTaskForm();
+        NewTaskDetail = new DTOTaskDetailForm();
+        NewTask.Priority = "Normal";
+        NewTask.Status = "New";
+    }
 
     public static async Task<List<int>> GetSelected(List<CategoryDTO> TreeNodes)
     {
