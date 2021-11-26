@@ -42,7 +42,7 @@
                                     @if(!ShowManualUser)
                                     {
                                         @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ");    
-                                        <a href="javascript: void(0)" onclick="@ClearUser"><b>[Clear User]</b></a>
+                                        <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
                                     }
                                     else
                                     {
@@ -460,6 +460,7 @@
 
     private void ClearUser()
     {
+        objCurrentUser.userId = -1;
         ShowManualUser = true;
     }
 
