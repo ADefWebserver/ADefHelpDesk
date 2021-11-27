@@ -52,7 +52,6 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
     RadzenDataGrid<DTOUser> grid;
     UserSearchResult _userSearchResult = new UserSearchResult();
     IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
@@ -66,7 +65,7 @@
     public bool IsSuperAdmin = false;
     public string Message = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         // Get database conection string
         strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
@@ -114,8 +113,8 @@
         }
     }
 
-    async Task SelectUser(DTOUser DTOUser)
+    void SelectUser(DTOUser DTOUser)
     {
-
+        DialogService.Close(DTOUser);
     }
 }

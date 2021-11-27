@@ -34,6 +34,22 @@
                 <RadzenTabsItem Text="New Ticket">
                     <table class="form-group" cellpadding="4" cellspacing="4">
                         <tbody>
+                            @if (IsAdmin)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        @if (objCurrentUser.userId != -1)
+                                        {
+                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                             <tr>
                                 <td>
                                     <b>Name:</b>
@@ -42,18 +58,9 @@
                                     @if (!ShowManualUser)
                                     {
                                         @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ")
-                                        ;
-                                        @if (objCurrentUser.userId != -1)
-                                        {
-                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
-                                        }
                                     }
                                     else
                                     {
-                                        @if (IsAdmin)
-                                        {
-                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
-                                        }
                                         <RadzenTextBox @bind-Value=NewTask.RequesterName style="width: 100%;" />
                                     }
                                 </td>
@@ -66,7 +73,6 @@
                                     @if (!ShowManualUser)
                                     {
                                         @($"{objCurrentUser.email}")
-                                        ;
                                     }
                                     else
                                     {
@@ -475,13 +481,15 @@
 
     private async void SetUser()
     {
-        DTOUser result = await DialogService.OpenAsync<TicketUserSelector>($"Select User", 
-            null, 
+        DTOUser result = await DialogService.OpenAsync<TicketUserSelector>($"Select User",
+            null,
             new DialogOptions() { Width = "90%" });
 
         if (result != null)
         {
-            //await RefreshGrid(SearchString);
+            objCurrentUser = (DTOUser)result;
+            ShowManualUser = false;
+            StateHasChanged();
         }
     }
 
