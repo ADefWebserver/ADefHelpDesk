@@ -80,6 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<SystemLogController>();
             services.AddScoped<ApiSecurityController>();
             services.AddScoped<FilesController>();
+            services.AddScoped<DashboardController>();
             services.AddScoped<UploadTaskController>();
 
             // Radzen Services
