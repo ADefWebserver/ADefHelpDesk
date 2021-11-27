@@ -19,9 +19,12 @@
     @if (IsAuthenticated)
     {
         <RadzenMenuItem Text="Existing Tickets" Path="tickets" Icon="confirmation_number"></RadzenMenuItem>
+        @if (IsAdmin)
+        {
+           <RadzenMenuItem Text="Reports" Path="reports" Icon="analytics"></RadzenMenuItem>
+        }
         @if (IsSuperAdmin)
         {
-            <RadzenMenuItem Text="Reports" Path="reports" Icon="analytics"></RadzenMenuItem>
             <RadzenMenuItem Text="Administration" Icon="table_chart">
                 <RadzenMenuItem Text="User Manager" Path="usermanager" Icon="groups"></RadzenMenuItem>
                 <RadzenMenuItem Text="Roles" Path="userassignmentroles" Icon="admin_panel_settings"></RadzenMenuItem>
@@ -42,6 +45,7 @@
 
     bool IsAuthenticated = false;
     bool IsSuperAdmin = false;
+    bool IsAdmin = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     string strDefaultConnection = "";
 
@@ -55,6 +59,11 @@
 
         IsAuthenticated = CurrentUser.Identity.IsAuthenticated;
         IsSuperAdmin = await IsSuperUserAsync();
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+        }
     }
 
     public async Task<bool> IsSuperUserAsync()
