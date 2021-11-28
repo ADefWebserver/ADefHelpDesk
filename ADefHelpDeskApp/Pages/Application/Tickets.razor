@@ -38,24 +38,31 @@
         <b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) />
     </p>
 </div>
-<RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
-                TItem="DTOTask" LoadData="@LoadData"
-                PageSizeOptions="@pageSizeOptions"
-                AllowPaging="true" AllowSorting="false">
-    <Columns>
-        <RadzenDataGridColumn Width="80px" TItem="DTOTask"
-                              Property="taskId" Title="Edit" Sortable=false Filterable=false>
-            <Template Context="data">
-                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditTask(data)) />
-            </Template>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Width="200px" />
-        <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Width="200px" />
-        <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Width="200px" />
-        <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Width="200px" />
-    </Columns>
-</RadzenDataGrid>
+<div class="row">
+    <div class="col-xl-6 col-lg-6 py-2">
+        <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
+                        TItem="DTOTask" LoadData="@LoadData"
+                        PageSizeOptions="@pageSizeOptions"
+                        AllowPaging="true" AllowSorting="false">
+            <Columns>
+                <RadzenDataGridColumn Width="80px" TItem="DTOTask"
+                                      Property="taskId" Title="Edit" Sortable=false Filterable=false>
+                    <Template Context="data">
+                        <a href="javascript: void(0)" @onclick="@(() => EditTask(data))"><b>@($"# {data.taskId}")</b></a>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Width="200px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Width="200px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Width="200px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Width="200px" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
 
+    <div class="col-xl-6 col-lg-6 py-2">
+
+    </div>
+</div>
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -130,7 +137,7 @@
 
             count = _TaskSearchResult.totalRows;
 
-            if(_TaskSearchResult.errorMessage.Trim() != "")
+            if (_TaskSearchResult.errorMessage.Trim() != "")
             {
                 Message = _TaskSearchResult.errorMessage.Trim();
             }
