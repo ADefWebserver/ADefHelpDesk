@@ -1,6 +1,157 @@
 ﻿@page "/tickets"
-<h3>Tickets</h3>
+@inherits OwningComponentBase
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
+@inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject TaskController _TaskController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
+	@if (@Message != "")
+{
+    <h4 style="color:red">@Message</h4>
+}
+<div>
+    <p>
+        <b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) />
+    </p>
+</div>
+<RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
+                TItem="DTOTask" LoadData="@LoadData"
+                PageSizeOptions="@pageSizeOptions"
+                AllowPaging="true" AllowSorting="false">
+    <Columns>
+        <RadzenDataGridColumn Width="80px" TItem="DTOTask"
+                              Property="taskId" Title="Edit" Sortable=false Filterable=false>
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditTask(data)) />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Width="200px" />
+        <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Width="200px" />
+    </Columns>
+</RadzenDataGrid>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    RadzenDataGrid<DTOTask> grid;
+    TaskSearchResult _TaskSearchResult = new TaskSearchResult();
+    SearchTaskParameters _searchTaskParameters = new SearchTaskParameters();
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+
+    string strDefaultConnection;
+
+    int count;
+    string SearchString = "";
+    IEnumerable<DTOUser> colApiSecuritys = new List<DTOUser>();
+
+    public bool IsSuperAdmin = false;
+    public string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+
+        LoadGrid();
+    }
+
+    void LoadGrid()
+    {
+        var filter = new LoadDataArgs();
+        filter.Skip = 0;
+        filter.Top = 10;
+        filter.Filter = "";
+        filter.OrderBy = "";
+
+        LoadData(filter);
+    }
+
+    async Task RefreshGrid(string paramSearch)
+    {
+        SearchString = paramSearch;
+        await grid.Reload();
+    }
+
+    void LoadData(LoadDataArgs args)
+    {
+        try
+        {
+            Message = "";
+            _TaskSearchResult = _TaskController.SearchTasks(
+                new SearchTaskParameters()
+                    {
+                        userId = "",
+                        searchText = SearchString,
+                        status = "",
+                        priority = "",
+                        createdDate = "",
+                        dueDate = "",
+                        assignedRoleId = "",
+                        selectedTreeNodes = new List<int>(),
+                        sortOrder = "",
+                        sortField = "",
+                        rowsPerPage = args.Top.Value,
+                        pageNumber = args.Skip.Value,
+                    }
+                , CurrentUser.Identity.Name);
+
+            count = _TaskSearchResult.totalRows;
+
+            if(_TaskSearchResult.errorMessage.Trim() != "")
+            {
+                Message = _TaskSearchResult.errorMessage.Trim();
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task EditTask(DTOTask DTOTask)
+    {
+        //Message = "";
+
+        //DTOUser result = await DialogService.OpenAsync<UserEditControl>($"Edit User",
+        //new Dictionary<string, object>() { { "SelectedDTOUser", DTOUser } },
+        //new DialogOptions() { Width = "650px" });
+
+        //if (result != null)
+        //{
+        //	await RefreshGrid(SearchString);
+        //}
+    }
 }

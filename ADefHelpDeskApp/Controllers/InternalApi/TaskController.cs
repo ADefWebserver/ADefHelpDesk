@@ -75,20 +75,25 @@ namespace AdefHelpDeskBase.Controllers
             int intUserId = UtilitySecurity.UserIdFromUserName(CurrentUserName, GetConnectionString());
 
             // Determine if user is an Admin 
-            int iSAdministrator = (UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString())) ? 1 : 0;
+            int IsAdministrator = (UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString())) ? 1 : 0;
 
-            return SearchTasks(searchData, intUserId, iSAdministrator, GetConnectionString());
+            return SearchTasks(searchData, intUserId, IsAdministrator, GetConnectionString());
         }
         #endregion
 
         #region public DTOStatus Delete(int id,string CurrentUserName)
         public DTOStatus Delete(int id, string CurrentUserName)
         {
+            DTOStatus objDTOStatus = new DTOStatus();
+
             // Must be a Administrator to call this Method
+            if (!UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString()))
+            {
+                return objDTOStatus;
+            }
 
             string strResponse = DeleteTask(id, GetConnectionString(), CurrentUserName);
 
-            DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = strResponse;
             objDTOStatus.Success = false;
             return objDTOStatus;           
@@ -98,11 +103,16 @@ namespace AdefHelpDeskBase.Controllers
         #region public DTOStatus DeleteTaskDetail(int id,string CurrentUserName)
         public DTOStatus DeleteTaskDetail(int id, string CurrentUserName)
         {
+            DTOStatus objDTOStatus = new DTOStatus();
+
             // Must be a Administrator to call this Method
+            if (!UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString()))
+            {
+                return objDTOStatus;
+            }
 
             string strResponse = DeleteTaskDetail(id, GetConnectionString(), CurrentUserName);
 
-            DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.StatusMessage = strResponse;
             objDTOStatus.Success = false;
             return objDTOStatus;
@@ -151,11 +161,11 @@ namespace AdefHelpDeskBase.Controllers
 
                     cmd.Parameters.AddWithValue("@paramIsAdmin", iSAdministrator);
                     cmd.Parameters.AddWithValue("@paramUserId", intUserId);
-                    cmd.Parameters.AddWithValue("@paramSearchText", searchData.searchText ?? "");
+                    cmd.Parameters.AddWithValue("@paramSearchText", CleanString(searchData.searchText) ?? "");
                     cmd.Parameters.AddWithValue("@paramStatus", searchData.status ?? "");
                     cmd.Parameters.AddWithValue("@paramPriority", searchData.priority ?? "");
-                    cmd.Parameters.AddWithValue("@paramCreatedDate", searchData.createdDate ?? "");
-                    cmd.Parameters.AddWithValue("@paramDueDate", searchData.dueDate ?? "");
+                    cmd.Parameters.AddWithValue("@paramCreatedDate", CleanString(searchData.createdDate) ?? "");
+                    cmd.Parameters.AddWithValue("@paramDueDate", CleanString(searchData.dueDate) ?? "");
                     cmd.Parameters.AddWithValue("@paramAssignedRoleId", searchData.assignedRoleId ?? "");
                     cmd.Parameters.AddWithValue("@paramSelectedTreeNodes", String.Join(",", searchData.selectedTreeNodes));
                     cmd.Parameters.AddWithValue("@paramSortOrder", searchData.sortOrder ?? "");
@@ -499,6 +509,21 @@ namespace AdefHelpDeskBase.Controllers
         #endregion
 
         // Utility
+
+        #region private static string CleanString(string paramValue)
+        private static string CleanString(string paramValue)
+        {
+            if(paramValue == null)
+            {
+                return null;
+            }
+
+            string ReturnValue = paramValue.Replace(";","");
+            ReturnValue = ReturnValue.Replace("--", "");
+
+            return ReturnValue;
+        }
+        #endregion
 
         #region private string GetConnectionString()
         private string GetConnectionString()
