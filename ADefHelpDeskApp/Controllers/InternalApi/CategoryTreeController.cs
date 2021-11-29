@@ -297,6 +297,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 {
                     ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
                 }
+
                 // Recursively call the AddChildren method adding all children
                 AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node);
             }
@@ -323,7 +324,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 // Recursively call the AddChildren method adding all children
                 AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);
             }
-        } 
+        }
         #endregion
 
         #region private string GetConnectionString()

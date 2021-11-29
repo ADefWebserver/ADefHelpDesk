@@ -168,7 +168,7 @@
         _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false);
 
         populateDropdowns();
         LoadGrid(null);
@@ -212,6 +212,8 @@
                 AssignedRoleId = "0";
                 dtCreatedDate = null;
                 dtDueDate = null;
+                colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false);
+                StateHasChanged();
             }
         }
 
