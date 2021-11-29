@@ -35,49 +35,97 @@
 }
 <div>
     <p>
-        <b>Search:</b> <RadzenTextBox @oninput=@(args => RefreshGrid(args.Value.ToString())) />
+        <RadzenSplitButton Click=@(args => LoadGrid(args)) Text="Search" Icon="search" Style="margin-bottom: 20px;">
+            <ChildContent>
+                <RadzenSplitButtonItem Text="Clear Search" Value="Clear" />
+            </ChildContent>
+        </RadzenSplitButton> <RadzenTextBox @bind-Value=@SearchString Placeholder="Ticket # Or Search Text" />
     </p>
 </div>
 <div class="row">
-    <div class="col-xl-6 col-lg-6 py-2">
+    <div class="col-xl-10 col-lg-10 py-2">
         <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
-                        TItem="DTOTask" LoadData="@LoadData"
-                        PageSizeOptions="@pageSizeOptions"
-                        AllowPaging="true" AllowSorting="false">
+                        TItem="DTOTask" LoadData="@LoadData" FilterMode="FilterMode.Simple"
+                        PageSizeOptions="@pageSizeOptions" AllowFiltering="true"
+                        AllowPaging="true" AllowSorting="true" AllowColumnResize="true">
             <Columns>
-                <RadzenDataGridColumn Width="80px" TItem="DTOTask"
-                                      Property="taskId" Title="Edit" Sortable=false Filterable=false>
+                <RadzenDataGridColumn Width="20px" TItem="DTOTask"
+                                      Property="taskId" Title="Edit" Sortable=true Filterable=false>
                     <Template Context="data">
                         <a href="javascript: void(0)" @onclick="@(() => EditTask(data))"><b>@($"# {data.taskId}")</b></a>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Width="200px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Width="200px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Width="200px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Width="200px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Sortable=true Width="50px">
+                    <FilterTemplate>
+                        <RadzenDropDown Data=@statusDropdown @bind-Value=@Status
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:100px" />
+                    </FilterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Sortable=true Width="50px">
+                    <FilterTemplate>
+                        <RadzenDropDown Data=@priorityDropdown @bind-Value=@Priority
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                    </FilterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Sortable=true Width="50px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Sortable=true Width="50px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="assignedRoleName" Title="Assigned" Sortable=true Width="50px">
+                    <FilterTemplate>
+                        <RadzenDropDown Data=@rolesDropdown @bind-Value=@AssignedRoleId
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                    </FilterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DTOTask" Property="requesterName" Filterable=false Title="Requester" Sortable=false Width="50px" />
+                <RadzenDataGridColumn TItem="DTOTask" Property="description" Filterable=false Title="Description" Sortable=false Width="100px" />
             </Columns>
         </RadzenDataGrid>
     </div>
 
-    <div class="col-xl-6 col-lg-6 py-2">
-
+    <div class="col-xl-2 col-lg-2 py-2">
+        <!-- Tree Node Control -->
+        <TreeView Items="colAllTags"
+                  GetChildren="(treenode) => treenode.children">
+            <ItemTemplate Context="treenode">
+                &nbsp;
+                @if (@treenode.Item.data.selectable)
+                {
+                    <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                TValue="bool"
+                                @onclick:stopPropagation="true" />
+                }
+                &nbsp;@treenode.Item.label
+            </ItemTemplate>
+        </TreeView>
     </div>
 </div>
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
-    RadzenDataGrid<DTOTask> grid;
-    TaskSearchResult _TaskSearchResult = new TaskSearchResult();
-    SearchTaskParameters _searchTaskParameters = new SearchTaskParameters();
-    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    private bool IsAdmin = false;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private RadzenDataGrid<DTOTask> grid;
+    private string strDefaultConnection;
 
-    string strDefaultConnection;
+    private TaskSearchResult _TaskSearchResult = new TaskSearchResult();
+    private SearchTaskParameters _searchTaskParameters = new SearchTaskParameters();
+    private IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    private List<SelectItem> priorityDropdown = new List<SelectItem>();
+    private List<SelectItem> statusDropdown = new List<SelectItem>();
+    private List<SelectItem> rolesDropdown = new List<SelectItem>();
 
-    int count;
-    string SearchString = "";
-    IEnumerable<DTOUser> colApiSecuritys = new List<DTOUser>();
+    private int count;
+    private string SearchString = "";
+    private string Status = "ALL";
+    private string Priority = "ALL";
+    private string AssignedRoleId = "0";
 
     public bool IsSuperAdmin = false;
     public string Message = "";
@@ -90,13 +138,64 @@
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
-        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
 
-        LoadGrid();
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
+
+        populateDropdowns();
+        LoadGrid(null);
     }
 
-    void LoadGrid()
+    private void populateDropdowns()
     {
+        // ** Priority Dropdown
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+
+        // ** Status Dropdown
+        statusDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+        // ** Roles Dropdown
+        rolesDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "0" });
+
+        var AllRoles = _RoleController.GetRoles();
+        foreach (var role in AllRoles)
+        {
+            rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+        }
+    }
+
+    async void LoadGrid(RadzenSplitButtonItem item)
+    {
+        if (item != null)
+        {
+            if (item.Text == "Clear Search")
+            {
+                SearchString = "";
+                Status = "ALL";
+                Priority = "ALL";
+                AssignedRoleId = "0";
+            }
+        }
+
         var filter = new LoadDataArgs();
         filter.Skip = 0;
         filter.Top = 10;
@@ -104,15 +203,14 @@
         filter.OrderBy = "";
 
         LoadData(filter);
+
+        if (grid != null)
+        {
+            await grid.FirstPage(true);
+        }
     }
 
-    async Task RefreshGrid(string paramSearch)
-    {
-        SearchString = paramSearch;
-        await grid.Reload();
-    }
-
-    void LoadData(LoadDataArgs args)
+    async void LoadData(LoadDataArgs args)
     {
         try
         {
@@ -129,19 +227,49 @@
             }
             catch { }
 
+            // Compute sortOrder and sortField
+            string sortOrder = "";
+            string sortField = "";
+            try
+            {
+                if (args.Sorts.Count() > 0)
+                {
+                    sortField = args.Sorts.FirstOrDefault().Property;
+                    sortOrder = (args.Sorts.FirstOrDefault().SortOrder.HasValue) ? args.Sorts.FirstOrDefault().SortOrder.Value.ToString() : "asc";
+
+                    if (sortOrder == "Descending")
+                    {
+                        sortOrder = "desc";
+                    }
+                    else
+                    {
+                        sortOrder = "asc";
+                    }
+
+                    if (sortField == "taskId")
+                    {
+                        sortField = "ADefHelpDesk_Tasks.TaskID";
+                    }
+                }
+            }
+            catch { }
+
+            // Get Selected Tree Nodes
+            var SelectedTreeNodes = await GetSelected(colAllTags);
+
             _TaskSearchResult = _TaskController.SearchTasks(
                 new SearchTaskParameters()
                     {
                         userId = "",
                         searchText = SearchString,
-                        status = "",
-                        priority = "",
+                        status = Status,
+                        priority = Priority,
                         createdDate = "",
                         dueDate = "",
-                        assignedRoleId = "",
-                        selectedTreeNodes = new List<int>(),
-                        sortOrder = "",
-                        sortField = "",
+                        assignedRoleId = AssignedRoleId,
+                        selectedTreeNodes = SelectedTreeNodes,
+                        sortOrder = sortOrder,
+                        sortField = sortField,
                         rowsPerPage = args.Top.Value,
                         pageNumber = pageNumber,
                     }
@@ -153,6 +281,8 @@
             {
                 Message = _TaskSearchResult.errorMessage.Trim();
             }
+
+            await grid.Reload();
         }
         catch (Exception ex)
         {
@@ -172,5 +302,43 @@
         //{
         //	await RefreshGrid(SearchString);
         //}
+    }
+
+    // Utility
+
+    public static async Task<List<int>> GetSelected(List<CategoryDTO> TreeNodes)
+    {
+        List<int> ColSelectedTreeNodes = new List<int>();
+        // Get all the top level nodes
+        foreach (var node in TreeNodes)
+        {
+            if (node.data.CheckboxChecked)
+            {
+                ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
+            }
+            // Recursively call the AddChildren method adding all children
+            await Task.Run(() => AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node));
+        }
+        return ColSelectedTreeNodes;
+    }
+
+    private static void AddSelectedChildren(
+    List<CategoryDTO> colNodeItemCollection,
+    List<int> colTreeNodeCollection,
+    CategoryDTO paramTreeNode)
+    {
+        // Get the children of the current item
+        // This method may be called from the top level
+        // or recursively by one of the child items
+        // Loop thru each Child of the current Node
+        foreach (var objChild in paramTreeNode.children)
+        {
+            if (objChild.data.CheckboxChecked)
+            {
+                colTreeNodeCollection.Add(Convert.ToInt32(objChild.categoryId));
+            }
+            // Recursively call the AddChildren method adding all children
+            AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);
+        }
     }
 }
