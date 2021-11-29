@@ -286,6 +286,46 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
         // Utility
 
+        #region public List<int> GetSelected(List<CategoryDTO> TreeNodes)
+        public List<int> GetSelected(List<CategoryDTO> TreeNodes)
+        {
+            List<int> ColSelectedTreeNodes = new List<int>();
+            // Get all the top level nodes
+            foreach (var node in TreeNodes)
+            {
+                if (node.data.CheckboxChecked)
+                {
+                    ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
+                }
+                // Recursively call the AddChildren method adding all children
+                AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node);
+            }
+            return ColSelectedTreeNodes;
+        }
+        #endregion
+
+        #region private void AddSelectedChildren(List<CategoryDTO> colNodeItemCollection, List<int> colTreeNodeCollection, CategoryDTO paramTreeNode)
+        private void AddSelectedChildren(
+            List<CategoryDTO> colNodeItemCollection,
+            List<int> colTreeNodeCollection,
+            CategoryDTO paramTreeNode)
+        {
+            // Get the children of the current item
+            // This method may be called from the top level
+            // or recursively by one of the child items
+            // Loop thru each Child of the current Node
+            foreach (var objChild in paramTreeNode.children)
+            {
+                if (objChild.data.CheckboxChecked)
+                {
+                    colTreeNodeCollection.Add(Convert.ToInt32(objChild.categoryId));
+                }
+                // Recursively call the AddChildren method adding all children
+                AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);
+            }
+        } 
+        #endregion
+
         #region private string GetConnectionString()
         private string GetConnectionString()
         {

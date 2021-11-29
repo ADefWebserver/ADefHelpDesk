@@ -385,7 +385,7 @@
             StateHasChanged();
 
             // Get Selected Tree Nodes
-            var SelectedTreeNodes = await GetSelected(colAllTags);
+            var SelectedTreeNodes = _CategoryTreeController.GetSelected(colAllTags);
 
             // Get File
             await ReadFileIntoMemory();
@@ -502,41 +502,5 @@
         NewTask.Status = "New";
 
         await fileReaderService.CreateReference(inputElement).ClearValue();
-    }
-
-    public static async Task<List<int>> GetSelected(List<CategoryDTO> TreeNodes)
-    {
-        List<int> ColSelectedTreeNodes = new List<int>();
-        // Get all the top level nodes
-        foreach (var node in TreeNodes)
-        {
-            if (node.data.CheckboxChecked)
-            {
-                ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
-            }
-            // Recursively call the AddChildren method adding all children
-            await Task.Run(() => AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node));
-        }
-        return ColSelectedTreeNodes;
-    }
-
-    private static void AddSelectedChildren(
-    List<CategoryDTO> colNodeItemCollection,
-    List<int> colTreeNodeCollection,
-    CategoryDTO paramTreeNode)
-    {
-        // Get the children of the current item
-        // This method may be called from the top level
-        // or recursively by one of the child items
-        // Loop thru each Child of the current Node
-        foreach (var objChild in paramTreeNode.children)
-        {
-            if (objChild.data.CheckboxChecked)
-            {
-                colTreeNodeCollection.Add(Convert.ToInt32(objChild.categoryId));
-            }
-            // Recursively call the AddChildren method adding all children
-            AddSelectedChildren(colNodeItemCollection, colTreeNodeCollection, objChild);
-        }
     }
 }
