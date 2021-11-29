@@ -29,71 +29,81 @@
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-	@if (@Message != "")
+@if (@Message != "")
 {
     <h4 style="color:red">@Message</h4>
 }
-<div>
-    <p>
-        <RadzenSplitButton Click=@(args => LoadGrid(args)) Text="Search" Icon="search" Style="margin-bottom: 20px;">
-            <ChildContent>
-                <RadzenSplitButtonItem Text="Clear Search" Value="Clear" />
-            </ChildContent>
-        </RadzenSplitButton> <RadzenTextBox @bind-Value=@SearchString Placeholder="Ticket # Or Search Text" />
-    </p>
-</div>
-<div class="row">
-    <div class="col-xl-10 col-lg-10 py-2">
-        <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
+@if (IsAuthenticated)
+{
+    <div>
+        <p>
+            <RadzenSplitButton Click=@(args => LoadGrid(args)) Text="Search" Icon="search" Style="margin-bottom: 20px;">
+                <ChildContent>
+                    <RadzenSplitButtonItem Text="Clear Search" Value="Clear" />
+                </ChildContent>
+            </RadzenSplitButton> <RadzenTextBox @bind-Value=@SearchString Placeholder="Ticket # Or Search Text" />
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-xl-10 col-lg-10 py-2">
+            <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
                         TItem="DTOTask" LoadData="@LoadData" FilterMode="FilterMode.Simple"
                         PageSizeOptions="@pageSizeOptions" AllowFiltering="true"
                         AllowPaging="true" AllowSorting="true" AllowColumnResize="true">
-            <Columns>
-                <RadzenDataGridColumn Width="20px" TItem="DTOTask"
+                <Columns>
+                    <RadzenDataGridColumn Width="25px" TItem="DTOTask"
                                       Property="taskId" Title="Edit" Sortable=true Filterable=false>
-                    <Template Context="data">
-                        <a href="javascript: void(0)" @onclick="@(() => EditTask(data))"><b>@($"# {data.taskId}")</b></a>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Sortable=true Width="50px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data=@statusDropdown @bind-Value=@Status
+                        <Template Context="data">
+                            <a href="javascript: void(0)" @onclick="@(() => EditTask(data))"><b>@($"# {data.taskId}")</b></a>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@statusDropdown @bind-Value=@Status
                                         TextProperty="ItemLabel"
                                         ValueProperty="ItemStringValue"
                                         Style="width:100px" />
-                    </FilterTemplate>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Sortable=true Width="50px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data=@priorityDropdown @bind-Value=@Priority
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@priorityDropdown @bind-Value=@Priority
                                         TextProperty="ItemLabel"
                                         ValueProperty="ItemStringValue"
                                         Style="width:300px" />
-                    </FilterTemplate>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Sortable=true Width="50px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Sortable=true Width="50px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="assignedRoleName" Title="Assigned" Sortable=true Width="50px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data=@rolesDropdown @bind-Value=@AssignedRoleId
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Sortable=true Width="55px">
+                        <FilterTemplate>
+                            <RadzenDatePicker @bind-Value=@dtDueDate DateFormat="d" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Sortable=true Width="55px">
+                        <FilterTemplate>
+                            <RadzenDatePicker @bind-Value=@dtCreatedDate DateFormat="d" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="assignedRoleName" Title="Assigned" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@rolesDropdown @bind-Value=@AssignedRoleId
                                         TextProperty="ItemLabel"
                                         ValueProperty="ItemStringValue"
                                         Style="width:300px" />
-                    </FilterTemplate>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="DTOTask" Property="requesterName" Filterable=false Title="Requester" Sortable=false Width="50px" />
-                <RadzenDataGridColumn TItem="DTOTask" Property="description" Filterable=false Title="Description" Sortable=false Width="100px" />
-            </Columns>
-        </RadzenDataGrid>
-    </div>
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="requesterName" Filterable=false Title="Requester" Sortable=false Width="50px" />
+                    <RadzenDataGridColumn TItem="DTOTask" Property="description" Filterable=false Title="Description" Sortable=false Width="100px" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
 
-    <div class="col-xl-2 col-lg-2 py-2">
-        <!-- Tree Node Control -->
+        <div class="col-xl-2 col-lg-2 py-2">
+            <!-- Tree Node Control -->
         <TreeView Items="colAllTags"
                   GetChildren="(treenode) => treenode.children">
-            <ItemTemplate Context="treenode">
-                &nbsp;
-                @if (@treenode.Item.data.selectable)
+                <ItemTemplate Context="treenode">
+                    &nbsp;
+                    @if (@treenode.Item.data.selectable)
                 {
                     <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
                                 TValue="bool"
@@ -104,12 +114,15 @@
         </TreeView>
     </div>
 </div>
+}
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    private bool IsAuthenticated = false;
     private bool IsAdmin = false;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
     private RadzenDataGrid<DTOTask> grid;
     private string strDefaultConnection;
 
@@ -126,6 +139,8 @@
     private string Status = "ALL";
     private string Priority = "ALL";
     private string AssignedRoleId = "0";
+    private DateTime? dtCreatedDate = null;
+    private DateTime? dtDueDate = null;
 
     public bool IsSuperAdmin = false;
     public string Message = "";
@@ -140,7 +155,9 @@
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
+            IsAuthenticated = true;
             IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
         }
         else
         {
@@ -193,6 +210,8 @@
                 Status = "ALL";
                 Priority = "ALL";
                 AssignedRoleId = "0";
+                dtCreatedDate = null;
+                dtDueDate = null;
             }
         }
 
@@ -206,7 +225,8 @@
 
         if (grid != null)
         {
-            await grid.FirstPage(true);
+            await grid.FirstPage();
+            await grid.Reload();
         }
     }
 
@@ -217,7 +237,7 @@
             Message = "";
 
             // Compute pageNumber
-            int pageNumber = 0;
+            int pageNumber = 1;
             try
             {
                 if ((args.Skip != null) && (args.Top != null) && (args.Skip.Value > 0) && (args.Top.Value > 0))
@@ -254,18 +274,40 @@
             }
             catch { }
 
+            // Compute CreatedDate
+            string CreatedDate = "";
+            try
+            {
+                if (dtCreatedDate != null)
+                {
+                    CreatedDate = (dtCreatedDate.HasValue) ? dtCreatedDate.Value.ToShortDateString() : "";
+                }
+            }
+            catch { }
+
+            // Compute DueDate
+            string DueDate = "";
+            try
+            {
+                if (dtDueDate != null)
+                {
+                    DueDate = (dtDueDate.HasValue) ? dtDueDate.Value.ToShortDateString() : "";
+                }
+            }
+            catch { }
+
             // Get Selected Tree Nodes
             var SelectedTreeNodes = await GetSelected(colAllTags);
 
             _TaskSearchResult = _TaskController.SearchTasks(
                 new SearchTaskParameters()
                     {
-                        userId = "",
+                        userId = objCurrentUser.userId.ToString(),
                         searchText = SearchString,
                         status = Status,
                         priority = Priority,
-                        createdDate = "",
-                        dueDate = "",
+                        createdDate = CreatedDate,
+                        dueDate = DueDate,
                         assignedRoleId = AssignedRoleId,
                         selectedTreeNodes = SelectedTreeNodes,
                         sortOrder = sortOrder,
@@ -281,8 +323,6 @@
             {
                 Message = _TaskSearchResult.errorMessage.Trim();
             }
-
-            await grid.Reload();
         }
         catch (Exception ex)
         {
