@@ -230,7 +230,7 @@
         }
     }
 
-    async void LoadData(LoadDataArgs args)
+    void LoadData(LoadDataArgs args)
     {
         try
         {
@@ -297,7 +297,7 @@
             catch { }
 
             // Get Selected Tree Nodes
-            var SelectedTreeNodes = await GetSelected(colAllTags);
+            var SelectedTreeNodes = GetSelected(colAllTags);
 
             _TaskSearchResult = _TaskController.SearchTasks(
                 new SearchTaskParameters()
@@ -323,6 +323,8 @@
             {
                 Message = _TaskSearchResult.errorMessage.Trim();
             }
+
+            StateHasChanged();  
         }
         catch (Exception ex)
         {
@@ -346,7 +348,7 @@
 
     // Utility
 
-    public static async Task<List<int>> GetSelected(List<CategoryDTO> TreeNodes)
+    public List<int> GetSelected(List<CategoryDTO> TreeNodes)
     {
         List<int> ColSelectedTreeNodes = new List<int>();
         // Get all the top level nodes
@@ -357,12 +359,12 @@
                 ColSelectedTreeNodes.Add(Convert.ToInt32(node.categoryId));
             }
             // Recursively call the AddChildren method adding all children
-            await Task.Run(() => AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node));
+            AddSelectedChildren(TreeNodes, ColSelectedTreeNodes, node);
         }
         return ColSelectedTreeNodes;
     }
 
-    private static void AddSelectedChildren(
+    private void AddSelectedChildren(
     List<CategoryDTO> colNodeItemCollection,
     List<int> colTreeNodeCollection,
     CategoryDTO paramTreeNode)
