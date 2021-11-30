@@ -320,7 +320,7 @@
 
         populateDropdowns();
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true);
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true, new List<int>());
     }
 
     private void populateDropdowns()
@@ -507,7 +507,7 @@
 
         await fileReaderService.CreateReference(inputElement).ClearValue();
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false);
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
         StateHasChanged();
     }
 }

@@ -43,16 +43,16 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
 
         #region public List<CategoryDTO> GetCategoryTree(bool RequestorVisible, bool UseCache)
-        public List<CategoryDTO> GetCategoryTree(bool RequestorVisibleOnly, bool UseCache)
+        public List<CategoryDTO> GetCategoryTree(bool RequestorVisibleOnly, bool UseCache, List<int> SelectedNodes)
         {
-            return GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
+            return GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, SelectedNodes, GetConnectionString());
         }
         #endregion
 
         // Methods
 
-        #region public static List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, string strConectionString)
-        public static List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, string strConectionString)
+        #region public List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, List<int> SelectedNodes, string strConectionString)
+        public List<CategoryDTO> GetNodesMethod(bool RequestorVisibleOnly, bool UseCache, IMemoryCache _cache, List<int> SelectedNodes, string strConectionString)
         {
             // Collection to hold final TreeNodes
             List<CategoryDTO> colTreeNodes = new List<CategoryDTO>();
@@ -121,7 +121,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
                     NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
                     objNewNodeDetail.categoryId = objNode.Id.ToString();
-                    objNewNodeDetail.CheckboxChecked = false;
+                    objNewNodeDetail.CheckboxChecked = (SelectedNodes.Contains(objNode.Id));
                     objNewNodeDetail.selectable = objNode.Selectable;
                     objNewNodeDetail.requestorVisible = objNode.RequestorVisible;
                     objNewNode.data = objNewNodeDetail;
@@ -167,23 +167,27 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     colTreeNodes.Add(objNewNode);
 
                     // Add Child Nodes
-                    AddChildren(colNodes, colTreeNodes, objNewNode);
+                    AddChildren(colNodes, colTreeNodes, objNewNode, SelectedNodes);
                 }
             }
 
-            // Set cache options.
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(TimeSpan.MaxValue);
+            // Only save to Cache is UseCache is true
+            if (UseCache)
+            {
+                // Set cache options.
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    // Keep in cache for this time, reset time if accessed.
+                    .SetSlidingExpiration(TimeSpan.MaxValue);
 
-            // Save data in cache.
-            if (RequestorVisibleOnly)
-            {
-                _cache.Set("TreeNodesRequestorVisibleOnly", colTreeNodes, cacheEntryOptions);
-            }
-            else
-            {
-                _cache.Set("TreeNodesAll", colTreeNodes, cacheEntryOptions);
+                // Save data in cache.
+                if (RequestorVisibleOnly)
+                {
+                    _cache.Set("TreeNodesRequestorVisibleOnly", colTreeNodes, cacheEntryOptions);
+                }
+                else
+                {
+                    _cache.Set("TreeNodesAll", colTreeNodes, cacheEntryOptions);
+                }
             }
 
             return colTreeNodes;
@@ -194,7 +198,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         private static void AddChildren(
             List<CategoryNode> colNodeItemCollection,
             List<CategoryDTO> colTreeNodeCollection,
-            CategoryDTO paramTreeNode)
+            CategoryDTO paramTreeNode,
+            List<int> SelectedNodes)
         {
             // Get the children of the current item
             // This method may be called from the top level 
@@ -268,7 +273,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                             // Add the Child node to the Parent
                             NodeDetailDTO objNewNodeDetail = new NodeDetailDTO();
                             objNewNodeDetail.categoryId = objChild.Id.ToString();
-                            objNewNodeDetail.CheckboxChecked = false;
+                            objNewNodeDetail.CheckboxChecked = (SelectedNodes.Contains(objChild.Id));
                             objNewNodeDetail.selectable = objChild.Selectable;
                             objNewNodeDetail.requestorVisible = objChild.RequestorVisible;
                             objNewNode.data = objNewNodeDetail;
@@ -279,7 +284,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 }
 
                 //Recursively call the AddChildren method adding all children
-                AddChildren(colNodeItemCollection, colTreeNodeCollection, objNewNode);
+                AddChildren(colNodeItemCollection, colTreeNodeCollection, objNewNode, SelectedNodes);
             }
         }
         #endregion

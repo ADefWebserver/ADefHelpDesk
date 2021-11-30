@@ -25,6 +25,7 @@
 @inject CategoryTreeController _CategoryTreeController
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject TaskController _TaskController
+@inject SearchParametersController _SearchParametersController
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
@@ -48,7 +49,7 @@
         <div class="col-xl-10 col-lg-10 py-2">
             <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
                         TItem="DTOTask" LoadData="@LoadData" FilterMode="FilterMode.Simple"
-                        PageSizeOptions="@pageSizeOptions" AllowFiltering="true"
+                        PageSizeOptions="@pageSizeOptions" AllowFiltering="true"                       
                         AllowPaging="true" AllowSorting="true" AllowColumnResize="true">
                 <Columns>
                     <RadzenDataGridColumn Width="25px" TItem="DTOTask"
@@ -167,14 +168,16 @@
         _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
         _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _SearchParametersController = (SearchParametersController)ScopedServices.GetService(typeof(SearchParametersController));
 
-        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false);
 
-        populateDropdowns();
+
+        PopulateDropdowns();
+        LoadLastSearchParameters();
         LoadGrid(null);
     }
 
-    private void populateDropdowns()
+    private void PopulateDropdowns()
     {
         // ** Priority Dropdown
         priorityDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
@@ -200,6 +203,45 @@
         }
     }
 
+    private void LoadLastSearchParameters()
+    {
+        var LastSearchParameters = _SearchParametersController.Index(objCurrentUser.userName);
+
+        if (LastSearchParameters != null)
+        {
+            SearchString = LastSearchParameters.searchText;
+            Status = LastSearchParameters.status;
+            Priority = LastSearchParameters.priority;
+            AssignedRoleId = LastSearchParameters.assignedRoleId;
+
+            // Compute CreatedDate
+            try
+            {
+                if (LastSearchParameters.createdDate != null)
+                {
+                    dtCreatedDate = Convert.ToDateTime(LastSearchParameters.createdDate);
+                }
+            }
+            catch { }
+
+            // Compute DueDate
+            try
+            {
+                if (LastSearchParameters.dueDate != null)
+                {
+                    dtDueDate = Convert.ToDateTime(LastSearchParameters.dueDate);
+                }
+            }
+            catch { }
+
+            colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, LastSearchParameters.selectedTreeNodes);
+        }
+        else
+        {
+           colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
+        }
+    }
+
     async void LoadGrid(RadzenSplitButtonItem item)
     {
         if (item != null)
@@ -212,7 +254,7 @@
                 AssignedRoleId = "0";
                 dtCreatedDate = null;
                 dtDueDate = null;
-                colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false);
+                colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
                 StateHasChanged();
             }
         }
@@ -301,7 +343,7 @@
             // Get Selected Tree Nodes
             var SelectedTreeNodes = _CategoryTreeController.GetSelected(colAllTags);
 
-            _TaskSearchResult = _TaskController.SearchTasks(
+            SearchTaskParameters objSearchTaskParameters =
                 new SearchTaskParameters()
                     {
                         userId = objCurrentUser.userId.ToString(),
@@ -316,9 +358,9 @@
                         sortField = sortField,
                         rowsPerPage = args.Top.Value,
                         pageNumber = pageNumber,
-                    }
-                , CurrentUser.Identity.Name);
+                    };
 
+            _TaskSearchResult = _TaskController.SearchTasks(objSearchTaskParameters, CurrentUser.Identity.Name);
             count = _TaskSearchResult.totalRows;
 
             if (_TaskSearchResult.errorMessage.Trim() != "")
@@ -326,7 +368,10 @@
                 Message = _TaskSearchResult.errorMessage.Trim();
             }
 
-            StateHasChanged();  
+            // Save as last search
+            _SearchParametersController.SaveSearchParameters(objSearchTaskParameters, objCurrentUser.userName);
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {

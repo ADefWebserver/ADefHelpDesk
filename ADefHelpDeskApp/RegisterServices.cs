@@ -83,6 +83,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<DashboardController>();
             services.AddScoped<TaskController>();
             services.AddScoped<UploadTaskController>();
+            services.AddScoped<SearchParametersController>();
 
             // Radzen Services
             services.AddScoped<DialogService>();
