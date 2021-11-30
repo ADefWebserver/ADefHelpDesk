@@ -4,4 +4,4 @@ Hello [strFullName], <br>A Help Desk ticket assigned to your Role: [strAssignedR
 <br>Status: [objTask.status] <br>Priority: [objTask.priority]
 <br>Date: [objTask.colDTOTaskDetail.FirstOrDefault().insertDate]<br>
 <br>Details: [objTask.colDTOTaskDetail.FirstOrDefault().description]
-<br><br>To view this ticket, go to: [CurrentHostLocation]/#/home?ticketnumber=[objTask.taskId] 
+<br><br>To view this ticket, go to: [CurrentHostLocation]/tickets/[objTask.taskId] 
