@@ -1,0 +1,104 @@
+﻿@inherits OwningComponentBase
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
+@inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject TaskController _TaskController
+@inject SearchParametersController _SearchParametersController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
+<h3>TicketEdit - @SelectedTask.taskId - IsAuthenticated: @IsAuthenticated</h3>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter]
+    public DTOTask SelectedTask { get; set; }
+
+    private bool IsAuthenticated = false;
+    private bool IsAdmin = false;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
+    private string strDefaultConnection;
+
+    private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    private List<SelectItem> priorityDropdown = new List<SelectItem>();
+    private List<SelectItem> statusDropdown = new List<SelectItem>();
+    private List<SelectItem> rolesDropdown = new List<SelectItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAuthenticated = true;
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
+
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+
+        PopulateDropdowns();
+    }
+
+    private void PopulateDropdowns()
+    {
+        // ** Priority Dropdown
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+
+        // ** Status Dropdown
+        statusDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+        // ** Roles Dropdown
+        rolesDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "0" });
+
+        var AllRoles = _RoleController.GetRoles();
+        foreach (var role in AllRoles)
+        {
+            rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+        }
+    }
+
+}

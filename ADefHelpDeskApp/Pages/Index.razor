@@ -1,5 +1,6 @@
 ﻿@page "/"
 @page "/index"
+@page "/{ticketnumber:int}/{code?}"
 @using ADefHelpDeskApp.Classes
 @using AdefHelpDeskBase.Models.DataContext
 @using Microsoft.EntityFrameworkCore
@@ -13,6 +14,12 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+    
+    [Parameter]
+    public int ticketnumber { get; set; }
+
+    [Parameter]
+    public string code { get; set; }
 
     bool IsAdmin = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
