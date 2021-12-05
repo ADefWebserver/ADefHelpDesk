@@ -266,7 +266,10 @@ namespace AdefHelpDeskBase.Controllers
                               where task.TaskId == paramDTOTask.taskId
                               select task).FirstOrDefault();
 
-                    var myresult = Result.TaskId;
+                    if (Result == null)
+                    {
+                        return objTask;
+                    }
                 }
                 else
                 {

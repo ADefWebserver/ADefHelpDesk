@@ -1,6 +1,7 @@
 ﻿@inherits OwningComponentBase
 @using ADefHelpDeskApp.Models
 @using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Controllers
 @using AdefHelpDeskBase.Models
 @using AdefHelpDeskBase.Models.DataContext
 @using ADefHelpDeskApp.Controllers
@@ -19,6 +20,7 @@
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
+@inject TaskController _TaskController
 @inject RoleController _RoleController
 @inject CategoryTreeController _CategoryTreeController
 @inject ApplicationSettingsController _ApplicationSettingsController
@@ -264,6 +266,12 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    [Parameter]
+    public int ticketnumber { get; set; }
+
+    [Parameter]
+    public string ticketPassword { get; set; }
+
     private bool IsAdmin = false;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
     private string strDefaultConnection = "";
@@ -317,10 +325,16 @@
         _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
         _UploadTaskController = (UploadTaskController)ScopedServices.GetService(typeof(UploadTaskController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
 
         populateDropdowns();
 
         colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true, new List<int>());
+
+        if(ticketPassword != null)
+        {
+            EditTask(ticketnumber, ticketPassword);
+        }
     }
 
     private void populateDropdowns()
@@ -512,5 +526,33 @@
 
         colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
         StateHasChanged();
+    }
+
+    void EditTask(int taskId, string ticketPassword)
+    {
+        Message = "";
+
+        try
+        {
+            DTOTask objTask = new DTOTask();
+            objTask.taskId = taskId;
+            objTask.ticketPassword = ticketPassword;
+            var SelectedTask = _TaskController.RetrieveTask(objTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+
+            if (SelectedTask.taskId != -1)
+            {
+                DialogService.Open<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
+                new DialogOptions() { Width = "650px" });
+            }
+            else
+            {
+                Message = $"Ticket # {taskId} not found";
+            }
+        }
+        catch(Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
     }
 }
