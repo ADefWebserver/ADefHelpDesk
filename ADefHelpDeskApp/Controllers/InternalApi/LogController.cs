@@ -70,7 +70,7 @@ namespace ADefHelpDeskApp.Controllers
                 var QueryResult = (from Log in context.AdefHelpDeskLog
                                    where Log.TaskId == intTaskId
                                    select Log).OrderByDescending(l => l.LogId)
-                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber - 1))
+                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber))
                                    .Take(searchData.rowsPerPage).ToList();
 
                 List<DTOLog> colDTOLog = new List<DTOLog>();

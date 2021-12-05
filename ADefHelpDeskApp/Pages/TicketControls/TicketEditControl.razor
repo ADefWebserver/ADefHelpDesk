@@ -22,6 +22,7 @@
 @inject ADefHelpDeskContext context
 @inject RoleController _RoleController
 @inject CategoryTreeController _CategoryTreeController
+@inject LogController _LogController
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject TaskController _TaskController
 @inject SearchParametersController _SearchParametersController
@@ -249,18 +250,14 @@
                 @if (IsAdmin == true)
                 {
                     <RadzenTabsItem Text="Logs">
-                        <table class="form-group" cellpadding="4" cellspacing="4">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <b>Label:</b>
-                                    </td>
-                                    <td>
-                                        <p>Content</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <RadzenDataList AllowPaging="false" Data="@colLogs" TItem="DTOLog">
+                            <Template Context="data">
+                                <p><b>Date:</b>@($" {@data.DateCreated}")</p>
+                                <p><b>Description:</b>@($" {@data.LogDescription}")</p>
+                            </Template>
+                        </RadzenDataList>
+                        <RadzenPager ShowPagingSummary="true" PagingSummaryFormat="@pagingSummaryFormat"
+                                 Count="pageCount" PageSize="5" PageNumbersCount="5" PageChanged="@PageChanged" />
                     </RadzenTabsItem>
                 }
             </Tabs>
@@ -298,6 +295,10 @@
     private List<SelectItem> priorityDropdown = new List<SelectItem>();
     private List<SelectItem> statusDropdown = new List<SelectItem>();
     private List<SelectItem> rolesDropdown = new List<SelectItem>();
+    private List<DTOLog> colLogs = new List<DTOLog>();
+
+    string pagingSummaryFormat = "{0} of {1}";
+    int pageCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -321,6 +322,7 @@
         _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
         _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _LogController = (LogController)ScopedServices.GetService(typeof(LogController));
 
         PopulateDropdowns();
 
@@ -328,7 +330,30 @@
 
         colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, SelectedTaskForm.selectedTreeNodes ?? new List<int>());
 
+        @if (IsAdmin == true)
+        {
+            colLogs = GetLogs(0, 5);
+        }
+
         ShowManualUser = (SelectedTaskForm.RequesterUserId == -1);
+    }
+
+    void PageChanged(PagerEventArgs args)
+    {
+        colLogs = GetLogs(args.Skip, args.Top);
+    }
+
+    List<DTOLog> GetLogs(int skip, int take)
+    {
+        SearchParameters searchData = new SearchParameters();
+        searchData.searchString = SelectedTaskForm.TaskId.ToString();
+        searchData.rowsPerPage = 5;
+        searchData.pageNumber = skip / 5;
+
+        var result = _LogController.Logs(searchData);
+        pageCount = result.totalRows;
+
+        return result.LogList;
     }
 
     private void PopulateDropdowns()
@@ -395,6 +420,7 @@
     {
         DTOTaskForm NewDTOTaskForm = new DTOTaskForm();
 
+        NewDTOTaskForm.TaskId = Convert.ToInt32(Task.taskId);
         NewDTOTaskForm.Description = Task.description;
         NewDTOTaskForm.Status = Task.status;
         NewDTOTaskForm.Priority = Task.priority;
