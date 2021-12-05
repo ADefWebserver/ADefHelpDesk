@@ -445,6 +445,9 @@
             if (!result.Success)
             {
                 Message = result.StatusMessage;
+                showWaitGraphic = false;
+                StateHasChanged();
+                return;
             }
             else
             {

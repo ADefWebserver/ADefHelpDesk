@@ -29,12 +29,11 @@
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-<h3>TicketEdit - @SelectedTaskForm.TaskId - IsAuthenticated: @IsAuthenticated</h3>
-<div class="row">
+<div style="height: 400px;max-height: 90%">
     <div class="col-xl-12 col-lg-12 py-2">
         <RadzenTabs RenderMode="TabRenderMode.Server">
             <Tabs>
-                <RadzenTabsItem Text="New Ticket">
+                <RadzenTabsItem Text="Info">
                     <table class="form-group" cellpadding="4" cellspacing="4">
                         <tbody>
                             @if (IsAdmin)
@@ -42,7 +41,7 @@
                                 <tr>
                                     <td></td>
                                     <td>
-                                        @if (objCurrentUser.userId != -1)
+                                        @if (SelectedTaskForm.RequesterUserId != -1)
                                         {
                                             <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
                                         }
@@ -118,77 +117,67 @@
                                                     Style="width:300px" />
                                 </td>
                             </tr>
-                            @if
-                            (
-                            (FileUploadPermission == "All")
-                            ||
-                            ((CurrentUser.Identity.IsAuthenticated) && (FileUploadPermission == "Administrator/Registered Users"))
-                            ||
-                            ((IsAdmin == true) && (FileUploadPermission == "Administrator"))
-                            )
-                            {
-                                <tr>
-                                    <td>
-                                        <b>File Upload:</b>
-                                    </td>
-                                    <td>
-                                        <input type="file" @ref=inputElement />
-                                    </td>
-                                </tr>
-                            }
+                        </tbody>
+                    </table>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Comments">
+                    <table class="form-group" cellpadding="4" cellspacing="4">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <b>Label:</b>
+                                </td>
+                                <td>
+                                    <p>Content</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </RadzenTabsItem>
                 @if (IsAdmin == true)
                 {
-                    <RadzenTabsItem Text="Ticket Details">
+                    <RadzenTabsItem Text="Work">
                         <table class="form-group" cellpadding="4" cellspacing="4">
                             <tbody>
                                 <tr>
                                     <td>
-                                        <b>Status:</b>
+                                        <b>Label:</b>
                                     </td>
                                     <td>
-                                        <RadzenDropDown Data=@statusDropdown @bind-Value=@SelectedTaskForm.Status
-                                                    TextProperty="ItemLabel"
-                                                    ValueProperty="ItemStringValue"
-                                                    Style="width:300px" />
+                                        <p>Content</p>
                                     </td>
                                 </tr>
+                            </tbody>
+                        </table>
+                    </RadzenTabsItem>
+                }
+                <RadzenTabsItem Text="Tags">
+                    <!-- Tree Node Control -->
+                    <TreeView Items="colAllTags"
+                              GetChildren="(treenode) => treenode.children">
+                        <ItemTemplate Context="treenode">
+                            &nbsp;
+                            @if (@treenode.Item.data.selectable)
+                            {
+                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                            TValue="bool"
+                                            @onclick:stopPropagation="true" />
+                            }
+                            &nbsp;@treenode.Item.label
+                        </ItemTemplate>
+                    </TreeView>
+                </RadzenTabsItem>
+                @if (IsAdmin == true)
+                {
+                    <RadzenTabsItem Text="Logs">
+                        <table class="form-group" cellpadding="4" cellspacing="4">
+                            <tbody>
                                 <tr>
                                     <td>
-                                        <b>Assigned Role:</b>
+                                        <b>Label:</b>
                                     </td>
                                     <td>
-                                        <RadzenDropDown Data=@rolesDropdown @bind-Value=@SelectedTaskForm.AssignedRoleId
-                                                    TextProperty="ItemLabel"
-                                                    ValueProperty="ItemStringValue"
-                                                    Style="width:300px" />
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <b>Estimated Start:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenDatePicker @bind-Value=@SelectedTaskForm.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Estimated Completion:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenDatePicker @bind-Value=@SelectedTaskForm.EstimatedCompletion TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Estimated Hours:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenNumeric @bind-Value=@SelectedTaskForm.EstimatedHours TValue="int?" Min="0" Max="10000" />
+                                        <p>Content</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -257,6 +246,7 @@
         PopulateDropdowns();
 
         SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
+        ShowManualUser = (SelectedTaskForm.RequesterUserId == -1);
     }
 
     private void PopulateDropdowns()
@@ -299,7 +289,7 @@
         NewDTOTask.estimatedCompletion = (Task.EstimatedCompletion.HasValue) ? Task.EstimatedCompletion.Value.ToShortDateString() + " " + Task.EstimatedCompletion.Value.ToShortTimeString() : "";
         NewDTOTask.dueDate = (Task.DueDate.HasValue) ? Task.DueDate.Value.ToShortDateString() : "";
         NewDTOTask.assignedRoleId = (Task.AssignedRoleId != null) ? Convert.ToInt32(Task.AssignedRoleId) : null;
-        NewDTOTask.requesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : null;
+        NewDTOTask.requesterUserId = Task.RequesterUserId;
         NewDTOTask.requesterName = Task.RequesterName;
         NewDTOTask.requesterEmail = Task.RequesterEmail;
         NewDTOTask.requesterPhone = Task.RequesterPhone;
@@ -331,7 +321,7 @@
         NewDTOTaskForm.EstimatedCompletion = (Task.estimatedCompletion != "") ? Convert.ToDateTime(Task.estimatedCompletion) : null;
         NewDTOTaskForm.DueDate = (Task.dueDate != "") ? Convert.ToDateTime(Task.dueDate) : null;
         NewDTOTaskForm.AssignedRoleId = (Task.assignedRoleId != null) ? Task.assignedRoleId.ToString() : "";
-        NewDTOTaskForm.RequesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
+        NewDTOTaskForm.RequesterUserId = (Task.requesterUserId != -1) ? Task.requesterUserId.Value : -1;
         NewDTOTaskForm.RequesterName = Task.requesterName;
         NewDTOTaskForm.RequesterEmail = Task.requesterEmail;
         NewDTOTaskForm.RequesterPhone = Task.requesterPhone;
@@ -353,7 +343,7 @@
 
     private void ClearUser()
     {
-        objCurrentUser.userId = -1;
+        SelectedTaskForm.RequesterUserId = -1;
         ShowManualUser = true;
     }
 
@@ -365,7 +355,8 @@
 
         if (result != null)
         {
-            objCurrentUser = (DTOUser)result;
+            DTOUser ReturnUser = (DTOUser)result;
+            SelectedTaskForm.RequesterUserId = ReturnUser.userId;
             ShowManualUser = false;
             StateHasChanged();
         }

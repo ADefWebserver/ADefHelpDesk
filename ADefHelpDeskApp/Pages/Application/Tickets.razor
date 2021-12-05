@@ -390,7 +390,7 @@
     {
         Message = "";
 
-        DTOUser result = await DialogService.OpenAsync<TicketEditControl>($"Edit Task",
+        DTOUser result = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {DTOTask.taskId}",
         new Dictionary<string, object>() { { "SelectedTask", DTOTask } },
         new DialogOptions() { Width = "650px" });
 

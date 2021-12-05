@@ -495,7 +495,10 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     objDTOStatus.StatusMessage = "Name is required";
                     return objDTOStatus;
                 }
+            }
 
+            if ((objTask.requesterUserId ?? -1) < 1)
+            {
                 EmailValidation objEmailValidation = new EmailValidation();
                 if (objTask.requesterEmail == null ||
                     objTask.requesterEmail.Trim().Length == 0 ||
