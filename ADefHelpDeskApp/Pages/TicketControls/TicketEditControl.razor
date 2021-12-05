@@ -205,18 +205,13 @@
                     </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Comments">
-                    <table class="form-group" cellpadding="4" cellspacing="4">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <b>Label:</b>
-                                </td>
-                                <td>
-                                    <p>Content</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <RadzenDataList AllowPaging="false" Data="@SelectedTaskForm.colDTOTaskDetail" TItem="DTOTaskDetail">
+                        <Template Context="data">
+                            <p>@($"# {@data.detailId}")</p>
+                            <p>@($"Date: {@data.insertDate}")</p>
+                            <p>@($"contentType: {@data.contentType}")</p>
+                        </Template>
+                    </RadzenDataList>
                 </RadzenTabsItem>
                 @if (IsAdmin == true)
                 {
@@ -414,16 +409,7 @@
         NewDTOTaskForm.RequesterPhone = Task.requesterPhone;
         NewDTOTaskForm.EstimatedHours = Task.estimatedHours;
         NewDTOTaskForm.selectedTreeNodes = Task.selectedTreeNodes;
-        NewDTOTaskForm.colDTOTaskDetail = new List<DTOTaskDetail>();
-
-        //var NewDTOTaskDetail = new DTOTaskDetail();
-        //NewDTOTaskDetail.description = Task.Description;
-        //NewDTOTaskDetail.insertDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-        //NewDTOTaskDetail.startTime = (NewTaskDetail.StartTime.HasValue) ? NewTaskDetail.StartTime.Value.ToShortDateString() + " " + NewTaskDetail.StartTime.Value.ToShortTimeString() : "";
-        //NewDTOTaskDetail.stopTime = (NewTaskDetail.StopTime.HasValue) ? NewTaskDetail.StopTime.Value.ToShortDateString() + " " + NewTaskDetail.StopTime.Value.ToShortTimeString() : "";
-        //NewDTOTaskDetail.userId = objCurrentUser.userId;
-        //NewDTOTaskDetail.userName = NewTask.RequesterName;
-        //NewDTOTaskForm.colDTOTaskDetail.Add(NewDTOTaskDetail);
+        NewDTOTaskForm.colDTOTaskDetail = Task.colDTOTaskDetail;
 
         return NewDTOTaskForm;
     }
