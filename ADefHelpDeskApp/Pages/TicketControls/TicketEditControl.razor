@@ -41,93 +41,169 @@
     <div class="col-xl-12 col-lg-12 py-2">
         <RadzenTabs RenderMode="TabRenderMode.Server">
             <Tabs>
-                <RadzenTabsItem Text="Info">
-                    <table class="form-group" cellpadding="4" cellspacing="4">
-                        <tbody>
-                            @if (IsAdmin)
-                            {
+                @if (!IsAdmin) // Non-Admin (Info) Tab
+                {
+                    <RadzenTabsItem Text="Info">
+                        <table class="form-group" cellpadding="4" cellspacing="4">
+                            <tbody>
                                 <tr>
-                                    <td></td>
                                     <td>
-                                        @if (SelectedTaskForm.RequesterUserId != -1)
+                                        <b>Status:</b>
+                                    </td>
+                                    <td>
+                                        @($"{SelectedTaskForm.Status}")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Priority:</b>
+                                    </td>
+                                    <td>
+                                        @($"{SelectedTaskForm.Priority}")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Name:</b>
+                                    </td>
+                                    <td>
+                                        @($"{SelectedTaskForm.RequesterName}")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Phone:</b>
+                                    </td>
+                                    <td>
+                                        @($"{SelectedTaskForm.RequesterPhone}")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Description:</b>
+                                    </td>
+                                    <td>
+                                        @($"{SelectedTaskForm.Description}")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Due Date:</b>
+                                    </td>
+                                    <td>
+                                        @($"{((SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "") }")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Est. Hours:</b>
+                                    </td>
+                                    <td>
+                                        @($"{((SelectedTaskForm.EstimatedHours.HasValue) ? SelectedTaskForm.EstimatedHours.Value : "") }")
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Est. Completion:</b>
+                                    </td>
+                                    <td>
+                                        @($"{((SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "") }")
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </RadzenTabsItem>
+                }
+                else // Admin (Info) Tab
+                {
+                    <RadzenTabsItem Text="Info">
+                        <table class="form-group" cellpadding="4" cellspacing="4">
+                            <tbody>
+                                @if (IsAdmin)
+                                {
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            @if (SelectedTaskForm.RequesterUserId != -1)
+                                            {
+                                                <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td>
+                                        <b>Name:</b>
+                                    </td>
+                                    <td>
+                                        @if (!ShowManualUser)
                                         {
-                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                            @($"{SelectedTaskForm.RequesterName}  ")
                                         }
                                         else
                                         {
-                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                            <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterName style="width: 100%;" />
                                         }
                                     </td>
                                 </tr>
-                            }
-                            <tr>
-                                <td>
-                                    <b>Name:</b>
-                                </td>
-                                <td>
-                                    @if (!ShowManualUser)
-                                    {
-                                        @($"{objCurrentUser.firstName} {objCurrentUser.lastName}  ")
-                                    }
-                                    else
-                                    {
-                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterName style="width: 100%;" />
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Email:</b>
-                                </td>
-                                <td>
-                                    @if (!ShowManualUser)
-                                    {
-                                        @($"{objCurrentUser.email}")
-                                    }
-                                    else
-                                    {
-                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterEmail style="width: 100%;" />
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Phone:</b>
-                                </td>
-                                <td>
-                                    <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 100%;" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Description:</b>
-                                </td>
-                                <td>
-                                    <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Due Date:</b>
-                                </td>
-                                <td>
-                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <b>Priority:</b>
-                                </td>
-                                <td>
-                                    <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
+                                <tr>
+                                    <td>
+                                        <b>Email:</b>
+                                    </td>
+                                    <td>
+                                        @if (!ShowManualUser)
+                                        {
+                                            @($"{SelectedTaskForm.RequesterEmail}")
+                                        }
+                                        else
+                                        {
+                                            <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterEmail style="width: 100%;" />
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Phone:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 100%;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Description:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Due Date:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Priority:</b>
+                                    </td>
+                                    <td>
+                                        <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
                                                     TextProperty="ItemLabel"
                                                     ValueProperty="ItemStringValue"
                                                     Style="width:300px" />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </RadzenTabsItem>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </RadzenTabsItem>
+                }
                 <RadzenTabsItem Text="Comments">
                     <table class="form-group" cellpadding="4" cellspacing="4">
                         <tbody>
@@ -252,8 +328,11 @@
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
 
         PopulateDropdowns();
-        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, true, new List<int>());
+
         SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
+
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, SelectedTaskForm.selectedTreeNodes ?? new List<int>());
+
         ShowManualUser = (SelectedTaskForm.RequesterUserId == -1);
     }
 
@@ -302,7 +381,7 @@
         NewDTOTask.requesterEmail = Task.RequesterEmail;
         NewDTOTask.requesterPhone = Task.RequesterPhone;
         NewDTOTask.estimatedHours = Task.EstimatedHours;
-        //NewDTOTask.selectedTreeNodes = SelectedTreeNodes;
+        NewDTOTask.selectedTreeNodes = Task.selectedTreeNodes;
         NewDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
 
         //var NewDTOTaskDetail = new DTOTaskDetail();
@@ -334,7 +413,7 @@
         NewDTOTaskForm.RequesterEmail = Task.requesterEmail;
         NewDTOTaskForm.RequesterPhone = Task.requesterPhone;
         NewDTOTaskForm.EstimatedHours = Task.estimatedHours;
-        //NewDTOTask.selectedTreeNodes = SelectedTreeNodes;
+        NewDTOTaskForm.selectedTreeNodes = Task.selectedTreeNodes;
         NewDTOTaskForm.colDTOTaskDetail = new List<DTOTaskDetail>();
 
         //var NewDTOTaskDetail = new DTOTaskDetail();

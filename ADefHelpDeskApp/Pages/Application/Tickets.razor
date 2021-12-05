@@ -386,21 +386,28 @@
         }
     }
 
-    async Task EditTask(DTOTask DTOTask)
+    async Task EditTask(DTOTask objTask)
     {
         Message = "";
 
-        DTOUser result = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {DTOTask.taskId}",
-        new Dictionary<string, object>() { { "SelectedTask", DTOTask } },
-        new DialogOptions() { Width = "650px" });
-
-        if (result != null)
+        try
         {
-        	Message = result.userName;
+            var SelectedTask = _TaskController.RetrieveTask(objTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+
+            if (SelectedTask.taskId != -1)
+            {
+                await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
+                new DialogOptions() { Width = "650px" });
+            }
+            else
+            {
+                Message = $"Ticket # {objTask.taskId} not found";
+            }
+        }
+        catch(Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
         }
     }
-
-    // Utility
-
-
 }

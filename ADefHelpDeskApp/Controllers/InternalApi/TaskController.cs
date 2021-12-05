@@ -391,7 +391,6 @@ namespace AdefHelpDeskBase.Controllers
                             SetEmailContents(itemAttachmement.FileName, itemAttachmement.AttachmentId, FullFilePath, DefaultConnection, ref objDTOTaskDetail);
                             objDTOTaskDetail.contentType = Constants.EML.Replace(".", "");
                         }
-
                     }
 
                     objTask.colDTOTaskDetail.Add(objDTOTaskDetail);
