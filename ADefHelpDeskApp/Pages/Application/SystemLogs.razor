@@ -26,7 +26,9 @@
 	}
 	<RadzenDataGrid Data="@colSystemLogs" Count="@count" LoadData="@LoadData"
 				PageSizeOptions="@pageSizeOptions" TItem="DTOSystemLog"
-				AllowPaging="true" AllowSorting="false">
+				AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+				FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+				LogicalFilterOperator="LogicalFilterOperator.Or">
 		<Columns>
 			<RadzenDataGridColumn TItem="DTOSystemLog" Property="LogType" Title="log Type" Width="200px" />
 			<RadzenDataGridColumn TItem="DTOSystemLog" Property="CreatedDate" Title="Log Date" Width="175px" />
@@ -73,7 +75,7 @@
 		filter.Skip = 0;
 		filter.Top = 10;
 		filter.Filter = "";
-		filter.OrderBy = "";
+		filter.OrderBy = "CreatedDate desc";
 
 		LoadData(filter);
 	}
@@ -81,8 +83,10 @@
 	void LoadData(LoadDataArgs args)
 	{
 		SearchParameters objSearchParameters = new SearchParameters();
-		objSearchParameters.pageNumber = args.Skip.Value;
+		objSearchParameters.pageNumber = (args.Skip.Value / args.Top.Value);
 		objSearchParameters.rowsPerPage = args.Top.Value;
+		objSearchParameters.orderBy = args.OrderBy;
+		objSearchParameters.searchString = args.Filter;
 
 		SystemLogSearchResult objSystemLogSearchResult = _SystemLogController.SystemLogs(objSearchParameters);
 

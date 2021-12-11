@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.1" />
+    <PackageReference Include="Excubo.Blazor.TreeViews" Version="3.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.0.7" />
-    <PackageReference Include="Radzen.Blazor" Version="3.13.2" />
+    <PackageReference Include="Radzen.Blazor" Version="3.13.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="3.2.0.21211" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />

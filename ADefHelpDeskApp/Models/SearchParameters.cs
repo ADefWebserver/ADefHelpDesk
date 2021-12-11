@@ -26,6 +26,7 @@ namespace AdefHelpDeskBase.Models
     public class SearchParameters
     {
         public string searchString;
+		public string orderBy;
         public int rowsPerPage;
         public int pageNumber;
     }

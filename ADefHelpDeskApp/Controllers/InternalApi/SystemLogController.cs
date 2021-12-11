@@ -40,11 +40,12 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
 using Microsoft.AspNetCore.Http;
+using System.Linq.Dynamic.Core;
 
 namespace ADefHelpDeskApp.Controllers
 {
     public class SystemLogController
-    {        
+    {
         private IConfiguration _config { get; set; }
 
         public SystemLogController(IConfiguration config)
@@ -76,10 +77,26 @@ namespace ADefHelpDeskApp.Controllers
 
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
-                var QueryResult = (from systemLog in context.AdefHelpDeskSystemLog
-                                   select systemLog).OrderByDescending(l => l.LogId)
-                                   .Skip(searchData.pageNumber)
-                                   .Take(searchData.rowsPerPage).ToList();
+                var Query = from systemLog in context.AdefHelpDeskSystemLog
+                            select systemLog;
+
+                //This section for filter
+                if (!string.IsNullOrEmpty(searchData.searchString))
+                {
+                    Query = Query.Where(searchData.searchString);
+                }
+
+                //This section for sorting
+                if (!string.IsNullOrEmpty(searchData.orderBy))
+                {
+                    Query = Query.OrderBy(searchData.orderBy);
+                }
+
+                var QueryResult = (from systemLog in Query
+                                   select systemLog)
+                                   .Skip(searchData.rowsPerPage * (searchData.pageNumber))
+                                   .Take(searchData.rowsPerPage)
+                                   .ToList();
 
                 List<DTOSystemLog> colDTOSystemLog = new List<DTOSystemLog>();
 
@@ -91,20 +108,20 @@ namespace ADefHelpDeskApp.Controllers
                     objDTOSystemLog.LogType = item.LogType;
                     objDTOSystemLog.LogMessage = item.LogMessage;
                     objDTOSystemLog.UserName = item.UserName ?? "";
-                    objDTOSystemLog.CreatedDate = item.CreatedDate.ToShortDateString() + ' ' + item.CreatedDate.ToShortTimeString();
+                    objDTOSystemLog.CreatedDate = item.CreatedDate;
 
                     colDTOSystemLog.Add(objDTOSystemLog);
                 }
 
                 objSystemLogSearchResult.SystemLogList = colDTOSystemLog;
-                objSystemLogSearchResult.totalRows = context.AdefHelpDeskSystemLog.Count();
+                objSystemLogSearchResult.totalRows = Query.Count();
                 objSystemLogSearchResult.errorMessage = string.Empty;
             }
 
             return objSystemLogSearchResult;
-        } 
+        }
         #endregion
-        
+
         // Utility
 
         #region private string GetConnectionString()
