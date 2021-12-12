@@ -80,13 +80,13 @@ namespace ADefHelpDeskApp.Controllers
                 var Query = from systemLog in context.AdefHelpDeskSystemLog
                             select systemLog;
 
-                //This section for filter
+                // filter
                 if (!string.IsNullOrEmpty(searchData.searchString))
                 {
                     Query = Query.Where(searchData.searchString);
                 }
 
-                //This section for sorting
+                // sorting
                 if (!string.IsNullOrEmpty(searchData.orderBy))
                 {
                     Query = Query.OrderBy(searchData.orderBy);

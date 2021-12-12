@@ -206,11 +206,21 @@
                     </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Comments">
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Style="margin-bottom: 10px" />
                     <RadzenDataList AllowPaging="false" Data="@SelectedTaskForm.colDTOTaskDetail" TItem="DTOTaskDetail">
                         <Template Context="data">
-                            <p>@($"# {@data.detailId}")</p>
-                            <p>@($"Date: {@data.insertDate}")</p>
-                            <p>@($"contentType: {@data.contentType}")</p>
+                            <div class="d-flex flex-row">
+                                <div class="col-md-3">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Edit" Style="margin-bottom: 10px" />
+                                </div>
+                                <div class="col-md-9">
+                                    <div>
+                                        <p><b>Date:</b>@($" {@data.insertDate}")</p>
+                                        <p><b>User:</b>@($" {@data.userName}")</p>
+                                        <p>@($"{@data.description}")</p>
+                                    </div>
+                                </div>
+                            </div>
                         </Template>
                     </RadzenDataList>
                 </RadzenTabsItem>
