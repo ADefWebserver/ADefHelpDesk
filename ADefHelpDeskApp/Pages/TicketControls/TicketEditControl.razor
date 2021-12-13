@@ -206,12 +206,12 @@
                     </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Comments">
-                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Style="margin-bottom: 10px" />
-                    <RadzenDataList AllowPaging="false" Data="@SelectedTaskForm.colDTOTaskDetail" TItem="DTOTaskDetail">
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
+                    <RadzenDataList AllowPaging="false" Data="@TaskDetailsComments" TItem="DTOTaskDetail">
                         <Template Context="data">
                             <div class="d-flex flex-row">
                                 <div class="col-md-3">
-                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskDetail(data)) Text="Edit" Style="margin-bottom: 10px" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskComment(data)) Text="Edit" Style="margin-bottom: 10px" />
                                 </div>
                                 <div class="col-md-9">
                                     <div>
@@ -227,18 +227,23 @@
                 @if (IsAdmin == true)
                 {
                     <RadzenTabsItem Text="Work">
-                        <table class="form-group" cellpadding="4" cellspacing="4">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <b>Label:</b>
-                                    </td>
-                                    <td>
-                                        <p>Content</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Style="margin-bottom: 10px" />
+                        <RadzenDataList AllowPaging="false" Data="@TaskDetailsWork" TItem="DTOTaskDetail">
+                            <Template Context="data">
+                                <div class="d-flex flex-row">
+                                    <div class="col-md-3">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskWork(data)) Text="Edit" Style="margin-bottom: 10px" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div>
+                                            <p><b>Start:</b>@($" {@data.insertDate}")</p>
+                                            <p><b>Stop:</b>@($" {@data.userName}")</p>
+                                            <p>@($"{@data.description}")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataList>
                     </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Tags">
@@ -301,6 +306,9 @@
     public string ApplicationGUID = "";
     public string FileUploadPermission = "";
 
+    private List<DTOTaskDetail> TaskDetailsComments = new List<DTOTaskDetail>();
+    private List<DTOTaskDetail> TaskDetailsWork = new List<DTOTaskDetail>();
+
     private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
     private List<SelectItem> priorityDropdown = new List<SelectItem>();
     private List<SelectItem> statusDropdown = new List<SelectItem>();
@@ -337,7 +345,8 @@
         PopulateDropdowns();
 
         SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
-
+        TaskDetailsComments = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType != "Work").ToList();
+        TaskDetailsWork  = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
         colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, SelectedTaskForm.selectedTreeNodes ?? new List<int>());
 
         @if (IsAdmin == true)
@@ -392,20 +401,55 @@
         }
     }
 
-    void EditTaskDetail(DTOTaskDetail objDTOTaskDetail)
+    async Task NewTaskComment()
+    {
+        DTOTaskDetail NewDTOTaskDetail = new DTOTaskDetail();
+        NewDTOTaskDetail.detailId = -1;
+        NewDTOTaskDetail.detailType = "Comment - Visible";
+
+        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditComment>($"New Comment",
+        new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", NewDTOTaskDetail } },
+        new DialogOptions() { Width = "600px" });
+
+        if (result != null)
+        {
+            TaskDetailsComments.Add(result); 
+            StateHasChanged();
+        }
+    }
+
+    void EditTaskComment(DTOTaskDetail objDTOTaskDetail)
     {
         Message = "";
 
         try
         {
-            //DTOTask objTask = new DTOTask();
-            //objTask.taskId = taskId;
-            //objTask.ticketPassword = ticketPassword;
-            //var SelectedTask = _TaskController.RetrieveTask(objTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
-
             if (objDTOTaskDetail.detailId != -1)
             {
-                DialogService.Open<TicketEditDetail>($"Edit Comment",
+                DialogService.Open<TicketEditComment>($"Edit Comment",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", objDTOTaskDetail } },
+                new DialogOptions() { Width = "600px" });
+            }
+            else
+            {
+                Message = $"Task Detail # {objDTOTaskDetail.detailId} not found";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+
+    void EditTaskWork(DTOTaskDetail objDTOTaskDetail)
+    {
+        Message = "";
+
+        try
+        {
+            if (objDTOTaskDetail.detailId != -1)
+            {
+                DialogService.Open<TicketEditComment>($"Edit Work",
                 new Dictionary<string, object>() { { "SelectedTaskDetail", objDTOTaskDetail } },
                 new DialogOptions() { Width = "600px" });
             }
@@ -414,7 +458,7 @@
                 Message = $"Task Detail # {objDTOTaskDetail.detailId} not found";
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Message = ex.GetBaseException().Message;
         }

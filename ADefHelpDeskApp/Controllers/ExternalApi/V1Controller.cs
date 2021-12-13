@@ -345,16 +345,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
             try
             {
-                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, null);
+                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, null);
 
-                objDTOStatus = UploadTaskController.UpdateTaskMethod(
-                    strConnectionString,
-                    CurrentHostLocation,
-                    ContentRootPath,
-                    paramTask,
-                    strCurrentUser,
-                    intUserId,
-                    IsAuthenticated);
+                //objDTOStatus = UploadTaskController.UpdateTaskMethod(
+                //    strConnectionString,
+                //    CurrentHostLocation,
+                //    ContentRootPath,
+                //    paramTask,
+                //    strCurrentUser,
+                //    intUserId,
+                //    IsAuthenticated);
             }
             catch (Exception ex)
             {
@@ -397,20 +397,20 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
             try
             {
-                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-                objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
-                    strConnectionString,
-                    CurrentHostLocation,
-                    ContentRootPath,
-                    paramTask,
-                    objFile,
-                    strCurrentUser,
-                    intUserId,
-                    IsSuperUser,
-                    IsAdministrator,
-                    strCurrentUser,
-                    IsAuthenticated);
+                //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
+                //    strConnectionString,
+                //    CurrentHostLocation,
+                //    ContentRootPath,
+                //    paramTask,
+                //    objFile,
+                //    strCurrentUser,
+                //    intUserId,
+                //    IsSuperUser,
+                //    IsAdministrator,
+                //    strCurrentUser,
+                //    IsAuthenticated);
             }
             catch (Exception ex)
             {

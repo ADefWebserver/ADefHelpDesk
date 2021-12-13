@@ -1,0 +1,181 @@
+﻿@inherits OwningComponentBase
+@using ADefHelpDeskApp.Models
+@using ADefHelpDeskApp.Classes
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskApp.Controllers
+@using ADefHelpDeskApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
+@inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
+@inject LogController _LogController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject TaskController _TaskController
+@inject UploadTaskController _UploadTaskController
+@inject SearchParametersController _SearchParametersController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
+<div style="height: 300px;max-height: 90%">
+    @if (@Message != "")
+    {
+        <h4 style="color:red">@Message</h4>
+    }
+    @if (@showWaitGraphic)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    }
+    <div class="col-xl-12 col-lg-12 py-2">
+        @if (@IsAdmin)
+        {
+            <RadzenCheckBox @bind-Value=@boolVisibleToRequester Name="VisibleToRequester" TValue="bool" Style="margin-bottom: 10px" />
+            <RadzenLabel Text="Visible to requester" Component="VisibleToRequester" Style="margin-left: 8px; vertical-align: middle; margin-bottom: 10px" />
+        }
+        <div>
+            @if ((@IsAdmin) || (@SelectedTaskDetail.detailId == -1))
+            {
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="save" Click=@(() => SaveComment()) Text="Save" Style="margin-bottom: 10px" />
+            }
+            @if (@IsAdmin)
+            {
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveCommentEmail()) Text="Save and Email" Style="margin-bottom: 10px" />
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteComment()) Text="Delete" Style="margin-bottom: 10px" />
+            }
+        </div>
+        @if (((@IsAdmin) && (@SelectedTaskDetail.contentType != "EML")) || (@SelectedTaskDetail.detailId == -1))
+        {
+            <div>
+                <RadzenTextArea @bind-Value=SelectedTaskDetail.description Cols="60" Rows="5" />
+            </div>
+        }
+        @if ((!@IsAdmin) && (@SelectedTaskDetail.contentType != "EML") && (@SelectedTaskDetail.detailId > -1))
+        {
+            <div style="height: 200px; width: 50%;">
+                @((MarkupString)SelectedTaskDetail.description)
+            </div>
+        }
+        @if (@SelectedTaskDetail.contentType == "EML")
+        {
+            <div>
+                @((MarkupString)SelectedTaskDetail.emailDescription)
+            </div>
+        }
+        @if (@SelectedTaskDetail.contentType == "EML")
+        {
+            <div>
+                <p>EML</p>
+            </div>
+        }
+    </div>
+</div>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter]
+    public DTOTask SelectedTask { get; set; }
+
+    [Parameter]
+    public DTOTaskDetail SelectedTaskDetail { get; set; }
+
+    private bool IsAuthenticated = false;
+    private bool IsAdmin = false;
+    private bool boolVisibleToRequester = true;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
+    private string strDefaultConnection;
+    private string CurrentHostLocation = "";
+
+    private bool showWaitGraphic = false;
+    private string Message = "";
+
+    IFormFile FormFile;
+    ElementReference inputElement;
+    MemoryStream FileMemoryStream;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAuthenticated = true;
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
+
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _UploadTaskController = (UploadTaskController)ScopedServices.GetService(typeof(UploadTaskController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _LogController = (LogController)ScopedServices.GetService(typeof(LogController));
+
+        CurrentHostLocation = NavigationManager.BaseUri;
+    }
+
+    private void SaveComment()
+    {
+        // Get additional values
+        int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
+        bool IsSuperUser = false;
+        bool IsAdministrator = false;
+        string strCurrentUser = "[Unauthenticated]";
+
+        // Clear any Task Details
+        SelectedTask.colDTOTaskDetail = new List<DTOTaskDetail>();
+        //Add existing Task Detail
+        SelectedTask.colDTOTaskDetail.Add(SelectedTaskDetail);
+
+        // Call the service
+        var result = _UploadTaskController.InsertUpdateTaskDetailMethod(
+            strDefaultConnection, CurrentHostLocation, _IWebHostEnvironment.ContentRootPath,
+            SelectedTask, FormFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator, strCurrentUser,
+            CurrentUser.Identity.IsAuthenticated);
+
+        // Was update successful?
+        if (!result.isSuccess)
+        {
+            Message = result.message;
+            showWaitGraphic = false;
+            StateHasChanged();
+            return;
+        }
+        else
+        {
+            DialogService.Close(result.taskDetail);
+        }
+    }
+
+    private void SaveCommentEmail()
+    {
+
+    }
+
+    private void DeleteComment()
+    {
+
+    }
+}

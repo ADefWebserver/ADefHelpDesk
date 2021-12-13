@@ -811,8 +811,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
         #endregion
 
-        #region public static DTOStatus UpdateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, string strCurrentUser, int intUserId, bool IsAuthenticated)
-        public static DTOStatus UpdateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, string strCurrentUser, int intUserId, bool IsAuthenticated)
+        #region public DTOStatus UpdateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, string strCurrentUser, int intUserId, bool IsAuthenticated)
+        public DTOStatus UpdateTaskMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, string strCurrentUser, int intUserId, bool IsAuthenticated)
         {
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
@@ -961,8 +961,8 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
         #endregion
 
-        #region public static DTOTaskDetailResponse InsertUpdateTaskDetailMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, string strLogUserName, bool IsAuthenticated)
-        public static DTOTaskDetailResponse InsertUpdateTaskDetailMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, string strLogUserName, bool IsAuthenticated)
+        #region public DTOTaskDetailResponse InsertUpdateTaskDetailMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, string strLogUserName, bool IsAuthenticated)
+        public DTOTaskDetailResponse InsertUpdateTaskDetailMethod(string ConnectionString, string CurrentHostLocation, string ContentRootPath, DTOTask objTask, IFormFile objFile, string strCurrentUser, int intUserId, bool IsSuperUser, bool IsAdministrator, string strLogUserName, bool IsAuthenticated)
         {
             DTOTaskDetailResponse objDTOTaskDetailResponse = new DTOTaskDetailResponse();
             objDTOTaskDetailResponse.isSuccess = true;
