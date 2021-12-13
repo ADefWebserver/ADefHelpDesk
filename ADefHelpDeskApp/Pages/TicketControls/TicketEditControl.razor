@@ -347,7 +347,7 @@
 
         SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
         TaskDetailsComments = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType != "Work").ToList();
-        TaskDetailsWork  = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
+        TaskDetailsWork = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
         colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, SelectedTaskForm.selectedTreeNodes ?? new List<int>());
 
         @if (IsAdmin == true)
@@ -410,17 +410,16 @@
         NewDTOTaskDetail.detailType = "Comment - Visible";
 
         DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"New Comment",
-        new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", NewDTOTaskDetail } },
+        new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", NewDTOTaskDetail } },
         new DialogOptions() { Width = "600px" });
 
         if (result != null)
         {
-            TaskDetailsComments.Add(result); 
-            StateHasChanged();
+            RefreshTask();
         }
     }
 
-    void EditTaskComment(DTOTaskDetail objDTOTaskDetail)
+    async Task EditTaskComment(DTOTaskDetail objDTOTaskDetail)
     {
         Message = "";
 
@@ -428,9 +427,14 @@
         {
             if (objDTOTaskDetail.detailId != -1)
             {
-                DialogService.Open<TicketEditDetailControl>($"{EditLabelText} Comment",
-                new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", objDTOTaskDetail } },
+                DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} Comment",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
                 new DialogOptions() { Width = "600px" });
+
+                if (result != null)
+                {
+                    RefreshTask();
+                }
             }
             else
             {
@@ -443,7 +447,7 @@
         }
     }
 
-    void EditTaskWork(DTOTaskDetail objDTOTaskDetail)
+    async Task EditTaskWork(DTOTaskDetail objDTOTaskDetail)
     {
         Message = "";
 
@@ -451,9 +455,14 @@
         {
             if (objDTOTaskDetail.detailId != -1)
             {
-                DialogService.Open<TicketEditDetailControl>($"Edit Work",
+                DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"Edit Work",
                 new Dictionary<string, object>() { { "SelectedTaskDetail", objDTOTaskDetail } },
                 new DialogOptions() { Width = "600px" });
+
+                if (result != null)
+                {
+                    RefreshTask();
+                }
             }
             else
             {
@@ -467,6 +476,15 @@
     }
 
     // Utility
+
+    private void RefreshTask()
+    {
+        SelectedTask = _TaskController.RetrieveTask(SelectedTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+        SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
+        TaskDetailsComments = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType != "Work").ToList();
+        TaskDetailsWork = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
+        StateHasChanged();
+    }
 
     private DTOTask ConvertDTOTaskFormToDTOTask(DTOTaskForm Task)
     {
