@@ -211,7 +211,7 @@
                         <Template Context="data">
                             <div class="d-flex flex-row">
                                 <div class="col-md-3">
-                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskComment(data)) Text="Edit" Style="margin-bottom: 10px" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskComment(data)) Text=@EditLabelText Style="margin-bottom: 10px" />
                                 </div>
                                 <div class="col-md-9">
                                     <div>
@@ -297,6 +297,7 @@
 
     private bool showWaitGraphic = false;
     private string Message = "";
+    private string EditLabelText = "View";
 
     IFormFile FormFile;
     ElementReference inputElement;
@@ -351,6 +352,7 @@
 
         @if (IsAdmin == true)
         {
+            EditLabelText = "Edit";
             colLogs = GetLogs(0, 5);
         }
 
@@ -407,7 +409,7 @@
         NewDTOTaskDetail.detailId = -1;
         NewDTOTaskDetail.detailType = "Comment - Visible";
 
-        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditComment>($"New Comment",
+        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"New Comment",
         new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", NewDTOTaskDetail } },
         new DialogOptions() { Width = "600px" });
 
@@ -426,7 +428,7 @@
         {
             if (objDTOTaskDetail.detailId != -1)
             {
-                DialogService.Open<TicketEditComment>($"Edit Comment",
+                DialogService.Open<TicketEditDetailControl>($"{EditLabelText} Comment",
                 new Dictionary<string, object>() { { "SelectedTask", SelectedTask },{ "SelectedTaskDetail", objDTOTaskDetail } },
                 new DialogOptions() { Width = "600px" });
             }
@@ -449,7 +451,7 @@
         {
             if (objDTOTaskDetail.detailId != -1)
             {
-                DialogService.Open<TicketEditComment>($"Edit Work",
+                DialogService.Open<TicketEditDetailControl>($"Edit Work",
                 new Dictionary<string, object>() { { "SelectedTaskDetail", objDTOTaskDetail } },
                 new DialogOptions() { Width = "600px" });
             }

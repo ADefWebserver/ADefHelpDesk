@@ -336,12 +336,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            string strConnectionString = GetConnectionString();
-            int intUserId = -1;
-            bool IsAuthenticated = true;
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = -1;
+            //bool IsAuthenticated = true;
 
             try
             {
@@ -386,14 +386,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             objDTOStatus.taskDetail = new DTOTaskDetail();
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            string strConnectionString = GetConnectionString();
-            int intUserId = -1;
-            bool IsSuperUser = true;
-            bool IsAdministrator = true;
-            bool IsAuthenticated = true;
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = -1;
+            //bool IsSuperUser = true;
+            //bool IsAdministrator = true;
+            //bool IsAuthenticated = true;
 
             try
             {

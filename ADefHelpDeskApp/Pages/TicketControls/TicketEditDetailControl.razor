@@ -144,6 +144,12 @@
         bool IsAdministrator = false;
         string strCurrentUser = "[Unauthenticated]";
 
+        // Set Detail Visibility
+        if(SelectedTaskDetail.detailType != "Work")
+        {
+            SelectedTaskDetail.detailType = (boolVisibleToRequester) ? "Comment - Visible" : "Comment";
+        }
+
         // Clear any Task Details
         SelectedTask.colDTOTaskDetail = new List<DTOTaskDetail>();
         //Add existing Task Detail
