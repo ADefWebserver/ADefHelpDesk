@@ -137,6 +137,27 @@ namespace ADefHelpDeskApp.Classes
         }
         #endregion
 
+        #region SummarizeContent
+        public static string SummarizeContent(string paramContent, int ContentLength)
+        {
+            string ReturnContent = "";
+
+            if (paramContent != null)
+            {
+                if (paramContent.Length > ContentLength)
+                {
+                    ReturnContent = Extensions.Left(paramContent, ContentLength) + "...";
+                }
+                else
+                {
+                    ReturnContent = paramContent;
+                }
+            }
+
+            return ReturnContent;
+        }
+        #endregion
+
         #region public static string CleanOutlookFontDefinitions(string HtmlContent)
         public static string CleanOutlookFontDefinitions(string HtmlContent)
         {

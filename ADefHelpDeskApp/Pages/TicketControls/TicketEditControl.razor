@@ -217,7 +217,7 @@
                                     <div>
                                         <p><b>Date:</b>@($" {@data.insertDate}")</p>
                                         <p><b>User:</b>@($" {@data.userName}")</p>
-                                        <p>@($"{@data.description}")</p>
+                                        <p>@($"{Utility.SummarizeContent(@data.description, 100)}")</p>
                                     </div>
                                 </div>
                             </div>
