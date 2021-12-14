@@ -83,13 +83,13 @@ namespace ADefHelpDeskApp.Controllers
                 // filter
                 if (!string.IsNullOrEmpty(searchData.searchString))
                 {
-                    Query = Query.Where(searchData.searchString);
+                    Query = Query.Where(searchData.searchString.Replace(";", "").Replace("--", ""));
                 }
 
                 // sorting
                 if (!string.IsNullOrEmpty(searchData.orderBy))
                 {
-                    Query = Query.OrderBy(searchData.orderBy);
+                    Query = Query.OrderBy(searchData.orderBy.Replace(";", "").Replace("--", ""));
                 }
 
                 var QueryResult = (from systemLog in Query
