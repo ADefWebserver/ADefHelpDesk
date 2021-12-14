@@ -1198,6 +1198,12 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                     objNewDTOAttachment.attachmentID = objNewAdefHelpDeskAttachments.AttachmentId;
                                     objNewDTOAttachment.fileName = objFile.FileName;
                                     objNewDTOAttachment.originalFileName = objFile.FileName;
+
+                                    if(paramAdefHelpDeskTaskDetails.colDTOAttachment == null)
+                                    {
+                                        paramAdefHelpDeskTaskDetails.colDTOAttachment = new List<DTOAttachment>();
+                                    }
+
                                     paramAdefHelpDeskTaskDetails.colDTOAttachment.Add(objNewDTOAttachment);
                                 }
                                 #endregion
