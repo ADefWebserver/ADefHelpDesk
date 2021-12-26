@@ -381,8 +381,8 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        #region public DTOTaskDetail RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
-        public DTOTaskDetail RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        #region public async Task<DTOTaskDetail> RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        public async Task<DTOTaskDetail> RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
         {
             DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
             objDTOTaskDetail.detailId = -1; // TaskDetail Not found
@@ -394,9 +394,9 @@ namespace AdefHelpDeskBase.Controllers
                 AdefHelpDeskTaskDetails IQueryTaskDetail;
 
                 // Using TaskId
-                IQueryTaskDetail = (from TaskDetail in context.AdefHelpDeskTaskDetails
+                IQueryTaskDetail = await (from TaskDetail in context.AdefHelpDeskTaskDetails
                                     where TaskDetail.DetailId == paramDTOTaskDetail.detailId
-                                    select TaskDetail).FirstOrDefault();
+                                    select TaskDetail).FirstOrDefaultAsync();
 
                 if (IQueryTaskDetail == null)
                 {

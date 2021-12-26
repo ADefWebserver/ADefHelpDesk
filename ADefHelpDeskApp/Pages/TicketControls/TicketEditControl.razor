@@ -427,16 +427,31 @@
         {
             if (paramDTOTaskDetail.detailId != -1)
             {
-                // Get full Task Details
-                var objDTOTaskDetail = _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
-
-                DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} Comment",
-                new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
-                new DialogOptions() { Width = "800px" });
-
-                if (result != null)
+                try
                 {
-                    RefreshTask();
+                    showWaitGraphic = true;
+                    StateHasChanged();
+
+                    // Get full Task Details
+                    var objDTOTaskDetail = await _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
+
+                    showWaitGraphic = false;
+                    StateHasChanged();
+
+                    DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} Comment",
+                    new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
+                    new DialogOptions() { Width = "800px" });
+
+                    if (result != null)
+                    {
+                        RefreshTask();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    showWaitGraphic = false;
+                    StateHasChanged();
+                    throw ex;
                 }
             }
             else
@@ -565,4 +580,4 @@
             StateHasChanged();
         }
     }
-}
+    }
