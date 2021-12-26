@@ -162,7 +162,7 @@ namespace ADefHelpDeskApp.Classes
         public static string CleanOutlookFontDefinitions(string HtmlContent)
         {
             // Strip out Font Definitions from Outlook emails
-            string strResponse = "";
+            string strResponse = HtmlContent;
 
             // Get range
             int intStart = HtmlContent.IndexOf(@"/* Font Definitions */");
