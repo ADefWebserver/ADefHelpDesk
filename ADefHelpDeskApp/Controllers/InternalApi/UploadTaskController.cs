@@ -1128,7 +1128,16 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                 if (objFile != null)
                                 {
                                     objNewAdefHelpDeskAttachments.Detail = objAdefHelpDeskTaskDetails;
-                                    objNewAdefHelpDeskAttachments.AttachmentPath = objGeneralSettings.FileUploadPath + @"\";
+
+                                    if (objGeneralSettings.StorageFileType == "AzureStorage")
+                                    {
+                                        objNewAdefHelpDeskAttachments.AttachmentPath = "[Azure Storage]";
+                                    }
+                                    else
+                                    {
+                                        objNewAdefHelpDeskAttachments.AttachmentPath = $@"{objGeneralSettings.FileUploadPath}\";
+                                    }
+
                                     objNewAdefHelpDeskAttachments.FileName = strUploadedFileName;
                                     objNewAdefHelpDeskAttachments.OriginalFileName = objFile.FileName;
                                     objNewAdefHelpDeskAttachments.UserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, ConnectionString);
