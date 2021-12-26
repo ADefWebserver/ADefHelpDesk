@@ -78,12 +78,6 @@
                 @((MarkupString)SelectedTaskDetail.emailDescription)
             </div>
         }
-        @if (@SelectedTaskDetail.contentType == "EML")
-        {
-            <div>
-                <p>EML</p>
-            </div>
-        }
         <!-- File Upload  -->
         @if ((@SelectedTaskDetail.detailType != "Work") && (@SelectedTaskDetail.detailId == -1))
         {

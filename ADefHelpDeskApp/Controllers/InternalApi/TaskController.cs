@@ -96,7 +96,7 @@ namespace AdefHelpDeskBase.Controllers
 
             objDTOStatus.StatusMessage = strResponse;
             objDTOStatus.Success = false;
-            return objDTOStatus;           
+            return objDTOStatus;
         }
         #endregion
 
@@ -282,7 +282,7 @@ namespace AdefHelpDeskBase.Controllers
 
                     // Must be a Administrator or Requester to only use TaskId
                     if (!IsAdministrator)
-                    {                         
+                    {
                         if (!(Result.RequesterUserId == intUserID))
                         {
                             if (!UtilitySecurity.IsAdministrator(strCurrentUser, DefaultConnection))
@@ -334,6 +334,8 @@ namespace AdefHelpDeskBase.Controllers
                 }
 
                 // Add Task Details
+                // Dont get full Details at this point
+                // A seperate call to RetrieveTaskDetails is required for full details
                 objTask.colDTOTaskDetail = new List<DTOTaskDetail>();
 
                 // Get all TaskDetails
@@ -354,7 +356,7 @@ namespace AdefHelpDeskBase.Controllers
                     DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
 
                     objDTOTaskDetail.contentType = (itemTaskDetail.ContentType != null) ? itemTaskDetail.ContentType : Constants.TXT;
-                    objDTOTaskDetail.description = itemTaskDetail.Description;
+                    objDTOTaskDetail.description = Utility.SummarizeContent(itemTaskDetail.Description, 100);
                     objDTOTaskDetail.detailId = itemTaskDetail.DetailId;
                     objDTOTaskDetail.detailType = itemTaskDetail.DetailType;
                     objDTOTaskDetail.insertDate = itemTaskDetail.InsertDate.ToLongDateString() + " " + itemTaskDetail.InsertDate.ToLongTimeString();
@@ -362,37 +364,7 @@ namespace AdefHelpDeskBase.Controllers
                     objDTOTaskDetail.stopTime = (itemTaskDetail.StopTime != null) ? itemTaskDetail.StopTime.Value.ToShortDateString() + " " + itemTaskDetail.StopTime.Value.ToShortTimeString() : "";
                     objDTOTaskDetail.userId = itemTaskDetail.UserId;
                     objDTOTaskDetail.userName = UtilitySecurity.UserFromUserId(itemTaskDetail.UserId, DefaultConnection).userName;
-
-                    // Add Attachments
-                    objDTOTaskDetail.colDTOAttachment = new List<DTOAttachment>();
-
-                    var AttachmentResults = (from attachment in context.AdefHelpDeskAttachments
-                                             where attachment.DetailId == objDTOTaskDetail.detailId
-                                             select attachment);
-
-                    foreach (var itemAttachmement in AttachmentResults)
-                    {
-                        DTOAttachment objDTOAttachment = new DTOAttachment();
-
-                        objDTOAttachment.attachmentID = itemAttachmement.AttachmentId;
-                        //objDTOAttachment.attachmentPath = itemAttachmement.AttachmentPath; -- Do not send for security reasons
-                        //objDTOAttachment.fileName = itemAttachmement.FileName; -- Do not send for security reasons
-                        objDTOAttachment.originalFileName = itemAttachmement.OriginalFileName;
-                        objDTOAttachment.userId = itemAttachmement.UserId.ToString();
-
-                        objDTOTaskDetail.colDTOAttachment.Add(objDTOAttachment);
-
-                        // If file type is .EML it is a Email 
-                        if (Path.GetExtension(itemAttachmement.OriginalFileName).ToUpper() == Constants.EML)
-                        {
-                            // Construct path
-                            string FullFilePath = Path.Combine(itemAttachmement.AttachmentPath, itemAttachmement.FileName);
-                            // Set Email Description and ContentType
-                            SetEmailContents(itemAttachmement.FileName, itemAttachmement.AttachmentId, FullFilePath, DefaultConnection, ref objDTOTaskDetail);
-                            objDTOTaskDetail.contentType = Constants.EML.Replace(".", "");
-                        }
-                    }
-
+                   
                     objTask.colDTOTaskDetail.Add(objDTOTaskDetail);
                 }
             }
@@ -406,9 +378,76 @@ namespace AdefHelpDeskBase.Controllers
             #endregion
 
             return objTask;
-        } 
+        }
         #endregion
-        
+
+        #region public DTOTaskDetail RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        public DTOTaskDetail RetrieveTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        {
+            DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
+            objDTOTaskDetail.detailId = -1; // TaskDetail Not found
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                AdefHelpDeskTaskDetails IQueryTaskDetail;
+
+                // Using TaskId
+                IQueryTaskDetail = (from TaskDetail in context.AdefHelpDeskTaskDetails
+                                    where TaskDetail.DetailId == paramDTOTaskDetail.detailId
+                                    select TaskDetail).FirstOrDefault();
+
+                if (IQueryTaskDetail == null)
+                {
+                    return objDTOTaskDetail;
+                }
+
+                objDTOTaskDetail.contentType = (IQueryTaskDetail.ContentType != null) ? IQueryTaskDetail.ContentType : Constants.TXT;
+                objDTOTaskDetail.description = IQueryTaskDetail.Description;
+                objDTOTaskDetail.detailId = IQueryTaskDetail.DetailId;
+                objDTOTaskDetail.detailType = IQueryTaskDetail.DetailType;
+                objDTOTaskDetail.insertDate = IQueryTaskDetail.InsertDate.ToLongDateString() + " " + IQueryTaskDetail.InsertDate.ToLongTimeString();
+                objDTOTaskDetail.startTime = (IQueryTaskDetail.StartTime != null) ? IQueryTaskDetail.StartTime.Value.ToShortDateString() + " " + IQueryTaskDetail.StartTime.Value.ToShortTimeString() : "";
+                objDTOTaskDetail.stopTime = (IQueryTaskDetail.StopTime != null) ? IQueryTaskDetail.StopTime.Value.ToShortDateString() + " " + IQueryTaskDetail.StopTime.Value.ToShortTimeString() : "";
+                objDTOTaskDetail.userId = IQueryTaskDetail.UserId;
+                objDTOTaskDetail.userName = UtilitySecurity.UserFromUserId(IQueryTaskDetail.UserId, DefaultConnection).userName;
+
+                // Add Attachments
+                objDTOTaskDetail.colDTOAttachment = new List<DTOAttachment>();
+
+                var AttachmentResults = (from attachment in context.AdefHelpDeskAttachments
+                                         where attachment.DetailId == objDTOTaskDetail.detailId
+                                         select attachment);
+
+                foreach (var itemAttachmement in AttachmentResults)
+                {
+                    DTOAttachment objDTOAttachment = new DTOAttachment();
+
+                    objDTOAttachment.attachmentID = itemAttachmement.AttachmentId;
+                    //objDTOAttachment.attachmentPath = itemAttachmement.AttachmentPath; -- Do not send for security reasons
+                    //objDTOAttachment.fileName = itemAttachmement.FileName; -- Do not send for security reasons
+                    objDTOAttachment.originalFileName = itemAttachmement.OriginalFileName;
+                    objDTOAttachment.userId = itemAttachmement.UserId.ToString();
+
+                    objDTOTaskDetail.colDTOAttachment.Add(objDTOAttachment);
+
+                    // If file type is .EML it is a Email 
+                    if (Path.GetExtension(itemAttachmement.OriginalFileName).ToUpper() == Constants.EML)
+                    {
+                        // Construct path
+                        string FullFilePath = Path.Combine(itemAttachmement.AttachmentPath, itemAttachmement.FileName);
+                        // Set Email Description and ContentType
+                        SetEmailContents(itemAttachmement.FileName, itemAttachmement.AttachmentId, FullFilePath, DefaultConnection, ref objDTOTaskDetail);
+                        objDTOTaskDetail.contentType = Constants.EML.Replace(".", "");
+                    }
+                }
+            }
+
+            return objDTOTaskDetail;
+        }
+        #endregion
+
         #region public static string DeleteTask(int TaskId, string DefaultConnection, string strCurrentUser)
         public static string DeleteTask(int TaskId, string DefaultConnection, string strCurrentUser)
         {
@@ -515,12 +554,12 @@ namespace AdefHelpDeskBase.Controllers
         #region private static string CleanString(string paramValue)
         private static string CleanString(string paramValue)
         {
-            if(paramValue == null)
+            if (paramValue == null)
             {
                 return null;
             }
 
-            string ReturnValue = paramValue.Replace(";","");
+            string ReturnValue = paramValue.Replace(";", "");
             ReturnValue = ReturnValue.Replace("--", "");
 
             return ReturnValue;

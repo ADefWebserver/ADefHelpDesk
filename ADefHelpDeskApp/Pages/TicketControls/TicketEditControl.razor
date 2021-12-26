@@ -419,17 +419,20 @@
         }
     }
 
-    async Task EditTaskComment(DTOTaskDetail objDTOTaskDetail)
+    async Task EditTaskComment(DTOTaskDetail paramDTOTaskDetail)
     {
         Message = "";
 
         try
         {
-            if (objDTOTaskDetail.detailId != -1)
+            if (paramDTOTaskDetail.detailId != -1)
             {
+                // Get full Task Details
+                var objDTOTaskDetail = _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
+
                 DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} Comment",
                 new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
-                new DialogOptions() { Width = "600px" });
+                new DialogOptions() { Width = "800px" });
 
                 if (result != null)
                 {
@@ -438,7 +441,7 @@
             }
             else
             {
-                Message = $"Task Detail # {objDTOTaskDetail.detailId} not found";
+                Message = $"Task Detail # {paramDTOTaskDetail.detailId} not found";
             }
         }
         catch (Exception ex)
@@ -457,7 +460,7 @@
             {
                 DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"Edit Work",
                 new Dictionary<string, object>() { { "SelectedTaskDetail", objDTOTaskDetail } },
-                new DialogOptions() { Width = "600px" });
+                new DialogOptions() { Width = "800px" });
 
                 if (result != null)
                 {
