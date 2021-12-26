@@ -356,7 +356,7 @@ namespace AdefHelpDeskBase.Controllers
                     DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
 
                     objDTOTaskDetail.contentType = (itemTaskDetail.ContentType != null) ? itemTaskDetail.ContentType : Constants.TXT;
-                    objDTOTaskDetail.description = Utility.SummarizeContent(itemTaskDetail.Description, 100);
+                    objDTOTaskDetail.description = Utility.SummarizeContent(Utility.StripTags(itemTaskDetail.Description,false), 100);
                     objDTOTaskDetail.detailId = itemTaskDetail.DetailId;
                     objDTOTaskDetail.detailType = itemTaskDetail.DetailType;
                     objDTOTaskDetail.insertDate = itemTaskDetail.InsertDate.ToLongDateString() + " " + itemTaskDetail.InsertDate.ToLongTimeString();

@@ -37,7 +37,18 @@
     }
     @if (@showWaitGraphic)
     {
-        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Loading...</h2>
+                    </div>
+                    <div class="modal-body">
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                    </div>
+                </div>
+            </div>
+        </div>
     }
     <div class="col-xl-12 col-lg-12 py-2">
         <RadzenTabs RenderMode="TabRenderMode.Server">
