@@ -356,7 +356,7 @@ namespace AdefHelpDeskBase.Controllers
                     DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
 
                     objDTOTaskDetail.contentType = (itemTaskDetail.ContentType != null) ? itemTaskDetail.ContentType : Constants.TXT;
-                    objDTOTaskDetail.description = Utility.SummarizeContent(Utility.StripTags(itemTaskDetail.Description,false), 100);
+                    objDTOTaskDetail.description = Utility.SummarizeContent(Utility.StripTags(itemTaskDetail.Description, false), 100);
                     objDTOTaskDetail.detailId = itemTaskDetail.DetailId;
                     objDTOTaskDetail.detailType = itemTaskDetail.DetailType;
                     objDTOTaskDetail.insertDate = itemTaskDetail.InsertDate.ToLongDateString() + " " + itemTaskDetail.InsertDate.ToLongTimeString();
@@ -364,7 +364,7 @@ namespace AdefHelpDeskBase.Controllers
                     objDTOTaskDetail.stopTime = (itemTaskDetail.StopTime != null) ? itemTaskDetail.StopTime.Value.ToShortDateString() + " " + itemTaskDetail.StopTime.Value.ToShortTimeString() : "";
                     objDTOTaskDetail.userId = itemTaskDetail.UserId;
                     objDTOTaskDetail.userName = UtilitySecurity.UserFromUserId(itemTaskDetail.UserId, DefaultConnection).userName;
-                   
+
                     objTask.colDTOTaskDetail.Add(objDTOTaskDetail);
                 }
             }
@@ -395,8 +395,8 @@ namespace AdefHelpDeskBase.Controllers
 
                 // Using TaskId
                 IQueryTaskDetail = await (from TaskDetail in context.AdefHelpDeskTaskDetails
-                                    where TaskDetail.DetailId == paramDTOTaskDetail.detailId
-                                    select TaskDetail).FirstOrDefaultAsync();
+                                          where TaskDetail.DetailId == paramDTOTaskDetail.detailId
+                                          select TaskDetail).FirstOrDefaultAsync();
 
                 if (IQueryTaskDetail == null)
                 {
@@ -696,15 +696,18 @@ namespace AdefHelpDeskBase.Controllers
                         {
                             if (item.ContentDisposition.FileName != null)
                             {
-                                DTOAttachment objDTOAttachment = new DTOAttachment();
+                                if (Utility.ValidateFileExtension(Path.GetExtension(item.ContentDisposition.FileName)))
+                                {
+                                    DTOAttachment objDTOAttachment = new DTOAttachment();
 
-                                objDTOAttachment.attachmentID = intAttachmentId;
-                                objDTOAttachment.attachmentPath = "EML";
-                                objDTOAttachment.userId = "-1";
-                                objDTOAttachment.fileName = item.ContentDisposition.FileName;
-                                objDTOAttachment.originalFileName = strFullFilePath;
+                                    objDTOAttachment.attachmentID = intAttachmentId;
+                                    objDTOAttachment.attachmentPath = "EML";
+                                    objDTOAttachment.userId = "-1";
+                                    objDTOAttachment.fileName = item.ContentDisposition.FileName;
+                                    objDTOAttachment.originalFileName = strFullFilePath;
 
-                                objDTOTaskDetail.colDTOAttachment.Add(objDTOAttachment);
+                                    objDTOTaskDetail.colDTOAttachment.Add(objDTOAttachment);
+                                }
                             }
                         }
                     }
