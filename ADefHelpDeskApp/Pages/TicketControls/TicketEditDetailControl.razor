@@ -77,6 +77,16 @@
             <div>
                 @((MarkupString)SelectedTaskDetail.emailDescription)
             </div>
+            <div>
+                <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
+                    <Template Context="attachment">
+                        <div style="text-align:center">
+                        <RadzenButton Click=@(() => DownloadAttachment(attachment)) Text="@attachment.fileName" Icon="download" ButtonStyle="ButtonStyle.Light" />
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        </div>
+                    </Template>
+                </RadzenDataList>
+            </div>
         }
         <!-- File Upload  -->
         @if ((@SelectedTaskDetail.detailType != "Work") && (@SelectedTaskDetail.detailId == -1))
@@ -152,6 +162,11 @@
 
         // Get current settings
         GetCurrentSettings();
+    }
+
+    private void DownloadAttachment(DTOAttachment paramAttachment)
+    {
+
     }
 
     private void GetCurrentSettings()
