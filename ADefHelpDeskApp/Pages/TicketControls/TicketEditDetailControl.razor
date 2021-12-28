@@ -196,14 +196,10 @@
         byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         var response = await _client.PostAsync(url, byteContent);
+        var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
 
         showWaitAttachmentGraphic = false;
         StateHasChanged();
-
-        // Perhaps try to show content in a popup?
-        var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
-        var FileContent = response.Content.ReadAsByteArrayAsync();
-        var FileResult = FileContent.Result;
 
         using (var stream = await response.Content.ReadAsStreamAsync())
         {
