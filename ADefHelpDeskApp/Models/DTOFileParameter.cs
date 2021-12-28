@@ -24,6 +24,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ADefHelpDeskApp.Models
 {
+    [Serializable]
     public class DTOFileParameter
     {
         [Key]

@@ -40,8 +40,10 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.AspNetCore.Http;
 
-namespace ADefHelpDeskApp.Controllers.InternalApi
+namespace ADefHelpDeskApp.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiExplorerSettings(GroupName = "internal")]
     public class FilesController : Controller
     {
         private readonly IWebHostEnvironment _hostEnvironment;
@@ -102,8 +104,9 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         }
         #endregion
 
-        #region public FileContentResult ReturnFile(DTOFileParameter paramDTOFileParameter)
-        public FileContentResult ReturnFile(DTOFileParameter paramDTOFileParameter)
+        #region public FileContentResult ReturnFile([FromBody]DTOFileParameter paramDTOFileParameter)
+        [HttpPost("ReturnFile")]
+        public FileContentResult ReturnFile([FromBody] DTOFileParameter paramDTOFileParameter)
         {
             var fileResult = ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
             return File(fileResult.Buffer, "application/octet-stream", fileResult.FileName);
@@ -212,22 +215,31 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                 // This is a file contained in an .eml file
                                 MimeEntity emailFile = GetEmailFile(FullPath, paramDTOFileParameter.emailFileName, ConnectionString);
 
-                                // Get file contents
-                                using (var memory = new MemoryStream())
+                                if (emailFile != null)
                                 {
-                                    if (emailFile is MessagePart)
+                                    // Get file contents
+                                    using (var memory = new MemoryStream())
                                     {
-                                        var rfc822 = (MessagePart)emailFile;
-                                        rfc822.Message.WriteTo(memory);
-                                    }
-                                    else
-                                    {
-                                        var part = (MimePart)emailFile;
-                                        part.Content.DecodeTo(memory);
-                                    }
+                                        if (emailFile is MessagePart)
+                                        {
+                                            var rfc822 = (MessagePart)emailFile;
+                                            rfc822.Message.WriteTo(memory);
+                                        }
+                                        else
+                                        {
+                                            var part = (MimePart)emailFile;
+                                            part.Content.DecodeTo(memory);
+                                        }
 
-                                    objDTOFile.Buffer = memory.ToArray();
-                                    objDTOFile.FileName = paramDTOFileParameter.emailFileName;
+                                        objDTOFile.Buffer = memory.ToArray();
+                                        objDTOFile.FileName = paramDTOFileParameter.emailFileName;
+                                        return objDTOFile;
+                                    }
+                                }
+                                else
+                                {
+                                    objDTOFile.Buffer = null;
+                                    objDTOFile.FileName = "FileNotFound.txt";
                                     return objDTOFile;
                                 }
                             }

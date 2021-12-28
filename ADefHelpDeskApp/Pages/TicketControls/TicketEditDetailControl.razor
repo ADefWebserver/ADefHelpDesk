@@ -16,7 +16,9 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO
 @using System.Text
+@using Newtonsoft.Json
 @inject IConfiguration _configuration
+@inject HttpClient _client
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
@@ -78,6 +80,13 @@
                 @((MarkupString)SelectedTaskDetail.emailDescription)
             </div>
             <div>
+                @if (@showWaitAttachmentGraphic)
+                {
+                  <br />
+                  <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                }
+                else
+                {
                 <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
                     <Template Context="attachment">
                         <div style="text-align:center">
@@ -86,6 +95,7 @@
                         </div>
                     </Template>
                 </RadzenDataList>
+                }
             </div>
         }
         <!-- File Upload  -->
@@ -126,6 +136,7 @@
     private string CurrentHostLocation = "";
 
     private bool showWaitGraphic = false;
+    private bool showWaitAttachmentGraphic = false;
     private string Message = "";
 
     IFormFile FormFile;
@@ -164,9 +175,42 @@
         GetCurrentSettings();
     }
 
-    private void DownloadAttachment(DTOAttachment paramAttachment)
-    {
+    private async Task<HttpContent> DownloadAttachment(DTOAttachment paramAttachment)
+    {       
+        try
+        {
+            showWaitAttachmentGraphic = true;
+            StateHasChanged();
 
+            var url = new Uri($"{NavigationManager.BaseUri}api/Files/ReturnFile");
+
+            var request = new DTOFileParameter();   
+            request.attachmentID = paramAttachment.attachmentID;
+            request.emailFileName = paramAttachment.fileName;
+            request.detailId = SelectedTaskDetail.detailId;
+            request.portalId = -1;
+            request.taskId = SelectedTask.taskId ?? -1;
+            request.ticketPassword = SelectedTask.ticketPassword;
+
+            var myContent = JsonConvert.SerializeObject(request);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+            var response = await _client.PostAsync(url, byteContent);
+
+            showWaitAttachmentGraphic = false;
+            StateHasChanged();
+
+            return response.Content;
+        }
+        catch
+        {
+            showWaitAttachmentGraphic = false;
+            StateHasChanged();
+
+            return new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest).Content;
+        }
     }
 
     private void GetCurrentSettings()
