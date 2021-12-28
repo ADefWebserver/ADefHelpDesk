@@ -212,7 +212,9 @@ namespace ADefHelpDeskApp.Controllers
                             // See if this is a file in an .Eml file
                             if (paramDTOFileParameter.emailFileName != null)
                             {
+                                // ****************************************
                                 // This is a file contained in an .eml file
+                                // ****************************************
                                 MimeEntity emailFile = GetEmailFile(FullPath, paramDTOFileParameter.emailFileName, ConnectionString);
 
                                 if (emailFile != null)

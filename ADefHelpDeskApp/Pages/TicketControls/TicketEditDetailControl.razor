@@ -82,19 +82,19 @@
             <div>
                 @if (@showWaitAttachmentGraphic)
                 {
-                  <br />
-                  <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                    <br />
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
                 }
                 else
                 {
-                <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
-                    <Template Context="attachment">
-                        <div style="text-align:center">
-                        <RadzenButton Click=@(() => DownloadAttachment(attachment)) Text="@attachment.fileName" Icon="download" ButtonStyle="ButtonStyle.Light" />
-                        <span>&nbsp;&nbsp;&nbsp;</span>
-                        </div>
-                    </Template>
-                </RadzenDataList>
+                    <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
+                        <Template Context="attachment">
+                            <div style="text-align:center">
+                                <RadzenButton Click=@(() => DownloadAttachment(attachment)) Text="@attachment.fileName" Icon="download" ButtonStyle="ButtonStyle.Light" />
+                                <span>&nbsp;&nbsp;&nbsp;</span>
+                            </div>
+                        </Template>
+                    </RadzenDataList>
                 }
             </div>
         }
@@ -175,41 +175,40 @@
         GetCurrentSettings();
     }
 
-    private async Task<HttpContent> DownloadAttachment(DTOAttachment paramAttachment)
-    {       
-        try
+    private async void DownloadAttachment(DTOAttachment paramAttachment)
+    {
+        showWaitAttachmentGraphic = true;
+        StateHasChanged();
+
+        var url = new Uri($"{NavigationManager.BaseUri}api/Files/ReturnFile");
+
+        var request = new DTOFileParameter();
+        request.attachmentID = paramAttachment.attachmentID;
+        request.emailFileName = paramAttachment.fileName;
+        request.detailId = SelectedTaskDetail.detailId;
+        request.portalId = -1;
+        request.taskId = SelectedTask.taskId ?? -1;
+        request.ticketPassword = SelectedTask.ticketPassword;
+
+        var myContent = JsonConvert.SerializeObject(request);
+        var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+        var byteContent = new ByteArrayContent(buffer);
+        byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        var response = await _client.PostAsync(url, byteContent);
+
+        showWaitAttachmentGraphic = false;
+        StateHasChanged();
+
+        // Perhaps try to show content in a popup?
+        var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
+        var FileContent = response.Content.ReadAsByteArrayAsync();
+        var FileResult = FileContent.Result;
+
+        using (var stream = await response.Content.ReadAsStreamAsync())
         {
-            showWaitAttachmentGraphic = true;
-            StateHasChanged();
-
-            var url = new Uri($"{NavigationManager.BaseUri}api/Files/ReturnFile");
-
-            var request = new DTOFileParameter();   
-            request.attachmentID = paramAttachment.attachmentID;
-            request.emailFileName = paramAttachment.fileName;
-            request.detailId = SelectedTaskDetail.detailId;
-            request.portalId = -1;
-            request.taskId = SelectedTask.taskId ?? -1;
-            request.ticketPassword = SelectedTask.ticketPassword;
-
-            var myContent = JsonConvert.SerializeObject(request);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-            var response = await _client.PostAsync(url, byteContent);
-
-            showWaitAttachmentGraphic = false;
-            StateHasChanged();
-
-            return response.Content;
-        }
-        catch
-        {
-            showWaitAttachmentGraphic = false;
-            StateHasChanged();
-
-            return new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest).Content;
+            using var streamRef = new DotNetStreamReference(stream: stream);
+            await JSRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
         }
     }
 
