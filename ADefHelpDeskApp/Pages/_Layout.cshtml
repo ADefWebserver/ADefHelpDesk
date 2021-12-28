@@ -12,35 +12,11 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
+    <script src="js/fileAttachments.js"></script>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
     @RenderBody()
-
-    <script>
-        async function downloadFileFromStream(fileName, contentStreamReference) {
-          const arrayBuffer = await contentStreamReference.arrayBuffer();
-          const blob = new Blob([arrayBuffer]);
-
-          const url = URL.createObjectURL(blob);
-
-          triggerFileDownload(fileName, url);
-
-          URL.revokeObjectURL(url);
-        }
-
-        function triggerFileDownload(fileName, url) {
-          const anchorElement = document.createElement('a');
-          anchorElement.href = url;
-
-          if (fileName) {
-            anchorElement.download = fileName;
-          }
-
-          anchorElement.click();
-          anchorElement.remove();
-        }
-    </script>
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
