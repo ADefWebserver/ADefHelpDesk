@@ -53,13 +53,13 @@
             {
                 @if (!@showWaitGraphic)
                 {
-                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="save" Click=@(() => SaveComment()) Text="Save" Style="margin-bottom: 10px" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="save" Click=@(() => SaveComment(false)) Text="Save" Style="margin-bottom: 10px" />
                 }
             }
             @if (@IsAdmin)
             {
-                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveCommentEmail()) Text="Save and Email" Style="margin-bottom: 10px" />
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteComment()) Text="Delete" Style="margin-bottom: 10px" />
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveComment(true)) Text="Save and Email" Style="margin-bottom: 10px" />
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteCommentDialog()) Text="Delete" Style="margin-bottom: 10px" />
             }
         </div>
         @if (((@IsAdmin) && (@SelectedTaskDetail.contentType != "EML")) || (@SelectedTaskDetail.detailId == -1))
@@ -217,13 +217,16 @@
         StateHasChanged();
     }
 
-    private async Task SaveComment()
+    private async Task SaveComment(bool paramSendEmails)
     {
         try
         {
             Message = "";
             showWaitGraphic = true;
             StateHasChanged();
+
+            // Set Email Flag
+            SelectedTask.sendEmails = paramSendEmails;
 
             // Get additional values
             int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
@@ -272,14 +275,55 @@
         }
     }
 
-    private void SaveCommentEmail()
-    {
-
-    }
+    async Task DeleteCommentDialog() => await DialogService
+		.OpenAsync("Delete Comment", ds =>
+	@<RadzenCard Style="padding: 20px;">
+		<p Style="margin-bottom: 10px;">Confirm?</p>
+		<div class="row">
+			<div class="col-md-12">
+				<RadzenButton Text="Yes" Click="DeleteComment"
+						  Style="margin-bottom: 10px; width: 150px" />
+				<RadzenButton Text="No" Click="()=> ds.Close(false)"
+						  ButtonStyle="ButtonStyle.Secondary"
+						  Style="margin-bottom: 10px; width: 150px" />
+			</div>
+		</div>
+	</RadzenCard>
+	);
 
     private void DeleteComment()
     {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
 
+            // Call the service
+            var result = _TaskController.DeleteTaskDetail(SelectedTaskDetail.detailId, CurrentUser.Identity.Name);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+                showWaitGraphic = false;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                showWaitGraphic = false;
+                StateHasChanged();
+                DialogService.Close();
+                DialogService.Close(new DTOTaskDetail());
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+            showWaitGraphic = false;
+            StateHasChanged();
+        }
     }
 
     // Utility
@@ -296,4 +340,4 @@
             FormFile = new FormFile(FileMemoryStream, 0, fileInfo.Size, fileInfo.Name, fileInfo.Name);
         }
     }
-    }
+ }

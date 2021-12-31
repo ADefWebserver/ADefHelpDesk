@@ -108,13 +108,24 @@ namespace AdefHelpDeskBase.Controllers
             // Must be a Administrator to call this Method
             if (!UtilitySecurity.IsAdministrator(CurrentUserName, GetConnectionString()))
             {
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = "Only an Administrator can delete";
                 return objDTOStatus;
             }
 
-            string strResponse = DeleteTaskDetail(id, GetConnectionString(), CurrentUserName);
+            try
+            {
+                string strResponse = DeleteTaskDetail(id, GetConnectionString(), CurrentUserName);
 
-            objDTOStatus.StatusMessage = strResponse;
-            objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = strResponse;
+                objDTOStatus.Success = true;
+            }
+            catch (Exception ex)
+            {
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+            }
+
             return objDTOStatus;
         }
         #endregion
