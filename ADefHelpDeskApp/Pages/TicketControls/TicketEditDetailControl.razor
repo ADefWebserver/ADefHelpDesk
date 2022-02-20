@@ -231,7 +231,6 @@
             // Get additional values
             int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
             bool IsSuperUser = false;
-            bool IsAdministrator = false;
             string strCurrentUser = "[Unauthenticated]";
 
             // Get File
@@ -251,7 +250,7 @@
             // Call the service
             var result = _UploadTaskController.InsertUpdateTaskDetailMethod(
                 strDefaultConnection, CurrentHostLocation, _IWebHostEnvironment.ContentRootPath,
-                SelectedTask, FormFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator, strCurrentUser,
+                SelectedTask, FormFile, strCurrentUser, intUserId, IsSuperUser, IsAdmin, strCurrentUser,
                 CurrentUser.Identity.IsAuthenticated);
 
             // Was update successful?
