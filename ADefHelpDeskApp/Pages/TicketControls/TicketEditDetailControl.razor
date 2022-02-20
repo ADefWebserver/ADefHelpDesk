@@ -59,7 +59,10 @@
             @if (@IsAdmin)
             {
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveComment(true)) Text="Save and Email" Style="margin-bottom: 10px" />
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteCommentDialog()) Text="Delete" Style="margin-bottom: 10px" />
+                if (@SelectedTaskDetail.detailId != -1)
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteCommentDialog()) Text="Delete" Style="margin-bottom: 10px" />
+                }
             }
         </div>
         @if (((@IsAdmin) && (@SelectedTaskDetail.contentType != "EML")) || (@SelectedTaskDetail.detailId == -1))
@@ -225,9 +228,6 @@
             showWaitGraphic = true;
             StateHasChanged();
 
-            // Set Email Flag
-            SelectedTask.sendEmails = paramSendEmails;
-
             // Get additional values
             int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
             bool IsSuperUser = false;
@@ -244,6 +244,11 @@
 
             // Clear any Task Details
             SelectedTask.colDTOTaskDetail = new List<DTOTaskDetail>();
+
+            // Set Email Flags
+            SelectedTask.sendEmails = paramSendEmails;
+            SelectedTaskDetail.sendEmails = paramSendEmails;
+
             //Add existing Task Detail
             SelectedTask.colDTOTaskDetail.Add(SelectedTaskDetail);
 
