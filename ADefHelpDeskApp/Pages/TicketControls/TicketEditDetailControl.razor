@@ -43,7 +43,7 @@
         <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
     }
     <div class="col-xl-12 col-lg-12 py-2">
-        @if (@IsAdmin)
+        @if ((@IsAdmin) && (@SelectedTaskDetail.detailType != "Work"))
         {
             <RadzenCheckBox @bind-Value=@boolVisibleToRequester Name="VisibleToRequester" TValue="bool" Style="margin-bottom: 10px" />
             <RadzenLabel Text="Visible to requester" Component="VisibleToRequester" Style="margin-left: 8px; vertical-align: middle; margin-bottom: 10px" />
@@ -58,7 +58,10 @@
             }
             @if (@IsAdmin)
             {
-                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveComment(true)) Text="Save and Email" Style="margin-bottom: 10px" />
+                @if (@SelectedTaskDetail.detailType != "Work")
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="mail" Click=@(() => SaveComment(true)) Text="Save and Email" Style="margin-bottom: 10px" />
+                }
                 if (@SelectedTaskDetail.detailId != -1)
                 {
                     <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click=@(() => DeleteCommentDialog()) Text="Delete" Style="margin-bottom: 10px" />
@@ -71,13 +74,25 @@
                 <RadzenTextArea @bind-Value=SelectedTaskDetail.description Cols="60" Rows="5" />
             </div>
         }
-        @if ((!@IsAdmin) && (@SelectedTaskDetail.contentType != "EML") && (@SelectedTaskDetail.detailId > -1))
+        @if ((@IsAdmin) && (@SelectedTaskDetail.detailType == "Work"))
+        {
+            <div>
+                <b><RadzenLabel Text="Start Time:" Style="width:100px" /></b>
+                <RadzenDatePicker @bind-Value=StartTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+            </div>
+            <br />
+            <div>
+                <b><RadzenLabel Text="Stop Time:" Style="width:100px" /></b>
+                <RadzenDatePicker @bind-Value=StopTime TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+            </div>
+        }
+        @if ((!@IsAdmin) && (@SelectedTaskDetail.contentType != "EML") && (@SelectedTaskDetail.detailId > -1) && (@SelectedTaskDetail.detailType != "Work"))
         {
             <div style="height: 200px; width: 50%;">
                 @((MarkupString)SelectedTaskDetail.description)
             </div>
         }
-        @if (@SelectedTaskDetail.contentType == "EML")
+        @if ((@SelectedTaskDetail.contentType == "EML") && (@SelectedTaskDetail.detailType != "Work"))
         {
             <div>
                 @((MarkupString)SelectedTaskDetail.emailDescription)
@@ -146,6 +161,8 @@
     ElementReference inputElement;
     MemoryStream FileMemoryStream;
     public string FileUploadPermission = "";
+    DateTime? StartTime = null;
+    DateTime? StopTime = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -176,6 +193,26 @@
 
         // Get current settings
         GetCurrentSettings();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if ((SelectedTaskDetail.startTime != null) && (SelectedTaskDetail.startTime.Trim() != ""))
+        {
+            try
+            {
+                StartTime = Convert.ToDateTime(SelectedTaskDetail.startTime);
+            }
+            catch { }
+        }
+        if ((SelectedTaskDetail.stopTime != null) && (SelectedTaskDetail.stopTime.Trim() != ""))
+        {
+            try
+            {
+                StopTime = Convert.ToDateTime(SelectedTaskDetail.stopTime);
+            }
+            catch { }
+        }
     }
 
     private async void DownloadAttachment(DTOAttachment paramAttachment)
@@ -248,6 +285,10 @@
             // Set Email Flags
             SelectedTask.sendEmails = paramSendEmails;
             SelectedTaskDetail.sendEmails = paramSendEmails;
+
+            // Format Start and Stop times (if any)
+            SelectedTaskDetail.startTime = (StartTime.HasValue) ? StartTime.Value.ToShortDateString() + " " + StartTime.Value.ToShortTimeString() : "";
+            SelectedTaskDetail.stopTime = (StopTime.HasValue) ? StopTime.Value.ToShortDateString() + " " + StopTime.Value.ToShortTimeString() : "";
 
             //Add existing Task Detail
             SelectedTask.colDTOTaskDetail.Add(SelectedTaskDetail);

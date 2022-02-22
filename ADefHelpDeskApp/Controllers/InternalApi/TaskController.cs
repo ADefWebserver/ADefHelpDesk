@@ -157,7 +157,8 @@ namespace AdefHelpDeskBase.Controllers
 
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
             {
-                // Get all possible roles to reduce database calls later
+                // Get all possible roles that the user has access to
+                // to reduce database calls later
                 AllRoles = (from role in context.AdefHelpDeskRoles
                             select role).ToList();
             }

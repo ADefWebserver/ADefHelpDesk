@@ -217,12 +217,13 @@
                     </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Comments">
-                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" 
+                    Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
                     <RadzenDataList AllowPaging="false" Data="@TaskDetailsComments" TItem="DTOTaskDetail">
                         <Template Context="data">
                             <div class="d-flex flex-row">
                                 <div class="col-md-3">
-                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskComment(data)) Text=@EditLabelText Style="margin-bottom: 10px" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskClick(data, "Comment")) Text=@EditLabelText Style="margin-bottom: 10px" />
                                 </div>
                                 <div class="col-md-9">
                                     <div>
@@ -238,18 +239,19 @@
                 @if (IsAdmin == true)
                 {
                     <RadzenTabsItem Text="Work">
-                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" Style="margin-bottom: 10px" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" 
+                        Click=@(() => NewTaskWork()) Style="margin-bottom: 10px" />
                         <RadzenDataList AllowPaging="false" Data="@TaskDetailsWork" TItem="DTOTaskDetail">
                             <Template Context="data">
                                 <div class="d-flex flex-row">
                                     <div class="col-md-3">
-                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskWork(data)) Text="Edit" Style="margin-bottom: 10px" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskClick(data, "Work")) Text="Edit" Style="margin-bottom: 10px" />
                                     </div>
                                     <div class="col-md-9">
                                         <div>
-                                            <p><b>Start:</b>@($" {@data.insertDate}")</p>
-                                            <p><b>Stop:</b>@($" {@data.userName}")</p>
                                             <p>@($"{@data.description}")</p>
+                                            <p><b>Start:</b>@($" {@data.startTime}")</p>
+                                            <p><b>Stop:</b>@($" {@data.stopTime}")</p>
                                         </div>
                                     </div>
                                 </div>
@@ -426,7 +428,23 @@
         }
     }
 
-    async Task EditTaskComment(DTOTaskDetail paramDTOTaskDetail)
+    async Task NewTaskWork()
+    {
+        DTOTaskDetail NewDTOTaskDetail = new DTOTaskDetail();
+        NewDTOTaskDetail.detailId = -1;
+        NewDTOTaskDetail.detailType = "Work";
+
+        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"New Work",
+        new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", NewDTOTaskDetail } },
+        new DialogOptions() { Width = "600px" });
+
+        if (result != null)
+        {
+            RefreshTask();
+        }
+    }
+
+    async Task EditTaskClick(DTOTaskDetail paramDTOTaskDetail, string TaskType)
     {
         Message = "";
 
@@ -437,15 +455,15 @@
                 try
                 {
                     showWaitGraphic = true;
-                    StateHasChanged();
+                    //StateHasChanged();
 
                     // Get full Task Details
                     var objDTOTaskDetail = await _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
 
                     showWaitGraphic = false;
-                    StateHasChanged();
+                    //StateHasChanged();
 
-                    DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} Comment",
+                    DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} {TaskType}",
                     new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
                     new DialogOptions() { Width = "800px" });
 
@@ -464,31 +482,6 @@
             else
             {
                 Message = $"Task Detail # {paramDTOTaskDetail.detailId} not found";
-            }
-        }
-        catch (Exception ex)
-        {
-            Message = ex.GetBaseException().Message;
-        }
-    }
-
-    async Task EditTaskWork(DTOTaskDetail objDTOTaskDetail)
-    {
-        Message = "";
-
-        try
-        {
-            if (objDTOTaskDetail.detailId != -1)
-            {
-                DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"Edit Work",
-                new Dictionary<string, object>() { { "SelectedTaskDetail", objDTOTaskDetail } },
-                new DialogOptions() { Width = "800px" });
-
-                RefreshTask();
-            }
-            else
-            {
-                Message = $"Task Detail # {objDTOTaskDetail.detailId} not found";
             }
         }
         catch (Exception ex)
