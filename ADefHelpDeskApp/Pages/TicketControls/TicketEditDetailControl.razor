@@ -97,10 +97,28 @@
             <div>
                 @((MarkupString)SelectedTaskDetail.emailDescription)
             </div>
+            <div>
+                @if (@showWaitAttachmentGraphic)
+                {
+                    <br />
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                }
+                else
+                {
+                    <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
+                        <Template Context="attachment">
+                            <div style="text-align:center">
+                                <RadzenButton Click=@(() => DownloadAttachment(attachment)) Text="@attachment.fileName" Icon="download" ButtonStyle="ButtonStyle.Light" />
+                                <span>&nbsp;&nbsp;&nbsp;</span>
+                            </div>
+                        </Template>
+                    </RadzenDataList>
+                }
+            </div>
         }
         @if (SelectedTaskDetail.colDTOAttachment != null)
         {
-            @if (SelectedTaskDetail.colDTOAttachment.Count > 0)
+            @if ((SelectedTaskDetail.colDTOAttachment.Count > 0) && (@SelectedTaskDetail.contentType != "EML"))
             {
                 <div>
                     @if (@showWaitAttachmentGraphic)
@@ -111,9 +129,9 @@
                     else
                     {
                         <div>
-                            <RadzenButton Click=@(() => DownloadAttachment(SelectedTaskDetail.colDTOAttachment.FirstOrDefault())) 
-                                Text="@SelectedTaskDetail.colDTOAttachment.FirstOrDefault().originalFileName" 
-                                Icon="download" ButtonStyle="ButtonStyle.Light" />
+                            <RadzenButton Click=@(() => DownloadAttachment(SelectedTaskDetail.colDTOAttachment.FirstOrDefault()))
+                              Text="@SelectedTaskDetail.colDTOAttachment.FirstOrDefault().originalFileName"
+                              Icon="download" ButtonStyle="ButtonStyle.Light" />
                             <span>&nbsp;&nbsp;&nbsp;</span>
                         </div>
                     }
@@ -325,20 +343,20 @@
     }
 
     async Task DeleteCommentDialog() => await DialogService
-		.OpenAsync("Delete Comment", ds =>
-	@<RadzenCard Style="padding: 20px;">
-		<p Style="margin-bottom: 10px;">Confirm?</p>
-		<div class="row">
-			<div class="col-md-12">
-				<RadzenButton Text="Yes" Click="DeleteComment"
-						  Style="margin-bottom: 10px; width: 150px" />
-				<RadzenButton Text="No" Click="()=> ds.Close(false)"
-						  ButtonStyle="ButtonStyle.Secondary"
-						  Style="margin-bottom: 10px; width: 150px" />
-			</div>
-		</div>
-	</RadzenCard>
-	);
+        .OpenAsync("Delete Comment", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <p Style="margin-bottom: 10px;">Confirm?</p>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenButton Text="Yes" Click="DeleteComment"
+                          Style="margin-bottom: 10px; width: 150px" />
+                <RadzenButton Text="No" Click="()=> ds.Close(false)"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Style="margin-bottom: 10px; width: 150px" />
+            </div>
+        </div>
+    </RadzenCard>
+    );
 
     private void DeleteComment()
     {
