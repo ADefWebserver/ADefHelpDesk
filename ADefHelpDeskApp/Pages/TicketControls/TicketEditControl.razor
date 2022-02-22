@@ -454,14 +454,20 @@
             {
                 try
                 {
-                    showWaitGraphic = true;
-                    //StateHasChanged();
+                    if (paramDTOTaskDetail.contentType.ToLower() == "eml")
+                    {
+                        showWaitGraphic = true;
+                        //StateHasChanged();
+                    }
 
                     // Get full Task Details
                     var objDTOTaskDetail = await _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
 
-                    showWaitGraphic = false;
-                    //StateHasChanged();
+                    if (paramDTOTaskDetail.contentType.ToLower() == "eml")
+                    {
+                        showWaitGraphic = false;
+                        //StateHasChanged();
+                    }                   
 
                     DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} {TaskType}",
                     new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
