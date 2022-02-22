@@ -97,24 +97,28 @@
             <div>
                 @((MarkupString)SelectedTaskDetail.emailDescription)
             </div>
-            <div>
-                @if (@showWaitAttachmentGraphic)
-                {
-                    <br />
-                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-                }
-                else
-                {
-                    <RadzenDataList WrapItems="true" AllowPaging="true" Data="SelectedTaskDetail.colDTOAttachment" TItem="DTOAttachment" PageSize="1">
-                        <Template Context="attachment">
-                            <div style="text-align:center">
-                                <RadzenButton Click=@(() => DownloadAttachment(attachment)) Text="@attachment.fileName" Icon="download" ButtonStyle="ButtonStyle.Light" />
-                                <span>&nbsp;&nbsp;&nbsp;</span>
-                            </div>
-                        </Template>
-                    </RadzenDataList>
-                }
-            </div>
+        }
+        @if (SelectedTaskDetail.colDTOAttachment != null)
+        {
+            @if (SelectedTaskDetail.colDTOAttachment.Count > 0)
+            {
+                <div>
+                    @if (@showWaitAttachmentGraphic)
+                    {
+                        <br />
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                    }
+                    else
+                    {
+                        <div>
+                            <RadzenButton Click=@(() => DownloadAttachment(SelectedTaskDetail.colDTOAttachment.FirstOrDefault())) 
+                                Text="@SelectedTaskDetail.colDTOAttachment.FirstOrDefault().originalFileName" 
+                                Icon="download" ButtonStyle="ButtonStyle.Light" />
+                            <span>&nbsp;&nbsp;&nbsp;</span>
+                        </div>
+                    }
+                </div>
+            }
         }
         <!-- File Upload  -->
         @if ((@SelectedTaskDetail.detailType != "Work") && (@SelectedTaskDetail.detailId == -1))
