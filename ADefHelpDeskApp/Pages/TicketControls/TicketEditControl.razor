@@ -30,7 +30,7 @@
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-<div style="height: 400px;max-height: 90%">
+<div style="height: 550px;max-height: 90%">
     @if (@Message != "")
     {
         <h4 style="color:red">@Message</h4>
@@ -56,169 +56,215 @@
                 @if (!IsAdmin) // Non-Admin (Info) Tab
                 {
                     <RadzenTabsItem Text="Info">
-                        <table class="form-group" cellpadding="4" cellspacing="4">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <b>Status:</b>
-                                    </td>
-                                    <td>
-                                        @($"{SelectedTaskForm.Status}")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Priority:</b>
-                                    </td>
-                                    <td>
-                                        @($"{SelectedTaskForm.Priority}")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Name:</b>
-                                    </td>
-                                    <td>
-                                        @($"{SelectedTaskForm.RequesterName}")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Phone:</b>
-                                    </td>
-                                    <td>
-                                        @($"{SelectedTaskForm.RequesterPhone}")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Description:</b>
-                                    </td>
-                                    <td>
-                                        @($"{SelectedTaskForm.Description}")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Due Date:</b>
-                                    </td>
-                                    <td>
-                                        @($"{((SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "") }")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Est. Hours:</b>
-                                    </td>
-                                    <td>
-                                        @($"{((SelectedTaskForm.EstimatedHours.HasValue) ? SelectedTaskForm.EstimatedHours.Value : "") }")
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Est. Completion:</b>
-                                    </td>
-                                    <td>
-                                        @($"{((SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "") }")
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </RadzenTabsItem>
+                        <RadzenTabs RenderMode="TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="Ticket Details">
+                                    <table class="form-group" cellpadding="4" cellspacing="4">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <b>Status:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Status}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Priority:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Priority}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Name:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.RequesterName}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Phone:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.RequesterPhone}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Description:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Description}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Due Date:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Hours:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedHours.HasValue) ? SelectedTaskForm.EstimatedHours.Value : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Completion:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "") }")
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Tags">
+                                <div style="height:350px;overflow: auto;">
+                                <TreeView Items="colAllTags" 
+                                          GetChildren="(treenode) => treenode.children">
+                                        <ItemTemplate Context="treenode">
+                                            &nbsp;
+                                            @if (@treenode.Item.data.selectable)
+                                        {
+                                            <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                        TValue="bool"
+                                                        @onclick:stopPropagation="true" />
+                                        }
+                                        &nbsp;@treenode.Item.label
+                                    </ItemTemplate>
+                                </TreeView>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </RadzenTabsItem>
                 }
                 else // Admin (Info) Tab
                 {
                     <RadzenTabsItem Text="Info">
-                        <table class="form-group" cellpadding="4" cellspacing="4">
-                            <tbody>
-                                @if (IsAdmin)
-                                {
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            @if (SelectedTaskForm.RequesterUserId != -1)
+                        <RadzenTabs RenderMode="TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="Ticket Details">
+                                    <table class="form-group" cellpadding="4" cellspacing="4">
+                                        <tbody>
+                                            @if (IsAdmin)
                                             {
-                                                <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        @if (SelectedTaskForm.RequesterUserId != -1)
+                                                        {
+                                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
-                                            else
-                                            {
-                                                <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                                <tr>
-                                    <td>
-                                        <b>Name:</b>
-                                    </td>
-                                    <td>
-                                        @if (!ShowManualUser)
+                                            <tr>
+                                                <td>
+                                                    <b>Name:</b>
+                                                </td>
+                                                <td>
+                                                    @if (!ShowManualUser)
+                                                    {
+                                                        @($"{SelectedTaskForm.RequesterName}  ")
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterName style="width: 100%;" />
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Email:</b>
+                                                </td>
+                                                <td>
+                                                    @if (!ShowManualUser)
+                                                    {
+                                                        @($"{SelectedTaskForm.RequesterEmail}")
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterEmail style="width: 100%;" />
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Phone:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 100%;" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Description:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Due Date:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Priority:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                Style="width:300px" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Tags">
+                                <div style="height:350px;overflow: auto;">                   
+                                <TreeView Items="colAllTags"
+                                          GetChildren="(treenode) => treenode.children">
+                                        <ItemTemplate Context="treenode">
+                                            &nbsp;
+                                            @if (@treenode.Item.data.selectable)
                                         {
-                                            @($"{SelectedTaskForm.RequesterName}  ")
+                                            <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                        TValue="bool"
+                                                        @onclick:stopPropagation="true" />
                                         }
-                                        else
-                                        {
-                                            <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterName style="width: 100%;" />
-                                        }
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Email:</b>
-                                    </td>
-                                    <td>
-                                        @if (!ShowManualUser)
-                                        {
-                                            @($"{SelectedTaskForm.RequesterEmail}")
-                                        }
-                                        else
-                                        {
-                                            <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterEmail style="width: 100%;" />
-                                        }
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Phone:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 100%;" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Description:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Due Date:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <b>Priority:</b>
-                                    </td>
-                                    <td>
-                                        <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
-                                                    TextProperty="ItemLabel"
-                                                    ValueProperty="ItemStringValue"
-                                                    Style="width:300px" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </RadzenTabsItem>
+                                        &nbsp;@treenode.Item.label
+                                    </ItemTemplate>
+                                </TreeView>
+                                 </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </RadzenTabsItem>
                 }
                 <RadzenTabsItem Text="Comments">
-                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" 
-                    Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add"
+                                  Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
                     <RadzenDataList AllowPaging="false" Data="@TaskDetailsComments" TItem="DTOTaskDetail">
                         <Template Context="data">
                             <div class="d-flex flex-row">
@@ -239,8 +285,8 @@
                 @if (IsAdmin == true)
                 {
                     <RadzenTabsItem Text="Work">
-                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add" 
-                        Click=@(() => NewTaskWork()) Style="margin-bottom: 10px" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add"
+                                  Click=@(() => NewTaskWork()) Style="margin-bottom: 10px" />
                         <RadzenDataList AllowPaging="false" Data="@TaskDetailsWork" TItem="DTOTaskDetail">
                             <Template Context="data">
                                 <div class="d-flex flex-row">
@@ -259,22 +305,6 @@
                         </RadzenDataList>
                     </RadzenTabsItem>
                 }
-                <RadzenTabsItem Text="Tags">
-                    <!-- Tree Node Control -->
-                    <TreeView Items="colAllTags"
-                              GetChildren="(treenode) => treenode.children">
-                        <ItemTemplate Context="treenode">
-                            &nbsp;
-                            @if (@treenode.Item.data.selectable)
-                            {
-                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
-                                            TValue="bool"
-                                            @onclick:stopPropagation="true" />
-                            }
-                            &nbsp;@treenode.Item.label
-                        </ItemTemplate>
-                    </TreeView>
-                </RadzenTabsItem>
                 @if (IsAdmin == true)
                 {
                     <RadzenTabsItem Text="Logs">
@@ -467,7 +497,7 @@
                     {
                         showWaitGraphic = false;
                         //StateHasChanged();
-                    }                   
+                    }
 
                     DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} {TaskType}",
                     new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
