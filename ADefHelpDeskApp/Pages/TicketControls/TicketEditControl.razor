@@ -30,7 +30,7 @@
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-<div style="height: 570px;max-height: 90%">
+<div style="height: 580px;max-height: 90%">
     @if (@Message != "")
     {
         <h4 style="color:red">@Message</h4>
@@ -137,7 +137,7 @@
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                    <div style="height:390px;overflow: auto;">
+                                    <div style="height:400px;overflow: auto;">
                                         <TreeView Items="colAllTags"
                                               GetChildren="(treenode) => treenode.children">
                                             <ItemTemplate Context="treenode">
@@ -278,7 +278,7 @@
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                    <div style="height:390px;overflow: auto;">
+                                    <div style="height:400px;overflow: auto;">
                                         <TreeView Items="colAllTags"
                                               GetChildren="(treenode) => treenode.children">
                                             <ItemTemplate Context="treenode">
@@ -632,6 +632,8 @@
     private void ClearUser()
     {
         SelectedTaskForm.RequesterUserId = -1;
+        SelectedTaskForm.RequesterName = "";
+        SelectedTaskForm.RequesterEmail = "";
         ShowManualUser = true;
     }
 
@@ -645,6 +647,8 @@
         {
             DTOUser ReturnUser = (DTOUser)result;
             SelectedTaskForm.RequesterUserId = ReturnUser.userId;
+            SelectedTaskForm.RequesterName = ReturnUser.userName;
+            SelectedTaskForm.RequesterEmail = ReturnUser.email;
             ShowManualUser = false;
             StateHasChanged();
         }
