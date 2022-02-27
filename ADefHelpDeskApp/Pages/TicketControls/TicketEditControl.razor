@@ -157,22 +157,39 @@
                                 <RadzenTabsItem Text="Ticket Details">
                                     <table class="form-group" cellpadding="4" cellspacing="4">
                                         <tbody>
-                                            @if (IsAdmin)
-                                            {
-                                                <tr>
-                                                    <td></td>
-                                                    <td>
-                                                        @if (SelectedTaskForm.RequesterUserId != -1)
-                                                        {
-                                                            <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
-                                                        }
-                                                        else
-                                                        {
-                                                            <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            }
+                                            <tr>
+                                                <td>
+                                                    <b>Status:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDropDown Data=statusDropdown @bind-Value=SelectedTaskForm.Status
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                Style="width:150px" />
+                                                </td>
+                                                <td>
+                                                    <b>Priority:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                Style="width:150px" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    @if (SelectedTaskForm.RequesterUserId != -1)
+                                                    {
+                                                        <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                                    }
+                                                </td>
+                                            </tr>
                                             <tr>
                                                 <td>
                                                     <b>Name:</b>
@@ -225,17 +242,6 @@
                                                 </td>
                                                 <td>
                                                     <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <b>Priority:</b>
-                                                </td>
-                                                <td>
-                                                    <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
-                                                                TextProperty="ItemLabel"
-                                                                ValueProperty="ItemStringValue"
-                                                                Style="width:300px" />
                                                 </td>
                                             </tr>
                                         </tbody>
