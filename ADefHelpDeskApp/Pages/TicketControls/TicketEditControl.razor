@@ -30,7 +30,7 @@
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-<div style="height: 550px;max-height: 90%">
+<div style="height: 570px;max-height: 90%">
     @if (@Message != "")
     {
         <h4 style="color:red">@Message</h4>
@@ -119,7 +119,15 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <b>Est. Completion:</b>
+                                                    <b>Est. Start:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedStart.HasValue) ? SelectedTaskForm.EstimatedStart.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedStart.Value.ToShortTimeString() : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. End:</b>
                                                 </td>
                                                 <td>
                                                     @($"{((SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "") }")
@@ -129,20 +137,20 @@
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                <div style="height:350px;overflow: auto;">
-                                <TreeView Items="colAllTags" 
-                                          GetChildren="(treenode) => treenode.children">
-                                        <ItemTemplate Context="treenode">
-                                            &nbsp;
-                                            @if (@treenode.Item.data.selectable)
-                                        {
-                                            <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
-                                                        TValue="bool"
-                                                        @onclick:stopPropagation="true" />
-                                        }
-                                        &nbsp;@treenode.Item.label
-                                    </ItemTemplate>
-                                </TreeView>
+                                    <div style="height:390px;overflow: auto;">
+                                        <TreeView Items="colAllTags"
+                                              GetChildren="(treenode) => treenode.children">
+                                            <ItemTemplate Context="treenode">
+                                                &nbsp;
+                                                @if (@treenode.Item.data.selectable)
+                                            {
+                                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                            TValue="bool"
+                                                            @onclick:stopPropagation="true" />
+                                            }
+                                            &nbsp;@treenode.Item.label
+                                        </ItemTemplate>
+                                    </TreeView>
                                 </div>
                             </RadzenTabsItem>
                         </Tabs>
@@ -194,7 +202,7 @@
                                                 <td>
                                                     <b>Name:</b>
                                                 </td>
-                                                <td>
+                                                <td colspan="3">
                                                     @if (!ShowManualUser)
                                                     {
                                                         @($"{SelectedTaskForm.RequesterName}  ")
@@ -209,7 +217,7 @@
                                                 <td>
                                                     <b>Email:</b>
                                                 </td>
-                                                <td>
+                                                <td colspan="3">
                                                     @if (!ShowManualUser)
                                                     {
                                                         @($"{SelectedTaskForm.RequesterEmail}")
@@ -225,14 +233,20 @@
                                                     <b>Phone:</b>
                                                 </td>
                                                 <td>
-                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 100%;" />
+                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 150px;" />
+                                                </td>
+                                                <td>
+                                                    <b>Est. Hours:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenNumeric @bind-Value=@SelectedTaskForm.EstimatedHours TValue="int?" Min="0" Max="10000" />
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
                                                     <b>Description:</b>
                                                 </td>
-                                                <td>
+                                                <td colspan="3">
                                                     <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
                                                 </td>
                                             </tr>
@@ -240,29 +254,45 @@
                                                 <td>
                                                     <b>Due Date:</b>
                                                 </td>
-                                                <td>
+                                                <td colspan="3">
                                                     <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Start:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. End:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.EstimatedCompletion TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                <div style="height:350px;overflow: auto;">                   
-                                <TreeView Items="colAllTags"
-                                          GetChildren="(treenode) => treenode.children">
-                                        <ItemTemplate Context="treenode">
-                                            &nbsp;
-                                            @if (@treenode.Item.data.selectable)
-                                        {
-                                            <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
-                                                        TValue="bool"
-                                                        @onclick:stopPropagation="true" />
-                                        }
-                                        &nbsp;@treenode.Item.label
-                                    </ItemTemplate>
-                                </TreeView>
-                                 </div>
+                                    <div style="height:390px;overflow: auto;">
+                                        <TreeView Items="colAllTags"
+                                              GetChildren="(treenode) => treenode.children">
+                                            <ItemTemplate Context="treenode">
+                                                &nbsp;
+                                                @if (@treenode.Item.data.selectable)
+                                            {
+                                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                            TValue="bool"
+                                                            @onclick:stopPropagation="true" />
+                                            }
+                                            &nbsp;@treenode.Item.label
+                                        </ItemTemplate>
+                                    </TreeView>
+                                </div>
                             </RadzenTabsItem>
                         </Tabs>
                     </RadzenTabs>
