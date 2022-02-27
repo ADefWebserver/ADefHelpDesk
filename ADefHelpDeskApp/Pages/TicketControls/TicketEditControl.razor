@@ -25,12 +25,13 @@
 @inject LogController _LogController
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject TaskController _TaskController
+@inject UploadTaskController _UploadTaskController
 @inject SearchParametersController _SearchParametersController
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
-<div style="height: 580px;max-height: 90%">
+<div style="height: 620px;max-height: 95%">
     @if (@Message != "")
     {
         <h4 style="color:red">@Message</h4>
@@ -137,7 +138,7 @@
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                    <div style="height:400px;overflow: auto;">
+                                    <div style="height:410px;overflow: auto;">
                                         <TreeView Items="colAllTags"
                                               GetChildren="(treenode) => treenode.children">
                                             <ItemTemplate Context="treenode">
@@ -160,6 +161,19 @@
                 else // Admin (Info) Tab
                 {
                     <RadzenTabsItem Text="Info">
+                    <div class="row">
+                        <div class="col text-right">
+                            @if (!@showWaitGraphic)
+                            {
+                                <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
+                                      Click="Save" Icon="save" 
+                                      Style="margin-bottom: 10px" />
+                                 <RadzenButton Text="Delete" ButtonStyle="ButtonStyle.Danger"
+                                      Click="DeleteTicketDialog" Icon="delete"
+                                      Style="margin-bottom: 10px;" />
+                            } &nbsp;
+                        </div>
+                    </div>
                         <RadzenTabs RenderMode="TabRenderMode.Server">
                             <Tabs>
                                 <RadzenTabsItem Text="Ticket Details">
@@ -278,7 +292,7 @@
                                     </table>
                                 </RadzenTabsItem>
                                 <RadzenTabsItem Text="Tags">
-                                    <div style="height:400px;overflow: auto;">
+                                    <div style="height:410px;overflow: auto;">
                                         <TreeView Items="colAllTags"
                                               GetChildren="(treenode) => treenode.children">
                                             <ItemTemplate Context="treenode">
@@ -415,6 +429,7 @@
 
         _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
         _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _UploadTaskController = (UploadTaskController)ScopedServices.GetService(typeof(UploadTaskController));
         _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
         _LogController = (LogController)ScopedServices.GetService(typeof(LogController));
 
@@ -455,13 +470,11 @@
     private void PopulateDropdowns()
     {
         // ** Priority Dropdown
-        priorityDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
         priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
         priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
         priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
 
         // ** Status Dropdown
-        statusDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
         statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
@@ -562,6 +575,131 @@
         }
     }
 
+    private async void Save()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
+
+            // Get Selected Tree Nodes
+            var SelectedTreeNodes = _CategoryTreeController.GetSelected(colAllTags);
+
+            // Get the form values - - Convert DTOTaskForm to DTOTask
+            DTOTask ExistingDTOTask = new DTOTask();
+
+            ExistingDTOTask.description = SelectedTaskForm.Description;
+            ExistingDTOTask.status = SelectedTaskForm.Status;
+            ExistingDTOTask.priority = SelectedTaskForm.Priority;
+            ExistingDTOTask.createdDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            ExistingDTOTask.estimatedStart = (SelectedTaskForm.EstimatedStart.HasValue) ? SelectedTaskForm.EstimatedStart.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedStart.Value.ToShortTimeString() : "";
+            ExistingDTOTask.estimatedCompletion = (SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "";
+            ExistingDTOTask.dueDate = (SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "";
+            ExistingDTOTask.assignedRoleId = (SelectedTaskForm.AssignedRoleId != null) ? Convert.ToInt32(SelectedTaskForm.AssignedRoleId) : null;
+            ExistingDTOTask.requesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : null;
+            ExistingDTOTask.requesterName = SelectedTaskForm.RequesterName;
+            ExistingDTOTask.requesterEmail = SelectedTaskForm.RequesterEmail;
+            ExistingDTOTask.requesterPhone = SelectedTaskForm.RequesterPhone;
+            ExistingDTOTask.estimatedHours = SelectedTaskForm.EstimatedHours;
+            ExistingDTOTask.selectedTreeNodes = SelectedTreeNodes;
+            ExistingDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
+
+            // Get additional values
+            int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
+            bool IsSuperUser = false;
+            bool IsAdministrator = false;
+            string strCurrentUser = "[Unauthenticated]";
+            string CurrentHostLocation = NavigationManager.BaseUri;
+
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                strCurrentUser = objCurrentUser.userName;
+                IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strDefaultConnection);
+                IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strDefaultConnection);
+            }
+
+            // Call the service
+            DTOStatus result = _UploadTaskController.UpdateTaskMethod(
+                strDefaultConnection, CurrentHostLocation, _IWebHostEnvironment.ContentRootPath,
+                ExistingDTOTask, strCurrentUser, intUserId, CurrentUser.Identity.IsAuthenticated);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+                showWaitGraphic = false;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                Message = "Saved";
+            }
+
+            showWaitGraphic = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            showWaitGraphic = false;
+            Message = ex.Message;
+            StateHasChanged();
+            return;
+        }
+    }
+
+    async Task DeleteTicketDialog() => await DialogService
+        .OpenAsync("Delete Ticket", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <p Style="margin-bottom: 10px;">Confirm?</p>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenButton Text="Yes" Click="DeleteTicket"
+                          Style="margin-bottom: 10px; width: 150px" />
+                <RadzenButton Text="No" Click="()=> ds.Close(false)"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Style="margin-bottom: 10px; width: 150px" />
+            </div>
+        </div>
+    </RadzenCard>
+    );
+
+    private void DeleteTicket()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
+
+            // Call the service
+            var result = _TaskController.Delete(SelectedTaskForm.TaskId, CurrentUser.Identity.Name);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+                showWaitGraphic = false;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                showWaitGraphic = false;
+                StateHasChanged();
+                DialogService.Close();
+                DialogService.Close(new DTOTaskDetail());
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+            showWaitGraphic = false;
+            StateHasChanged();
+        }
+    }
+
     // Utility
 
     private void RefreshTask()
@@ -653,4 +791,4 @@
             StateHasChanged();
         }
     }
-    }
+ }
