@@ -95,7 +95,7 @@ namespace AdefHelpDeskBase.Controllers
             string strResponse = DeleteTask(id, GetConnectionString(), CurrentUserName);
 
             objDTOStatus.StatusMessage = strResponse;
-            objDTOStatus.Success = false;
+            objDTOStatus.Success = (strResponse == "");
             return objDTOStatus;
         }
         #endregion

@@ -396,7 +396,7 @@
 
             if (SelectedTask.taskId != -1)
             {
-                await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                DTOTask result = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
                 new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
                 new DialogOptions() { Width = "650px" });
             }

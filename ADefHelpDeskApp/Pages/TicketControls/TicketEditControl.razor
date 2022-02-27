@@ -671,7 +671,6 @@
         {
             Message = "";
             showWaitGraphic = true;
-            StateHasChanged();
 
             // Call the service
             var result = _TaskController.Delete(SelectedTaskForm.TaskId, CurrentUser.Identity.Name);
@@ -687,9 +686,8 @@
             else
             {
                 showWaitGraphic = false;
-                StateHasChanged();
                 DialogService.Close();
-                DialogService.Close(new DTOTaskDetail());
+                DialogService.Close(new DTOTask());
             }
         }
         catch (Exception ex)
