@@ -396,17 +396,38 @@
 
             if (SelectedTask.taskId != -1)
             {
-                DTOTask result = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                DTOTask dialogResult = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
                 new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
                 new DialogOptions() { Width = "650px" });
 
-                if (result != null)
+                if (dialogResult != null)
                 {
-                    // If TaskId is less than zero that means it has been deleted
-                    if (result.taskId < 0)
+                    if (dialogResult.taskId != null)
                     {
-                        // Delete task from search results (if it is there)
-                        var i = 0;
+                        // If TaskId is less than zero that means it has been deleted
+                        if (dialogResult.taskId > 0)
+                        {
+                            // Try to get Task
+                            var ExistingTask = _TaskSearchResult.taskList
+                            .Where(x => x.taskId == dialogResult.taskId)
+                            .FirstOrDefault();
+
+                            // Update task from search results (if it is there)
+                            var i = 0;
+                        }
+
+                        // If TaskId is less than zero that means it has been deleted
+                        if (dialogResult.taskId < 0)
+                        {
+                            // Try to get Task
+                            var ExistingTask = _TaskSearchResult.taskList
+                            .Where(x => x.taskId == (dialogResult.taskId * -1))
+                            .FirstOrDefault();
+
+                            // Delete task from search results (if it is there)
+                            _TaskSearchResult.taskList.Remove(ExistingTask);
+                            await grid.Reload();
+                        }
                     }
                 }
             }
@@ -415,7 +436,7 @@
                 Message = $"Ticket # {objTask.taskId} not found";
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Message = ex.GetBaseException().Message;
         }
