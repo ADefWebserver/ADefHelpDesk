@@ -687,7 +687,9 @@
             {
                 showWaitGraphic = false;
                 DialogService.Close();
-                DialogService.Close(new DTOTask());
+                // Return Task ID as a negative number so the Tasks page
+                // know it was deleted
+                DialogService.Close(new DTOTask() {taskId = (SelectedTask.taskId * -1)});
             }
         }
         catch (Exception ex)
