@@ -32,10 +32,6 @@
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
 <div style="height: 620px;max-height: 95%">
-    @if (@Message != "")
-    {
-        <h4 style="color:red">@Message</h4>
-    }
     @if (@showWaitGraphic)
     {
         <div class="modal" tabindex="-1" style="display:block" role="dialog">
@@ -381,7 +377,6 @@
 
     private DTOTaskForm SelectedTaskForm = new DTOTaskForm();
 
-    private bool IsAuthenticated = false;
     private bool IsAdmin = false;
     private bool ShowManualUser = true;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
@@ -418,7 +413,6 @@
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
-            IsAuthenticated = true;
             IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
             objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
         }
@@ -567,11 +561,13 @@
             else
             {
                 Message = $"Task Detail # {paramDTOTaskDetail.detailId} not found";
+                await DisplayMessageDialog();
             }
         }
         catch (Exception ex)
         {
             Message = ex.GetBaseException().Message;
+            await DisplayMessageDialog();
         }
     }
 
@@ -639,24 +635,25 @@
 
             showWaitGraphic = false;
             StateHasChanged();
+            await DisplayMessageDialog();
         }
         catch (Exception ex)
         {
             showWaitGraphic = false;
             Message = ex.Message;
+            await DisplayMessageDialog();
             StateHasChanged();
             return;
         }
     }
 
     async Task DeleteTicketDialog() => await DialogService
-        .OpenAsync("Delete Ticket", ds =>
+        .OpenAsync("Delete Ticket?", ds =>
     @<RadzenCard Style="padding: 20px;">
-        <p Style="margin-bottom: 10px;">Confirm?</p>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" style="text-align:center;">
                 <RadzenButton Text="Yes" Click="DeleteTicket"
-                          Style="margin-bottom: 10px; width: 150px" />
+                          Style="margin-bottom: 10px; width: 150px" />&nbsp;&nbsp;&nbsp;
                 <RadzenButton Text="No" Click="()=> ds.Close(false)"
                           ButtonStyle="ButtonStyle.Secondary"
                           Style="margin-bottom: 10px; width: 150px" />
@@ -664,8 +661,8 @@
         </div>
     </RadzenCard>
     );
-
-    private void DeleteTicket()
+    
+    private async Task DeleteTicket()
     {
         try
         {
@@ -680,7 +677,9 @@
             {
                 Message = result.StatusMessage;
                 showWaitGraphic = false;
+                DialogService.Close();
                 StateHasChanged();
+                await DisplayMessageDialog();
                 return;
             }
             else
@@ -696,6 +695,7 @@
         {
             Message = ex.GetBaseException().Message;
             showWaitGraphic = false;
+            await DisplayMessageDialog();
             StateHasChanged();
         }
     }
@@ -791,4 +791,15 @@
             StateHasChanged();
         }
     }
+
+    async Task DisplayMessageDialog() => await DialogService
+        .OpenAsync("", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <div class="row">
+            <div class="col-md-12">
+                <h4 style="color:red;text-align:center;">@Message</h4>
+            </div>
+        </div>
+    </RadzenCard>
+    );
  }

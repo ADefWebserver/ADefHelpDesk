@@ -167,7 +167,6 @@
     [Parameter]
     public DTOTaskDetail SelectedTaskDetail { get; set; }
 
-    private bool IsAuthenticated = false;
     private bool IsAdmin = false;
     private bool boolVisibleToRequester = true;
     private System.Security.Claims.ClaimsPrincipal CurrentUser;
@@ -196,7 +195,6 @@
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
-            IsAuthenticated = true;
             IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
             objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
         }
