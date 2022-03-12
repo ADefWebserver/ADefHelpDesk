@@ -585,6 +585,7 @@
             // Get the form values - - Convert DTOTaskForm to DTOTask
             DTOTask ExistingDTOTask = new DTOTask();
 
+            ExistingDTOTask.taskId = SelectedTaskForm.TaskId;
             ExistingDTOTask.description = SelectedTaskForm.Description;
             ExistingDTOTask.status = SelectedTaskForm.Status;
             ExistingDTOTask.priority = SelectedTaskForm.Priority;
@@ -593,7 +594,7 @@
             ExistingDTOTask.estimatedCompletion = (SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "";
             ExistingDTOTask.dueDate = (SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "";
             ExistingDTOTask.assignedRoleId = (SelectedTaskForm.AssignedRoleId != null) ? Convert.ToInt32(SelectedTaskForm.AssignedRoleId) : null;
-            ExistingDTOTask.requesterUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : null;
+            ExistingDTOTask.requesterUserId = (SelectedTaskForm.RequesterUserId != -1) ? SelectedTaskForm.RequesterUserId : null;
             ExistingDTOTask.requesterName = SelectedTaskForm.RequesterName;
             ExistingDTOTask.requesterEmail = SelectedTaskForm.RequesterEmail;
             ExistingDTOTask.requesterPhone = SelectedTaskForm.RequesterPhone;
