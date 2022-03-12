@@ -29,6 +29,7 @@
 @inject SearchParametersController _SearchParametersController
 @inject NavigationManager NavigationManager
 @inject DialogService DialogService
+@inject NotificationService NotificationService
 @inject IFileReaderService fileReaderService
 @inject IJSRuntime CurrentJSRuntime
 <div style="height: 620px;max-height: 95%">
@@ -627,6 +628,7 @@
                 Message = result.StatusMessage;
                 showWaitGraphic = false;
                 StateHasChanged();
+                await DisplayMessageDialog();
                 return;
             }
             else
@@ -636,7 +638,7 @@
 
             showWaitGraphic = false;
             StateHasChanged();
-            await DisplayMessageDialog();
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Saved", Detail = "Saved", Duration = 1000 });          
         }
         catch (Exception ex)
         {
@@ -688,7 +690,7 @@
                 showWaitGraphic = false;
                 DialogService.Close();
                 // Return Task ID as a negative number so the Tasks page
-                // know it was deleted
+                // We know it was deleted
                 DialogService.Close(new DTOTask() {taskId = (SelectedTask.taskId * -1)});
             }
         }
@@ -731,15 +733,6 @@
         NewDTOTask.estimatedHours = Task.EstimatedHours;
         NewDTOTask.selectedTreeNodes = Task.selectedTreeNodes;
         NewDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
-
-        //var NewDTOTaskDetail = new DTOTaskDetail();
-        //NewDTOTaskDetail.description = Task.Description;
-        //NewDTOTaskDetail.insertDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
-        //NewDTOTaskDetail.startTime = (NewTaskDetail.StartTime.HasValue) ? NewTaskDetail.StartTime.Value.ToShortDateString() + " " + NewTaskDetail.StartTime.Value.ToShortTimeString() : "";
-        //NewDTOTaskDetail.stopTime = (NewTaskDetail.StopTime.HasValue) ? NewTaskDetail.StopTime.Value.ToShortDateString() + " " + NewTaskDetail.StopTime.Value.ToShortTimeString() : "";
-        //NewDTOTaskDetail.userId = objCurrentUser.userId;
-        //NewDTOTaskDetail.userName = NewTask.RequesterName;
-        //NewDTOTask.colDTOTaskDetail.Add(NewDTOTaskDetail);
 
         return NewDTOTask;
     }
