@@ -405,27 +405,33 @@
                     if (dialogResult.taskId != null)
                     {
                         // If TaskId is less than zero that means it has been deleted
-                        if (dialogResult.taskId > 0)
-                        {
-                            // Try to get Task
-                            var ExistingTask = _TaskSearchResult.taskList
-                            .Where(x => x.taskId == dialogResult.taskId)
-                            .FirstOrDefault();
-
-                            // Update task from search results (if it is there)
-                            var i = 0;
-                        }
-
-                        // If TaskId is less than zero that means it has been deleted
                         if (dialogResult.taskId < 0)
                         {
                             // Try to get Task
                             var ExistingTask = _TaskSearchResult.taskList
-                            .Where(x => x.taskId == (dialogResult.taskId * -1))
+                            .Where(x => x.taskId == SelectedTask.taskId)
                             .FirstOrDefault();
 
                             // Delete task from search results (if it is there)
                             _TaskSearchResult.taskList.Remove(ExistingTask);
+                            await grid.Reload();
+                        }
+                    }
+                }
+                {
+                    // Refresh the last task opened
+                    // Try to get Task
+                    var ExistingTask = _TaskSearchResult.taskList
+                    .Where(x => x.taskId == SelectedTask.taskId)
+                    .FirstOrDefault();
+
+                    if (ExistingTask != null)
+                    {
+                        // Update task from search results (if it is there)
+                        var ExistingSearchResultTask = _TaskSearchResult.taskList.Where(x => x.taskId == ExistingTask.taskId).FirstOrDefault();
+                        if(ExistingSearchResultTask != null)
+                        {
+                            ExistingSearchResultTask = ExistingTask;
                             await grid.Reload();
                         }
                     }
