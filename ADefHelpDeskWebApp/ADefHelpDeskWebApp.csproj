@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-ADefHelpDeskWebApp-ADA85DD6-9B3B-4CD9-B1A1-0C7EC845B2CA</UserSecretsId>
   </PropertyGroup>
 

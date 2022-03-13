@@ -18,44 +18,44 @@ using AdefHelpDeskBase.Controllers;
 using Microsoft.AspNetCore.Components;
 using ADefHelpDeskApp.Controllers.InternalApi;
 using Tewr.Blazor.FileReader;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RegisterServices
     {
         public static IServiceCollection AddADefHelpDeskAppServices(
-            this IServiceCollection services,
-            IConfiguration configuration)
+            this WebApplicationBuilder Builder)
         {
-            if (services is null)
+            if (Builder.Services is null)
             {
-                throw new ArgumentNullException(nameof(services));
+                throw new ArgumentNullException(nameof(Builder.Services));
             }
 
-            services.AddDbContext<ApplicationDbContext>(options =>
+            Builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection")));
+                    Builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDbContext<ADefHelpDeskContext>(options =>
+            Builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")));
+                Builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            Builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddEntityFrameworkStores<ApplicationDbContext>()
-               .AddDefaultTokenProviders(); 
+               .AddDefaultTokenProviders();
 
-            services.AddRazorPages();
-            services.AddServerSideBlazor()
+            Builder.Services.AddRazorPages();
+            Builder.Services.AddServerSideBlazor()
                 .AddCircuitOptions(options => { options.DetailedErrors = true; });
 
             // Allows appsettings.json to be updated programatically
-            services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
-            services.AddSingleton<IConfiguration>(configuration);
+            Builder.Services.ConfigureWritable<ConnectionStrings>(Builder.Configuration.GetSection("ConnectionStrings"));
+            Builder.Services.AddSingleton<IConfiguration>(Builder.Configuration);
 
-            services.AddHttpClient();
-            services.AddHttpContextAccessor();
-            services.AddScoped<HttpContextAccessor>();
-            services.AddScoped<HttpClient>(s =>
+            Builder.Services.AddHttpClient();
+            Builder.Services.AddHttpContextAccessor();
+            Builder.Services.AddScoped<HttpContextAccessor>();
+            Builder.Services.AddScoped<HttpClient>(s =>
             {
                 var navigationManager = s.GetRequiredService<NavigationManager>();
                 return new HttpClient
@@ -65,37 +65,37 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // ADefHelpDesk Services
-            services.AddScoped<GeneralSettings>();
-            services.AddScoped<InstallUpdateState>();
+            Builder.Services.AddScoped<GeneralSettings>();
+            Builder.Services.AddScoped<InstallUpdateState>();
 
-            services.AddScoped<ApplicationSettingsController>();
-            services.AddScoped<UserManagerController>();
-            services.AddScoped<RegisterController>();
-            services.AddScoped<ProfileController>();
-            services.AddScoped<CategoryTreeController>();
-            services.AddScoped<CategoryNodesController>();
-            services.AddScoped<CategoryController>();
-            services.AddScoped<RoleController>();
-            services.AddScoped<EmailAdminController>();
-            services.AddScoped<SystemLogController>();
-            services.AddScoped<ApiSecurityController>();
-            services.AddScoped<FilesController>();
-            services.AddScoped<DashboardController>();
-            services.AddScoped<TaskController>();
-            services.AddScoped<UploadTaskController>();
-            services.AddScoped<SearchParametersController>();
-            services.AddScoped<LogController>();
+            Builder.Services.AddScoped<ApplicationSettingsController>();
+            Builder.Services.AddScoped<UserManagerController>();
+            Builder.Services.AddScoped<RegisterController>();
+            Builder.Services.AddScoped<ProfileController>();
+            Builder.Services.AddScoped<CategoryTreeController>();
+            Builder.Services.AddScoped<CategoryNodesController>();
+            Builder.Services.AddScoped<CategoryController>();
+            Builder.Services.AddScoped<RoleController>();
+            Builder.Services.AddScoped<EmailAdminController>();
+            Builder.Services.AddScoped<SystemLogController>();
+            Builder.Services.AddScoped<ApiSecurityController>();
+            Builder.Services.AddScoped<FilesController>();
+            Builder.Services.AddScoped<DashboardController>();
+            Builder.Services.AddScoped<TaskController>();
+            Builder.Services.AddScoped<UploadTaskController>();
+            Builder.Services.AddScoped<SearchParametersController>();
+            Builder.Services.AddScoped<LogController>();
 
             // Radzen Services
-            services.AddScoped<DialogService>();
-            services.AddScoped<NotificationService>();
-            services.AddScoped<TooltipService>();
-            services.AddScoped<ContextMenuService>();
+            Builder.Services.AddScoped<DialogService>();
+            Builder.Services.AddScoped<NotificationService>();
+            Builder.Services.AddScoped<TooltipService>();
+            Builder.Services.AddScoped<ContextMenuService>();
 
             // Tewr.Blazor.FileReader
-            services.AddFileReaderService();
+            Builder.Services.AddFileReaderService();
 
-            return services;
+            return Builder.Services;
         }
     }
 }
