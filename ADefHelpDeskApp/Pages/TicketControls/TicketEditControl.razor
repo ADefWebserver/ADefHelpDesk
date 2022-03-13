@@ -373,7 +373,7 @@
                             </Template>
                         </RadzenDataList>
                         <RadzenPager ShowPagingSummary="true" PagingSummaryFormat="@pagingSummaryFormat"
-                                 Count="pageCount" PageSize="4" PageNumbersCount="5" PageChanged="@PageChanged" />
+                                 Count="pageCount" PageSize="3" PageNumbersCount="5" PageChanged="@PageChanged" />
                     </RadzenTabsItem>
                 }
             </Tabs>
@@ -449,7 +449,7 @@
         @if (IsAdmin == true)
         {
             EditLabelText = "Edit";
-            colLogs = GetLogs(0, 5);
+            colLogs = GetLogs(0, 3);
         }
 
         ShowManualUser = (SelectedTaskForm.RequesterUserId == -1);
@@ -464,8 +464,8 @@
     {
         SearchParameters searchData = new SearchParameters();
         searchData.searchString = SelectedTaskForm.TaskId.ToString();
-        searchData.rowsPerPage = 5;
-        searchData.pageNumber = skip / 5;
+        searchData.rowsPerPage = 3;
+        searchData.pageNumber = skip / 3;
 
         var result = _LogController.Logs(searchData);
         pageCount = result.totalRows;
