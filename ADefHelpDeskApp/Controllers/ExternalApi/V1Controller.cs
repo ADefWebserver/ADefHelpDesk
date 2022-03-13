@@ -68,11 +68,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="config"></param>
+        /// <param name="configuration"></param>
         /// <param name="hostEnvironment"></param>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
         /// <param name="memoryCache"></param>
+        /// <param name="httpContextAccessor"></param>
         public V1Controller(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,

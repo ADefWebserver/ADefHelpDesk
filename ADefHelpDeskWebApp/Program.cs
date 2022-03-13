@@ -59,6 +59,8 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
         ADefHelpDeskAppAssembly
         .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
 
+    // AddApplicationPart is what makes the WebAPI routes
+    // from the external assembly availiable
     builder.Services.AddMvc(options => options.EnableEndpointRouting = false)
             .AddApplicationPart(ADefHelpDeskAppAssembly);
 
@@ -91,6 +93,9 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     app.MapControllers();
     app.MapBlazorHub();
     app.MapFallbackToPage("/_Host");
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
     app.Run();
 });
