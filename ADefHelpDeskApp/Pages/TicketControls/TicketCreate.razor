@@ -356,14 +356,14 @@
         NewTask.Status = "New";
 
         // ** Roles Dropdown
-        rolesDropdown.Add(new SelectItem() { ItemLabel = "[Unassigned]", ItemStringValue = "-1" });
+        rolesDropdown.Add(new SelectItem() { ItemLabel = "[Unassigned]", ItemStringValue = "0" });
         AllRoles = _RoleController.GetRoles();
         foreach (var role in AllRoles)
         {
             rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
         }
 
-        NewTask.AssignedRoleId = "-1";
+        NewTask.AssignedRoleId = "0";
 
         // Get current settings
         GetCurrentSettings();
@@ -520,7 +520,7 @@
         NewTaskDetail = new DTOTaskDetailForm();
         NewTask.Priority = "Normal";
         NewTask.Status = "New";
-        NewTask.AssignedRoleId = "-1";
+        NewTask.AssignedRoleId = "0";
 
         await fileReaderService.CreateReference(inputElement).ClearValue();
 

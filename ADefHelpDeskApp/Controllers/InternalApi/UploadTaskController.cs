@@ -609,7 +609,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                         }
                         else
                         {
-                            objAdefHelpDeskTasks.AssignedRoleId = -1;
+                            objAdefHelpDeskTasks.AssignedRoleId = 0;
                         }
 
                         context.AdefHelpDeskTasks.Add(objAdefHelpDeskTasks);
