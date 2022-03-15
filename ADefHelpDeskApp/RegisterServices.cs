@@ -87,16 +87,17 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Swagger
+            Builder.Services.AddEndpointsApiExplorer();
             Builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("internal", new OpenApiInfo { Title = "Internal API", Version = "v1" });
-                options.SwaggerDoc("external",
-                    new OpenApiInfo
-                    {
-                        Title = "External API",
-                        Version = "v1",
-                        Description = "ADefHelpDesk Web API"
-                    });
+                //options.SwaggerDoc("internal", new OpenApiInfo { Title = "Internal API", Version = "v1" });
+                //options.SwaggerDoc("external",
+                //    new OpenApiInfo
+                //    {
+                //        Title = "External API",
+                //        Version = "v1",
+                //        Description = "ADefHelpDesk Web API"
+                //    });
 
                 options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
                 {
@@ -123,15 +124,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 });
 
-                // Set the comments path for the Swagger JSON and UI.                
-                //var xmlPath = @"CustomModules\ADefHelpDeskApp.xml";
-                //options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlPath));
-                
                 var xmlPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.xml");
                 options.IncludeXmlComments(xmlPath);
                 //options.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
             });
-            
+
             // Add Caching support
             Builder.Services.AddMemoryCache();
 

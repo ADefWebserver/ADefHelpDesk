@@ -67,29 +67,11 @@
             <param name="searchData"></param>
             <returns></returns>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateTask(AdefHelpDeskBase.Models.DTOAPITask,AdefHelpDeskBase.Models.DTOAPITaskDetail,Microsoft.AspNetCore.Http.IFormFile)">
-            <summary>
-            Create Task
-            </summary>
-            <param name="objTask"></param>
-            <param name="objTaskDetail"></param>
-            <param name="objFile"></param>
-            <returns></returns>
-        </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.UpdateTask(AdefHelpDeskBase.Models.DTOAPITask)">
             <summary>
             Update Task
             </summary>
             <param name="objTask"></param>
-            <returns></returns>
-        </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateUpdateTaskDetail(AdefHelpDeskBase.Models.DTOAPITask,AdefHelpDeskBase.Models.DTOAPITaskDetail,Microsoft.AspNetCore.Http.IFormFile)">
-            <summary>
-            Create Update Task Detail
-            </summary>
-            <param name="objTask"></param>
-            <param name="objTaskDetail"></param>
-            <param name="objFile"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetTask(System.Int32)">

@@ -52,6 +52,7 @@ using ADefHelpDeskApp.Controllers.InternalApi;
 
 namespace AdefHelpDeskBase.Controllers.WebInterface
 {
+    [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class V1Controller : Controller
@@ -113,11 +114,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="objApiToken"></param>
         /// <response code="200">JWT token created</response>
         [AllowAnonymous]
-        [Route("GetAuthToken")]
-
-        [ApiExplorerSettings(GroupName = "external")]
+        [HttpGet("GetAuthToken")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<string> GetAuthToken([FromBody]ApiToken objApiToken)
+        public async Task<string> GetAuthToken([FromBody] ApiToken objApiToken)
         {
             var dict = new Dictionary<string, string>();
             dict.Add("username", objApiToken.UserName);
@@ -155,7 +154,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetCurrentUser")]
-        [ApiExplorerSettings(GroupName = "external")]
         public IActionResult GetCurrentUser()
         {
             string CurrentUser = "[Not Logged In]";
@@ -179,7 +177,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetCurrentVersion")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public string GetCurrentVersion()
         {
             // Version object to return
@@ -225,7 +223,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("ShowDashboard")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTODashboard ShowDashboard()
         {
             string strConnectionString = GetConnectionString();
@@ -233,24 +231,24 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        // Tasks
+        //Tasks
 
         #region public TaskSearchResult SearchTasks([FromBody]SearchParameters searchData)
-        /// <summary>
-        /// Search Tasks
-        /// </summary>
-        /// <param name="searchData"></param>
-        /// <returns></returns>
-        // JwtBearerDefaults means this method will only work if a Jwt is being passed
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("SearchTasks")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public TaskSearchResult SearchTasks([FromBody]SearchParameters searchData)
+       /// <summary>
+       /// Search Tasks
+       /// </summary>
+       /// <param name="searchData"></param>
+       /// <returns></returns>
+       // JwtBearerDefaults means this method will only work if a Jwt is being passed
+       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+       [HttpPost("SearchTasks")]
+       [ApiExplorerSettings(GroupName = "external")]
+        public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
         {
             SearchTaskParameters objSearchTaskParameters = new SearchTaskParameters();
             objSearchTaskParameters.assignedRoleId = searchData.assignedRoleId;
             objSearchTaskParameters.createdDate = searchData.createdDate;
-            objSearchTaskParameters.dueDate = searchData.dueDate;            
+            objSearchTaskParameters.dueDate = searchData.dueDate;
             objSearchTaskParameters.pageNumber = searchData.pageNumber;
             objSearchTaskParameters.priority = searchData.priority;
             objSearchTaskParameters.rowsPerPage = searchData.rowsPerPage;
@@ -266,59 +264,59 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
-        /// <summary>
-        /// Create Task
-        /// </summary>
-        /// <param name="objTask"></param>
-        /// <param name="objTaskDetail"></param>
-        /// <param name="objFile"></param>
-        /// <returns></returns>
-        // JwtBearerDefaults means this method will only work if a Jwt is being passed
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("CreateTask")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus CreateTask(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
-        {
-            DTOStatus objDTOStatus = new DTOStatus();
-            objDTOStatus.Success = true;
-            objDTOStatus.StatusMessage = "";
+        //#region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
+        ///// <summary>
+        ///// Create Task
+        ///// </summary>
+        ///// <param name="objTask"></param>
+        ///// <param name="objTaskDetail"></param>
+        ///// <param name="objFile"></param>
+        ///// <returns></returns>
+        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[HttpPost("CreateTask")]
+        //[ApiExplorerSettings(GroupName = "external")]
+        //public DTOStatus CreateTask(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
+        //{
+        //    DTOStatus objDTOStatus = new DTOStatus();
+        //    objDTOStatus.Success = true;
+        //    objDTOStatus.StatusMessage = "";
 
-            // Get Settings
-            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            //string ContentRootPath = _hostEnvironment.ContentRootPath;
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            //string strConnectionString = GetConnectionString();
-            //int intUserId = -1;
-            //bool IsSuperUser = true;
-            //bool IsAdministrator = true;
-            //bool IsAuthenticated = true;
+        //    // Get Settings
+        //    //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+        //    //string ContentRootPath = _hostEnvironment.ContentRootPath;
+        //    //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+        //    //string strConnectionString = GetConnectionString();
+        //    //int intUserId = -1;
+        //    //bool IsSuperUser = true;
+        //    //bool IsAdministrator = true;
+        //    //bool IsAuthenticated = true;
 
-            try
-            {
-                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+        //    try
+        //    {
+        //        DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-                //objDTOStatus = UploadTaskController.CreateTaskMethod(
-                //    strConnectionString,
-                //    CurrentHostLocation,
-                //    ContentRootPath,
-                //    paramTask,
-                //    objFile,
-                //    strCurrentUser,
-                //    intUserId,
-                //    IsSuperUser,
-                //    IsAdministrator,
-                //    IsAuthenticated);
-            }
-            catch (Exception ex)
-            {
-                objDTOStatus.Success = false;
-                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
-            }
+        //        //objDTOStatus = UploadTaskController.CreateTaskMethod(
+        //        //    strConnectionString,
+        //        //    CurrentHostLocation,
+        //        //    ContentRootPath,
+        //        //    paramTask,
+        //        //    objFile,
+        //        //    strCurrentUser,
+        //        //    intUserId,
+        //        //    IsSuperUser,
+        //        //    IsAdministrator,
+        //        //    IsAuthenticated);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        objDTOStatus.Success = false;
+        //        objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+        //    }
 
-            return objDTOStatus;
-        }
-        #endregion
+        //    return objDTOStatus;
+        //}
+        //#endregion
 
         #region public DTOStatus UpdateTask(DTOTask objTask)
         /// <summary>
@@ -329,7 +327,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateTask")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOStatus UpdateTask(DTOAPITask objTask)
         {
             DTOStatus objDTOStatus = new DTOStatus();
@@ -367,61 +365,61 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateUpdateTaskDetail(DTOTask objTask, IFormFile objFile)
-        /// <summary>
-        /// Create Update Task Detail
-        /// </summary>
-        /// <param name="objTask"></param>
-        /// <param name="objTaskDetail"></param>
-        /// <param name="objFile"></param>
-        /// <returns></returns>
-        // JwtBearerDefaults means this method will only work if a Jwt is being passed
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("CreateUpdateTaskDetail")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOTaskDetailResponse CreateUpdateTaskDetail(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
-        {
-            DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
-            objDTOStatus.isSuccess = true;
-            objDTOStatus.message = "";
-            objDTOStatus.taskDetail = new DTOTaskDetail();
+        //#region public DTOStatus CreateUpdateTaskDetail(DTOTask objTask, IFormFile objFile)
+        ///// <summary>
+        ///// Create Update Task Detail
+        ///// </summary>
+        ///// <param name="objTask"></param>
+        ///// <param name="objTaskDetail"></param>
+        ///// <param name="objFile"></param>
+        ///// <returns></returns>
+        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[HttpPost("CreateUpdateTaskDetail")]
+        //[ApiExplorerSettings(GroupName = "external")]
+        //public DTOTaskDetailResponse CreateUpdateTaskDetail(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
+        //{
+        //    DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
+        //    objDTOStatus.isSuccess = true;
+        //    objDTOStatus.message = "";
+        //    objDTOStatus.taskDetail = new DTOTaskDetail();
 
-            // Get Settings
-            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            //string ContentRootPath = _hostEnvironment.ContentRootPath;
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            //string strConnectionString = GetConnectionString();
-            //int intUserId = -1;
-            //bool IsSuperUser = true;
-            //bool IsAdministrator = true;
-            //bool IsAuthenticated = true;
+        //    // Get Settings
+        //    //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+        //    //string ContentRootPath = _hostEnvironment.ContentRootPath;
+        //    //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+        //    //string strConnectionString = GetConnectionString();
+        //    //int intUserId = -1;
+        //    //bool IsSuperUser = true;
+        //    //bool IsAdministrator = true;
+        //    //bool IsAuthenticated = true;
 
-            try
-            {
-                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+        //    try
+        //    {
+        //        //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-                //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
-                //    strConnectionString,
-                //    CurrentHostLocation,
-                //    ContentRootPath,
-                //    paramTask,
-                //    objFile,
-                //    strCurrentUser,
-                //    intUserId,
-                //    IsSuperUser,
-                //    IsAdministrator,
-                //    strCurrentUser,
-                //    IsAuthenticated);
-            }
-            catch (Exception ex)
-            {
-                objDTOStatus.isSuccess = false;
-                objDTOStatus.message = ex.GetBaseException().Message;
-            }
+        //        //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
+        //        //    strConnectionString,
+        //        //    CurrentHostLocation,
+        //        //    ContentRootPath,
+        //        //    paramTask,
+        //        //    objFile,
+        //        //    strCurrentUser,
+        //        //    intUserId,
+        //        //    IsSuperUser,
+        //        //    IsAdministrator,
+        //        //    strCurrentUser,
+        //        //    IsAuthenticated);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        objDTOStatus.isSuccess = false;
+        //        objDTOStatus.message = ex.GetBaseException().Message;
+        //    }
 
-            return objDTOStatus;
-        }
-        #endregion
+        //    return objDTOStatus;
+        //}
+        //#endregion
 
         #region public DTOTaskStatus GetTask(int TaskId)
         /// <summary>
@@ -432,7 +430,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetTask")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOTaskStatus GetTask(int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
@@ -455,11 +453,11 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
                 obJDTOTask.ticketPassword = "";
 
                 objDTOStatus.Task = TaskController.GetTask(
-                    obJDTOTask, 
-                    intUserId, 
-                    IsAdministrator, 
-                    strConnectionString, 
-                    strCurrentUser, 
+                    obJDTOTask,
+                    intUserId,
+                    IsAdministrator,
+                    strConnectionString,
+                    strCurrentUser,
                     IsAuthenticated);
             }
             catch (Exception ex)
@@ -481,7 +479,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTask")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOTaskStatus DeleteTask(int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
@@ -520,7 +518,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTaskDetail")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOTaskStatus DeleteTaskDetail(int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
@@ -561,8 +559,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SearchUsers")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public UserSearchResult SearchUsers([FromBody]SearchUserParameters searchData)
+
+        public UserSearchResult SearchUsers([FromBody] SearchUserParameters searchData)
         {
             AdefHelpDeskBase.Models.SearchParameters objSearchParameters = new Models.SearchParameters();
             objSearchParameters.pageNumber = searchData.pageNumber;
@@ -582,7 +580,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetUser")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOUser GetUser(int UserId)
         {
             return UserManagerController.GetUserMethod(UserId, GetConnectionString());
@@ -598,7 +596,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("ValidateUser")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public LoginStatus ValidateUser(DTOAuthentication Authentication)
         {
             // LoginStatus to return
@@ -697,7 +695,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("MigrateUser")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public LoginStatus MigrateUser(DTOMigration Migration)
         {
             // LoginStatus to return
@@ -819,7 +817,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUser")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
         {
             // Get Settings
@@ -843,8 +841,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateUser")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus UpdateUser([FromBody]DTOUser DTOUser)
+
+        public DTOStatus UpdateUser([FromBody] DTOUser DTOUser)
         {
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
@@ -865,7 +863,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteUser")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOStatus DeleteUser(int UserId)
         {
             // Status to return
@@ -879,7 +877,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
             string strResponse = UserManagerController.DeleteUser(UserId, _userManager, strConnectionString, strCurrentUser);
 
-            if(strResponse != "")
+            if (strResponse != "")
             {
                 objDTOStatus.StatusMessage = strResponse;
                 objDTOStatus.Success = false;
@@ -905,8 +903,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetCategoryNodes")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public List<CategoryDTO> GetCategoryNodes([FromBody]bool RequestorVisibleOnly,bool UseCache)
+
+        public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, bool UseCache)
         {
             return new List<CategoryDTO>();
             //return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
@@ -922,8 +920,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateCategory")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public CategoryNode CreateCategory([FromBody]CategoryNode categoryNode)
+
+        public CategoryNode CreateCategory([FromBody] CategoryNode categoryNode)
         {
             // Get Settings
             string strConnectionString = GetConnectionString();
@@ -941,8 +939,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateCategory")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus UpdateCategory([FromBody]CategoryNode categoryNode)
+
+        public DTOStatus UpdateCategory([FromBody] CategoryNode categoryNode)
         {
             // Get Settings
             string strConnectionString = GetConnectionString();
@@ -960,7 +958,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteCategory")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTOStatus DeleteCategory(int id)
         {
             // Status to return
@@ -983,7 +981,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetRoles")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public List<RoleDTO> GetRoles()
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.GetRolesMethod(GetConnectionString());
@@ -999,8 +997,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateRole")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus UpdateRole([FromBody]RoleDTO RoleDTO)
+
+        public DTOStatus UpdateRole([FromBody] RoleDTO RoleDTO)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
         }
@@ -1015,8 +1013,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateRole")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public RoleDTO CreateRole([FromBody]RoleDTO RoleDTO)
+
+        public RoleDTO CreateRole([FromBody] RoleDTO RoleDTO)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.CreateRole(RoleDTO, GetConnectionString());
         }
@@ -1031,8 +1029,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteRole")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus DeleteRole([FromBody]int Id)
+
+        public DTOStatus DeleteRole([FromBody] int Id)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.DeleteRole(Id, GetConnectionString());
         }
@@ -1048,7 +1046,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("SystemFiles")]
-        [ApiExplorerSettings(GroupName = "external")]
+
         public DTONode SystemFiles()
         {
             //return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
@@ -1065,8 +1063,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetSystemFile")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOResponse GetSystemFile([FromBody]DTONode paramDTONode)
+
+        public DTOResponse GetSystemFile([FromBody] DTONode paramDTONode)
         {
             // return FilesController.GetFileContentMethod(paramDTONode, _SystemFiles);
             return new DTOResponse();
@@ -1082,8 +1080,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetFile")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOFile GetFile([FromBody]DTOAPIFile paramDTOAPIFile)
+
+        public DTOFile GetFile([FromBody] DTOAPIFile paramDTOAPIFile)
         {
             DTOFileParameter paramDTOFileParameter = new DTOFileParameter();
             paramDTOFileParameter.attachmentID = paramDTOAPIFile.attachmentID;
@@ -1111,8 +1109,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SystemLogs")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public SystemLogSearchResult SystemLogs([FromBody]SearchLogParameters objSearchLogParameters)
+
+        public SystemLogSearchResult SystemLogs([FromBody] SearchLogParameters objSearchLogParameters)
         {
             //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             AdefHelpDeskBase.Models.SearchParameters SearchParameters = new Models.SearchParameters();
