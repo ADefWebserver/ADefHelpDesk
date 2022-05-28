@@ -264,59 +264,58 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        //#region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
-        ///// <summary>
-        ///// Create Task
-        ///// </summary>
-        ///// <param name="objTask"></param>
-        ///// <param name="objTaskDetail"></param>
-        ///// <param name="objFile"></param>
-        ///// <returns></returns>
-        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        //[HttpPost("CreateTask")]
-        //[ApiExplorerSettings(GroupName = "external")]
-        //public DTOStatus CreateTask(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
-        //{
-        //    DTOStatus objDTOStatus = new DTOStatus();
-        //    objDTOStatus.Success = true;
-        //    objDTOStatus.StatusMessage = "";
+        #region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
+        /// <summary>
+        /// Create Task
+        /// </summary>
+        /// <param name="objTask"></param>
+        /// <param name="objFile"></param>
+        /// <returns></returns>
+        // JwtBearerDefaults means this method will only work if a Jwt is being passed
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("CreateTask")]
+        [ApiExplorerSettings(GroupName = "external")]
+        public DTOStatus CreateTask(DTOAPITask objTask, IFormFile objFile)
+        {
+            DTOStatus objDTOStatus = new DTOStatus();
+            objDTOStatus.Success = true;
+            objDTOStatus.StatusMessage = "";
 
-        //    // Get Settings
-        //    //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //    //string ContentRootPath = _hostEnvironment.ContentRootPath;
-        //    //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-        //    //string strConnectionString = GetConnectionString();
-        //    //int intUserId = -1;
-        //    //bool IsSuperUser = true;
-        //    //bool IsAdministrator = true;
-        //    //bool IsAuthenticated = true;
+            // Get Settings
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = -1;
+            //bool IsSuperUser = true;
+            //bool IsAdministrator = true;
+            //bool IsAuthenticated = true;
 
-        //    try
-        //    {
-        //        DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+            try
+            {
+                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-        //        //objDTOStatus = UploadTaskController.CreateTaskMethod(
-        //        //    strConnectionString,
-        //        //    CurrentHostLocation,
-        //        //    ContentRootPath,
-        //        //    paramTask,
-        //        //    objFile,
-        //        //    strCurrentUser,
-        //        //    intUserId,
-        //        //    IsSuperUser,
-        //        //    IsAdministrator,
-        //        //    IsAuthenticated);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        objDTOStatus.Success = false;
-        //        objDTOStatus.StatusMessage = ex.GetBaseException().Message;
-        //    }
+                //objDTOStatus = UploadTaskController.CreateTaskMethod(
+                //    strConnectionString,
+                //    CurrentHostLocation,
+                //    ContentRootPath,
+                //    paramTask,
+                //    objFile,
+                //    strCurrentUser,
+                //    intUserId,
+                //    IsSuperUser,
+                //    IsAdministrator,
+                //    IsAuthenticated);
+            }
+            catch (Exception ex)
+            {
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+            }
 
-        //    return objDTOStatus;
-        //}
-        //#endregion
+            return objDTOStatus;
+        }
+        #endregion
 
         #region public DTOStatus UpdateTask(DTOTask objTask)
         /// <summary>
@@ -365,61 +364,60 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        //#region public DTOStatus CreateUpdateTaskDetail(DTOTask objTask, IFormFile objFile)
-        ///// <summary>
-        ///// Create Update Task Detail
-        ///// </summary>
-        ///// <param name="objTask"></param>
-        ///// <param name="objTaskDetail"></param>
-        ///// <param name="objFile"></param>
-        ///// <returns></returns>
-        //// JwtBearerDefaults means this method will only work if a Jwt is being passed
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        //[HttpPost("CreateUpdateTaskDetail")]
-        //[ApiExplorerSettings(GroupName = "external")]
-        //public DTOTaskDetailResponse CreateUpdateTaskDetail(DTOAPITask objTask, DTOAPITaskDetail objTaskDetail, IFormFile objFile)
-        //{
-        //    DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
-        //    objDTOStatus.isSuccess = true;
-        //    objDTOStatus.message = "";
-        //    objDTOStatus.taskDetail = new DTOTaskDetail();
+        #region public DTOStatus CreateUpdateTaskDetail(DTOTask objTask, IFormFile objFile)
+        /// <summary>
+        /// Create Update Task Detail
+        /// </summary>
+        /// <param name="objTask"></param>
+        /// <param name="objFile"></param>
+        /// <returns></returns>
+        // JwtBearerDefaults means this method will only work if a Jwt is being passed
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("CreateUpdateTaskDetail")]
+        [ApiExplorerSettings(GroupName = "external")]
+        public DTOTaskDetailResponse CreateUpdateTaskDetail(DTOAPITask objTask, IFormFile objFile)
+        {
+            DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
+            objDTOStatus.isSuccess = true;
+            objDTOStatus.message = "";
+            objDTOStatus.taskDetail = new DTOTaskDetail();
 
-        //    // Get Settings
-        //    //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //    //string ContentRootPath = _hostEnvironment.ContentRootPath;
-        //    //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-        //    //string strConnectionString = GetConnectionString();
-        //    //int intUserId = -1;
-        //    //bool IsSuperUser = true;
-        //    //bool IsAdministrator = true;
-        //    //bool IsAuthenticated = true;
+            // Get Settings
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = -1;
+            //bool IsSuperUser = true;
+            //bool IsAdministrator = true;
+            //bool IsAuthenticated = true;
 
-        //    try
-        //    {
-        //        //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+            try
+            {
+                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-        //        //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
-        //        //    strConnectionString,
-        //        //    CurrentHostLocation,
-        //        //    ContentRootPath,
-        //        //    paramTask,
-        //        //    objFile,
-        //        //    strCurrentUser,
-        //        //    intUserId,
-        //        //    IsSuperUser,
-        //        //    IsAdministrator,
-        //        //    strCurrentUser,
-        //        //    IsAuthenticated);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        objDTOStatus.isSuccess = false;
-        //        objDTOStatus.message = ex.GetBaseException().Message;
-        //    }
+                //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
+                //    strConnectionString,
+                //    CurrentHostLocation,
+                //    ContentRootPath,
+                //    paramTask,
+                //    objFile,
+                //    strCurrentUser,
+                //    intUserId,
+                //    IsSuperUser,
+                //    IsAdministrator,
+                //    strCurrentUser,
+                //    IsAuthenticated);
+            }
+            catch (Exception ex)
+            {
+                objDTOStatus.isSuccess = false;
+                objDTOStatus.message = ex.GetBaseException().Message;
+            }
 
-        //    return objDTOStatus;
-        //}
-        //#endregion
+            return objDTOStatus;
+        }
+        #endregion
 
         #region public DTOTaskStatus GetTask(int TaskId)
         /// <summary>

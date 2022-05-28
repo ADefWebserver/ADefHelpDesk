@@ -26,6 +26,8 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -126,7 +128,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 var xmlPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.xml");
                 options.IncludeXmlComments(xmlPath);
-                //options.OperationFilter<FileUploadOperation>(); //Register File Upload Operation Filter
+                options.OperationFilter<SwaggerFileOperationFilter>(); //Register File Upload Operation Filter
             });
 
             // Add Caching support
@@ -171,41 +173,21 @@ namespace Microsoft.Extensions.DependencyInjection
         }
     }
 
-    //public class FileUploadOperation : IOperationFilter
-    //{
-    //    public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
-    //    {
-    //        if (operation.parameters != null)
-    //        {
-    //            // If the method has a paramater "objFile"
-    //            // rewrite the parameters to create an upload control in swagger
-    //            if (operation.parameters.Where(x => x.name == "objFile").FirstOrDefault() != null)
-    //            {
-    //                // Create a collection that does not have objFile
-    //                // because it will be added with an upload control
-    //                List<IParameter> colIParameter = new List<IParameter>();
-    //                foreach (var item in operation.parameters)
-    //                {
-    //                    if (item.Name != "objFile")
-    //                    {
-    //                        colIParameter.Add(item);
-    //                    }
-    //                }
+    public class SwaggerFileOperationFilter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            var fileUploadMime = "multipart/form-data";
+            if (operation.RequestBody == null || !operation.RequestBody.Content.Any(x => x.Key.Equals(fileUploadMime, StringComparison.InvariantCultureIgnoreCase)))
+                return;
 
-    //                operation.parameters.Clear();
-    //                operation.parameters = colIParameter;
-
-    //                operation.parameters.Add(new NonBodyParameter
-    //                {
-    //                    Name = "objFile",
-    //                    In = "formData",
-    //                    Description = "Upload File",
-    //                    Required = false,
-    //                    Type = "file"
-    //                });
-    //                operation.consumes.Add("multipart/form-data");
-    //            }
-    //        }
-    //    }
-    //}
+            var fileParams = context.MethodInfo.GetParameters().Where(p => p.ParameterType == typeof(IFormFile));
+            operation.RequestBody.Content[fileUploadMime].Schema.Properties =
+                fileParams.ToDictionary(k => k.Name, v => new OpenApiSchema()
+                {
+                    Type = "string",
+                    Format = "binary"
+                });
+        }
+    }
 }
