@@ -107,7 +107,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Auth Token
 
-        #region public async Task<string> GetAuthToken([FromBody]ApiToken objApiToken)
+        #region public async Task<string> GetAuthToken([FromQuery] ApiToken objApiToken)
         /// <summary>
         /// Obtain a security token to use for subsequent calls - copy the output received and then click the Authorize button (above). Paste the contents (between the quotes) into that box and then click Authorize then close. Now the remaining methods will work.
         /// </summary>
@@ -116,7 +116,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [AllowAnonymous]
         [HttpGet("GetAuthToken")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<string> GetAuthToken([FromBody] ApiToken objApiToken)
+        public async Task<string> GetAuthToken([FromQuery] ApiToken objApiToken)
         {
             var dict = new Dictionary<string, string>();
             dict.Add("username", objApiToken.UserName);
@@ -177,7 +177,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetCurrentVersion")]
-
         public string GetCurrentVersion()
         {
             // Version object to return
@@ -223,7 +222,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("ShowDashboard")]
-
         public DTODashboard ShowDashboard()
         {
             string strConnectionString = GetConnectionString();
@@ -233,7 +231,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         //Tasks
 
-        #region public TaskSearchResult SearchTasks([FromBody]SearchParameters searchData)
+        #region public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
        /// <summary>
        /// Search Tasks
        /// </summary>
@@ -264,7 +262,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
+        #region public DTOStatus CreateTask([FromBody] DTOTask objTask, [FromForm] IFormFile objFile)
         /// <summary>
         /// Create Task
         /// </summary>
@@ -275,7 +273,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateTask")]
         [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus CreateTask(DTOAPITask objTask, IFormFile objFile)
+        public DTOStatus CreateTask([FromBody] DTOAPITask objTask, [FromForm] IFormFile objFile)
         {
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
@@ -317,7 +315,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateTask(DTOTask objTask)
+        #region public DTOStatus UpdateTask([FromBody] DTOTask objTask)
         /// <summary>
         /// Update Task
         /// </summary>
@@ -327,7 +325,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateTask")]
 
-        public DTOStatus UpdateTask(DTOAPITask objTask)
+        public DTOStatus UpdateTask([FromBody] DTOAPITask objTask)
         {
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
@@ -364,7 +362,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateUpdateTaskDetail(DTOTask objTask, IFormFile objFile)
+        #region public DTOStatus CreateUpdateTaskDetail([FromBody] DTOTask objTask, [FromForm] IFormFile objFile)
         /// <summary>
         /// Create Update Task Detail
         /// </summary>
@@ -375,7 +373,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUpdateTaskDetail")]
         [ApiExplorerSettings(GroupName = "external")]
-        public DTOTaskDetailResponse CreateUpdateTaskDetail(DTOAPITask objTask, IFormFile objFile)
+        public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOAPITask objTask, [FromForm] IFormFile objFile)
         {
             DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
             objDTOStatus.isSuccess = true;
@@ -419,7 +417,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskStatus GetTask(int TaskId)
+        #region public DTOTaskStatus GetTask([FromQuery] int TaskId)
         /// <summary>
         /// Get Task
         /// </summary>
@@ -429,7 +427,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetTask")]
 
-        public DTOTaskStatus GetTask(int TaskId)
+        public DTOTaskStatus GetTask([FromQuery] int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
@@ -468,7 +466,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskStatus DeleteTask(int TaskId)
+        #region public DTOTaskStatus DeleteTask([FromBody] int TaskId)
         /// <summary>
         /// Delete Task
         /// </summary>
@@ -477,8 +475,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTask")]
-
-        public DTOTaskStatus DeleteTask(int TaskId)
+        public DTOTaskStatus DeleteTask([FromBody] int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
@@ -507,7 +504,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskStatus DeleteTaskDetail(int TaskId)
+        #region public DTOTaskStatus DeleteTaskDetail([FromBody] int TaskId)
         /// <summary>
         /// Delete Task Detail
         /// </summary>
@@ -516,8 +513,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTaskDetail")]
-
-        public DTOTaskStatus DeleteTaskDetail(int TaskId)
+        public DTOTaskStatus DeleteTaskDetail([FromBody] int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
@@ -548,7 +544,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Users
 
-        #region public UserSearchResult SearchUsers([FromBody]SearchParameters searchData)
+        #region public UserSearchResult SearchUsers([FromBody] SearchParameters searchData)
         /// <summary>
         /// Search Users
         /// </summary>
@@ -557,7 +553,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SearchUsers")]
-
         public UserSearchResult SearchUsers([FromBody] SearchUserParameters searchData)
         {
             AdefHelpDeskBase.Models.SearchParameters objSearchParameters = new Models.SearchParameters();
@@ -569,7 +564,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOUser GetUser(int UserId)
+        #region public DTOUser GetUser([FromQuery] int UserId)
         /// <summary>
         /// Get User
         /// </summary>
@@ -578,14 +573,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetUser")]
-
-        public DTOUser GetUser(int UserId)
+        public DTOUser GetUser([FromQuery] int UserId)
         {
             return UserManagerController.GetUserMethod(UserId, GetConnectionString());
         }
         #endregion
 
-        #region public LoginStatus ValidateUser(DTOAuthentication Authentication)
+        #region public LoginStatus ValidateUser([FromBody] DTOAuthentication Authentication)
         /// <summary>
         /// Validate User
         /// </summary>
@@ -594,8 +588,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("ValidateUser")]
-
-        public LoginStatus ValidateUser(DTOAuthentication Authentication)
+        public LoginStatus ValidateUser([FromBody] DTOAuthentication Authentication)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -684,7 +677,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public LoginStatus MigrateUser(DTOAuthentication Authentication)
+        #region public LoginStatus MigrateUser([FromBody] DTOAuthentication Authentication)
         /// <summary>
         /// Migrate User
         /// </summary>
@@ -693,8 +686,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("MigrateUser")]
-
-        public LoginStatus MigrateUser(DTOMigration Migration)
+        public LoginStatus MigrateUser([FromBody] DTOMigration Migration)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -806,7 +798,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateUser([FromBody]DTOUser DTOUser)
+        #region public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
         /// <summary>
         /// Create User
         /// </summary>
@@ -815,7 +807,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUser")]
-
         public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
         {
             // Get Settings
@@ -830,7 +821,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateUser([FromBody]DTOUser DTOUser)
+        #region public DTOStatus UpdateUser([FromBody] DTOUser DTOUser)
         /// <summary>
         /// Update User
         /// </summary>
@@ -839,7 +830,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateUser")]
-
         public DTOStatus UpdateUser([FromBody] DTOUser DTOUser)
         {
             // Get Settings
@@ -852,7 +842,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus DeleteUser(int UserId)
+        #region public DTOStatus DeleteUser([FromBody] int UserId)
         /// <summary>
         /// Delete User
         /// </summary>
@@ -861,8 +851,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteUser")]
-
-        public DTOStatus DeleteUser(int UserId)
+        public DTOStatus DeleteUser([FromBody] int UserId)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -891,7 +880,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Categories
 
-        #region public List<CategoryDTO> GetCategoryNodes([FromBody]bool UseCache)
+        #region public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, [FromQuery] bool UseCache)
         /// <summary>
         /// Get Category Nodes
         /// </summary>
@@ -901,15 +890,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetCategoryNodes")]
-
-        public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, bool UseCache)
+        public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, [FromQuery] bool UseCache)
         {
             return new List<CategoryDTO>();
             //return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
         }
         #endregion
 
-        #region public CategoryNode CreateCategory([FromBody]CategoryNode categoryNode)
+        #region public CategoryNode CreateCategory([FromBody] CategoryNode categoryNode)
         /// <summary>
         /// Create Category
         /// </summary>
@@ -918,7 +906,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateCategory")]
-
         public CategoryNode CreateCategory([FromBody] CategoryNode categoryNode)
         {
             // Get Settings
@@ -928,7 +915,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateCategory([FromBody]CategoryNode categoryNode)
+        #region public DTOStatus UpdateCategory([FromBody] CategoryNode categoryNode)
         /// <summary>
         /// Update Category
         /// </summary>
@@ -937,7 +924,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateCategory")]
-
         public DTOStatus UpdateCategory([FromBody] CategoryNode categoryNode)
         {
             // Get Settings
@@ -947,7 +933,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus DeleteCategory(int id)
+        #region public DTOStatus DeleteCategory([FromBody] int id)
         /// <summary>
         /// Delete Category
         /// </summary>
@@ -956,8 +942,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteCategory")]
-
-        public DTOStatus DeleteCategory(int id)
+        public DTOStatus DeleteCategory([FromBody] int id)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -979,14 +964,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetRoles")]
-
         public List<RoleDTO> GetRoles()
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.GetRolesMethod(GetConnectionString());
         }
         #endregion
 
-        #region public DTOStatus UpdateRole([FromBody]RoleDTO RoleDTO)
+        #region public DTOStatus UpdateRole([FromBody] RoleDTO RoleDTO)
         /// <summary>
         /// Update Role
         /// </summary>
@@ -1002,7 +986,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public RoleDTO CreateRole([FromBody]RoleDTO RoleDTO)
+        #region public RoleDTO CreateRole([FromBody] RoleDTO RoleDTO)
         /// <summary>
         /// Create Role
         /// </summary>
@@ -1018,7 +1002,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus DeleteRole([FromBody]RoleDTO RoleDTO)
+        #region public DTOStatus DeleteRole([FromBody] RoleDTO RoleDTO)
         /// <summary>
         /// Delete Role
         /// </summary>
@@ -1027,7 +1011,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteRole")]
-
         public DTOStatus DeleteRole([FromBody] int Id)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.DeleteRole(Id, GetConnectionString());
@@ -1044,7 +1027,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("SystemFiles")]
-
         public DTONode SystemFiles()
         {
             //return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
@@ -1052,7 +1034,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOResponse GetSystemFile([FromBody]DTONode paramDTONode)
+        #region public DTOResponse GetSystemFile([FromQuery] DTONode paramDTONode)
         /// <summary>
         /// Get System File
         /// </summary>
@@ -1061,15 +1043,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetSystemFile")]
-
-        public DTOResponse GetSystemFile([FromBody] DTONode paramDTONode)
+        public DTOResponse GetSystemFile([FromQuery] DTONode paramDTONode)
         {
             // return FilesController.GetFileContentMethod(paramDTONode, _SystemFiles);
             return new DTOResponse();
         }
         #endregion
 
-        #region public DTOFile GetFile([FromBody]DTOAPIFile paramDTOAPIFile)
+        #region public DTOFile GetFile([FromBody] DTOAPIFile paramDTOAPIFile)
         /// <summary>
         /// Get File
         /// </summary>
@@ -1098,7 +1079,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Logs
 
-        #region public SystemLogSearchResult SystemLogs([FromBody]SearchLogParameters objSearchLogParameters)
+        #region public SystemLogSearchResult SystemLogs([FromBody] SearchLogParameters objSearchLogParameters)
         /// <summary>
         /// Search Logs
         /// </summary>
@@ -1107,7 +1088,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SystemLogs")]
-
         public SystemLogSearchResult SystemLogs([FromBody] SearchLogParameters objSearchLogParameters)
         {
             //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
