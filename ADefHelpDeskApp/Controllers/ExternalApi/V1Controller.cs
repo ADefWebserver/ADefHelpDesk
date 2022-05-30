@@ -53,8 +53,9 @@ using ADefHelpDeskApp.Controllers.InternalApi;
 namespace AdefHelpDeskBase.Controllers.WebInterface
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiExplorerSettings(GroupName = "v1")]
     [Produces("application/json")]
+    [Route("api/[controller]")]
     public class V1Controller : Controller
     {
         static HttpClient client = new HttpClient();
@@ -240,7 +241,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
        // JwtBearerDefaults means this method will only work if a Jwt is being passed
        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
        [HttpPost("SearchTasks")]
-       [ApiExplorerSettings(GroupName = "external")]
         public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
         {
             SearchTaskParameters objSearchTaskParameters = new SearchTaskParameters();
@@ -262,19 +262,19 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateTask([FromBody] DTOTask objTask, [FromForm] IFormFile objFile)
+        #region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
         /// <summary>
         /// Create Task
         /// </summary>
-        /// <param name="objTask"></param>
-        /// <param name="objFile"></param>
+        /// <param name="objTask">A Task</param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateTask")]
-        [ApiExplorerSettings(GroupName = "external")]
-        public DTOStatus CreateTask([FromBody] DTOAPITask objTask, [FromForm] IFormFile objFile)
+        public DTOStatus CreateTask([FromForm] DTOAPITask objTask)
         {
+            var task = objTask;
+            
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
@@ -293,17 +293,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             {
                 //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
 
-                //objDTOStatus = UploadTaskController.CreateTaskMethod(
+                //var result = UploadTaskController.CreateTask(
                 //    strConnectionString,
-                //    CurrentHostLocation,
-                //    ContentRootPath,
-                //    paramTask,
-                //    objFile,
-                //    strCurrentUser,
-                //    intUserId,
-                //    IsSuperUser,
-                //    IsAdministrator,
-                //    IsAuthenticated);
+                //    objFile);
             }
             catch (Exception ex)
             {
@@ -324,7 +316,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateTask")]
-
         public DTOStatus UpdateTask([FromBody] DTOAPITask objTask)
         {
             DTOStatus objDTOStatus = new DTOStatus();
@@ -372,7 +363,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUpdateTaskDetail")]
-        [ApiExplorerSettings(GroupName = "external")]
         public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOAPITask objTask, [FromForm] IFormFile objFile)
         {
             DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();

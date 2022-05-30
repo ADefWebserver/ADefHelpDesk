@@ -54,6 +54,9 @@ namespace Microsoft.Extensions.DependencyInjection
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
 
+            // **** JWT Token Configuration
+            // Authentication
+
             // Configure cookie (needed for JWT Auth)
             //Builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
 
@@ -89,17 +92,17 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             // Swagger
+            Builder.Services.AddControllers();
             Builder.Services.AddEndpointsApiExplorer();
             Builder.Services.AddSwaggerGen(options =>
             {
-                //options.SwaggerDoc("internal", new OpenApiInfo { Title = "Internal API", Version = "v1" });
-                //options.SwaggerDoc("external",
-                //    new OpenApiInfo
-                //    {
-                //        Title = "External API",
-                //        Version = "v1",
-                //        Description = "ADefHelpDesk Web API"
-                //    });
+                options.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Version = "v1",
+                        Title = "External API",
+                        Description = "ADefHelpDesk Web API"
+                    });
 
                 options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
                 {
@@ -133,10 +136,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Add Caching support
             Builder.Services.AddMemoryCache();
-
-            // **** JWT Token Configuration
-            // Authentication
-            //ConfigureAuth(services);
 
             // ADefHelpDesk Services
             Builder.Services.AddScoped<GeneralSettings>();

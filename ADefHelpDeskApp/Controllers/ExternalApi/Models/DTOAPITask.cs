@@ -18,6 +18,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 //
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,6 +58,7 @@ namespace AdefHelpDeskBase.Models
         public string requesterPhone { get; set; }
         public int? estimatedHours { get; set; }
         public bool? sendEmails { get; set; }
-        public List<int> selectedTreeNodes { get; set; }
+        public List<int> selectedTreeNodes { get; set; }        
+        public IFormFile fileattachment { get; set; }
     }
 }

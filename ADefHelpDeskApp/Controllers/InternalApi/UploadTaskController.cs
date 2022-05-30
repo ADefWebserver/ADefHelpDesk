@@ -89,56 +89,58 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
         // ************* TASK
 
-        //public IActionResult CreateTask([FromForm] ICollection<IFormFile> files)
-        //{
-        //    // Get Settings
-        //    string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //    string ContentRootPath = _hostEnvironment.ContentRootPath;
-        //    string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
-        //    string strConnectionString = GetConnectionString();
-        //    int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
-        //    bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
-        //    bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
-        //    bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
+        public static IActionResult CreateTask(string strConnectionString, [FromForm] ICollection<IFormFile> files)
+        {
+            //// Get Settings
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
+            //bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
+            //bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
+            //bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
 
-        //    // Get file data (if any)      
-        //    IFormFile objFile = null;
-        //    if (Request.Form.Files.Count > 0)
-        //    {
-        //        // Note: We only allow one file   
-        //        objFile = Request.Form.Files[0];
-        //    }
+            //// Get file data (if any)      
+            //IFormFile objFile = null;
+            //if (Request.Form.Files.Count > 0)
+            //{
+            //    // Note: We only allow one file   
+            //    objFile = Request.Form.Files[0];
+            //}
 
-        //    // Retrieve data from FormData
-        //    var objTaskForm = Request.Form["task"].First();
-        //    DTOTask objTask = JsonConvert.DeserializeObject<DTOTask>(objTaskForm);
+            //// Retrieve data from FormData
+            //var objTaskForm = Request.Form["task"].First();
+            //DTOTask objTask = JsonConvert.DeserializeObject<DTOTask>(objTaskForm);
+            
+            //return Ok(CreateTaskMethod(strConnectionString, CurrentHostLocation, ContentRootPath, objTask, objFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator, IsAuthenticated));
+            return null;
+        }
 
-        //    return Ok(CreateTaskMethod(strConnectionString, CurrentHostLocation, ContentRootPath, objTask, objFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator, IsAuthenticated));
-        //}
+        public static IActionResult UpdateTask([FromBody] DTOTask objTask)
+        {
+            //// Get Settings
+            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            //string ContentRootPath = _hostEnvironment.ContentRootPath;
+            //string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
+            //string strConnectionString = GetConnectionString();
+            //int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
+            //bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
+            //bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
+            //bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
 
-        //public IActionResult UpdateTask([FromBody] DTOTask objTask)
-        //{
-        //    // Get Settings
-        //    string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //    string ContentRootPath = _hostEnvironment.ContentRootPath;
-        //    string strCurrentUser = _httpContextAccessor.HttpContext.User.Identity.Name;
-        //    string strConnectionString = GetConnectionString();
-        //    int intUserId = UtilitySecurity.UserIdFromUserName(strCurrentUser, strConnectionString);
-        //    bool IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strConnectionString);
-        //    bool IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString);
-        //    bool IsAuthenticated = _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
+            //// Must be a Administrator to call this Method
+            //if (!UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString))
+            //{
+            //    DTOStatus objDTOStatus = new DTOStatus();
+            //    objDTOStatus.Success = false;
+            //    objDTOStatus.StatusMessage = "Must be an Administrator to call this Method";
+            //    return Ok(objDTOStatus);
+            //}
 
-        //    // Must be a Administrator to call this Method
-        //    if (!UtilitySecurity.IsAdministrator(strCurrentUser, strConnectionString))
-        //    {
-        //        DTOStatus objDTOStatus = new DTOStatus();
-        //        objDTOStatus.Success = false;
-        //        objDTOStatus.StatusMessage = "Must be an Administrator to call this Method";
-        //        return Ok(objDTOStatus);
-        //    }
-
-        //    return Ok(UpdateTaskMethod(strConnectionString, CurrentHostLocation, ContentRootPath, objTask, strCurrentUser, intUserId, IsAuthenticated));
-        //}
+            //return Ok(UpdateTaskMethod(strConnectionString, CurrentHostLocation, ContentRootPath, objTask, strCurrentUser, intUserId, IsAuthenticated));
+            return null;
+        }
 
 
         // ************* TASK DETAIL
