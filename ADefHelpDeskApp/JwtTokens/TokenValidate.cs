@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace AdefHelpDeskBase.CustomTokenProvider
 {
-    public class TokenValidate
+    public class TokenValidate        
     {
         #region public static string GetSecretKey(string DefaultConnection)
         public static string GetSecretKey(string DefaultConnection)

@@ -329,5 +329,10 @@
             FormId
             </summary>
         </member>
+        <member name="P:BlazorFileUploadSwagger.Controllers.TestController.TestForm.fileattachment">
+            <summary>
+            File Attachemnt
+            </summary>
+        </member>
     </members>
 </doc>

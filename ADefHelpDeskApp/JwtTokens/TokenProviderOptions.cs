@@ -39,7 +39,7 @@ namespace AdefHelpDeskBase.CustomTokenProvider
         /// <summary>
         /// Resolves a user identity given a username and password and a Application GUID.
         /// </summary>
-        public Func<string, string, string, Task<ClaimsIdentity>> IdentityResolver { get; set; }
+        public Func<string, string, string, string, Task<ClaimsIdentity>> IdentityResolver { get; set; }
 
         /// <summary>
         /// Generates a random value (nonce) for each generated token.

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using AdefHelpDeskBase.JwtTokens;
+using Microsoft.Extensions.Configuration;
 
 namespace AdefHelpDeskBase.CustomTokenProvider
 {
@@ -16,11 +17,15 @@ namespace AdefHelpDeskBase.CustomTokenProvider
         private readonly RequestDelegate _next;
         private readonly TokenProviderOptions _options;
         private readonly JsonSerializerSettings _serializerSettings;
-
+        string DefaultConnection = "";
+        
         public TokenProviderMiddleware(
+            IConfiguration configuration,
             RequestDelegate next,
             IOptions<TokenProviderOptions> options)
         {
+            DefaultConnection = configuration.GetConnectionString("DefaultConnection");
+            
             _next = next;
 
             _options = options.Value;
@@ -45,7 +50,6 @@ namespace AdefHelpDeskBase.CustomTokenProvider
             return context.Response.WriteAsync("Bad request.");
         }
 
-        // *** TO DO
         // Validate the applicationGUID and the username and password
         private async Task GenerateToken(HttpContext context)
         {
@@ -62,8 +66,8 @@ namespace AdefHelpDeskBase.CustomTokenProvider
         }
 
         public async Task<accessToken> CreateToken(string applicationGUID, string username, string password)
-        {
-            var identity = await _options.IdentityResolver(applicationGUID, username, password);
+        {           
+            var identity = await _options.IdentityResolver(applicationGUID, username, password, DefaultConnection);
             if (identity == null)
             {
                 var responseFail = new accessToken

@@ -57,7 +57,7 @@ namespace AdefHelpDeskBase.CustomTokenProvider
             // VALIDATION PASSED
             return new AuthenticationTicket(principal, new AuthenticationProperties(), "Cookie");
         }
-
+        
         public string Protect(AuthenticationTicket data)
         {
             throw new NotImplementedException();
