@@ -29,13 +29,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using AdefHelpDeskBase.CustomTokenProvider;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
-using AdefHelpDeskBase.JwtTokens;
 using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
@@ -124,19 +122,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             dict.Add("password", objApiToken.Password);
             dict.Add("applicationGUID", objApiToken.ApplicationGUID);
 
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            HttpResponseMessage encodedJwt =
-                await client.PostAsync($@"{CurrentHostLocation}/api/token",
-                new FormUrlEncodedContent(dict));
+            bool authorized = true;
+            string access_token = "";
 
-            var jsonString = encodedJwt.Content.ReadAsStringAsync();
-            jsonString.Wait();
 
-            accessToken response = JsonConvert.DeserializeObject<accessToken>(jsonString.Result);
-
-            if (response.authorized)
+            if (authorized)
             {
-                return $"Bearer {response.access_token}";
+                return $"{access_token}";
             }
             else
             {

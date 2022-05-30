@@ -20,7 +20,6 @@ using ADefHelpDeskApp.Controllers.InternalApi;
 using Tewr.Blazor.FileReader;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.IISIntegration;
-using AdefHelpDeskBase.CustomTokenProvider;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -56,67 +55,14 @@ namespace Microsoft.Extensions.DependencyInjection
             Builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
-
-            // **** JWT Token Configuration
-            SymmetricSecurityKey _signingKey;
-            TokenValidationParameters _tokenValidationParameters;
-            TokenProviderOptions _tokenProviderOptions;
-
-            string SecurityKey = "tempKey*****************##############";
-
-            try
-            {
-                SecurityKey =
-                    TokenValidate.GetSecretKey(Builder.Configuration.GetSection("ConnectionStrings:DefaultConnection").Value);
-            }
-            catch
-            {
-                // Do nothing
-                // The database is just not set up yet
-            }
-
-            _signingKey =
-                new SymmetricSecurityKey(
-                    Encoding.ASCII.GetBytes(SecurityKey));
-
-            _tokenValidationParameters = new TokenValidationParameters
-            {
-                // The signing key must match!
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
-                // Validate the JWT Issuer (iss) claim
-                ValidateIssuer = true,
-                ValidIssuer = Builder.Configuration.GetSection("TokenAuthentication:Issuer").Value,
-                // Validate the JWT Audience (aud) claim
-                ValidateAudience = true,
-                ValidAudience = Builder.Configuration.GetSection("TokenAuthentication:Audience").Value,
-                // Validate the token expiry
-                ValidateLifetime = true,
-                // If you want to allow a certain amount of clock drift, set that here:
-                ClockSkew = TimeSpan.Zero
-            };
-
-            _tokenProviderOptions = new TokenProviderOptions
-            {
-                Path = Builder.Configuration.GetSection("TokenAuthentication:TokenPath").Value,
-                Audience = Builder.Configuration.GetSection("TokenAuthentication:Audience").Value,
-                Issuer = Builder.Configuration.GetSection("TokenAuthentication:Issuer").Value,
-                SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256),
-                IdentityResolver = GetIdentity
-            };
-
+       
             // Configure cookie (needed for JWT Auth)
             Builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
-
             Builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => { options.TokenValidationParameters = _tokenValidationParameters; })
                 .AddCookie(options =>
                 {
                     options.SlidingExpiration = true;
                     options.Cookie.Name = Builder.Configuration.GetSection("TokenAuthentication:CookieName").Value;
-                    options.TicketDataFormat = new CustomJwtDataFormat(
-                        SecurityAlgorithms.HmacSha256,
-                        _tokenValidationParameters);
                 });
 
             Builder.Services.AddRazorPages();
@@ -216,25 +162,6 @@ namespace Microsoft.Extensions.DependencyInjection
             Builder.Services.AddFileReaderService();
 
             return Builder.Services;
-        }
-
-        static Task<ClaimsIdentity> GetIdentity(string applicationGUID, string username, string password, string DefaultConnection)
-        {
-            TokenValidate objTokenValidate = new TokenValidate();
-            bool boolUserValid =
-                TokenValidate.ValidateUser(
-                    DefaultConnection,
-                    applicationGUID,
-                    username,
-                    password);
-
-            if (boolUserValid)
-            {
-                return Task.FromResult(new ClaimsIdentity(new GenericIdentity(username, "Token"), new Claim[] { }));
-            }
-
-            // Credentials are invalid, or account doesn't exist
-            return Task.FromResult<ClaimsIdentity>(null);
         }
     }
 }

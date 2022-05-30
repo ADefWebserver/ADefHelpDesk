@@ -242,44 +242,6 @@
             <param name="objSearchLogParameters"></param>
             <returns></returns>
         </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.Path">
-            <summary>
-            The relative request path to listen on.
-            </summary>
-            <remarks>The default path is <c>/token</c>.</remarks>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.Issuer">
-            <summary>
-             The Issuer (iss) claim for generated tokens.
-            </summary>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.Audience">
-            <summary>
-            The Audience (aud) claim for the generated tokens.
-            </summary>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.Expiration">
-            <summary>
-            The expiration time for the generated tokens.
-            </summary>
-            <remarks>The default is five minutes (300 seconds).</remarks>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.SigningCredentials">
-            <summary>
-            The signing key to use when generating tokens.
-            </summary>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.IdentityResolver">
-            <summary>
-            Resolves a user identity given a username and password and a Application GUID.
-            </summary>
-        </member>
-        <member name="P:AdefHelpDeskBase.CustomTokenProvider.TokenProviderOptions.NonceGenerator">
-            <summary>
-            Generates a random value (nonce) for each generated token.
-            </summary>
-            <remarks>The default nonce is a random GUID.</remarks>
-        </member>
         <member name="T:MessageReader.HtmlPreviewVisitor">
             <summary>
             Visits a MimeMessage and generates HTML suitable to be rendered by a browser control.
