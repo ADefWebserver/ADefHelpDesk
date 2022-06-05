@@ -5,6 +5,14 @@
     flex-direction: column;
 }
 
+.customToolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
 .main {
     flex: 1;
 }

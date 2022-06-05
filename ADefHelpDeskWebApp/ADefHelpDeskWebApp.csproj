@@ -30,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Radzen.Blazor" Version="3.18.12" />
+    <PackageReference Include="Radzen.Blazor" Version="3.18.13" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="3.3.1.21360" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
