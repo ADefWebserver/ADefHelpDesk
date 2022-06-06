@@ -24,9 +24,9 @@
             Task Detail object
             </summary>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService)">
             <summary>
-            
+            External Controller
             </summary>
             <param name="configuration"></param>
             <param name="hostEnvironment"></param>
@@ -34,6 +34,7 @@
             <param name="signInManager"></param>
             <param name="memoryCache"></param>
             <param name="httpContextAccessor"></param>
+            <param name="authenticationService"></param>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetAuthToken(AdefHelpDeskBase.Controllers.WebInterface.ApiToken)">
             <summary>

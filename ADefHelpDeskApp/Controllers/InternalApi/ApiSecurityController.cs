@@ -33,6 +33,7 @@ using ADefHelpDeskApp.Models;
 using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
+using AdefHelpDeskBase.Controllers.WebInterface;
 
 namespace ADefHelpDeskApp.Controllers.InternalApi
 {
@@ -205,7 +206,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                 objDTOStatus.StatusMessage = $"Error: A password longer than 5 characters is required.";
                 objDTOStatus.Success = false;
                 return objDTOStatus;
-            } 
+            }
             #endregion
 
             try
@@ -233,7 +234,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     newApiSecurityDTO.ContactWebsite = ApiSecurityDTO.contactWebsite;
                     newApiSecurityDTO.ContactEmail = ApiSecurityDTO.contactEmail;
                     newApiSecurityDTO.ContactPhone = ApiSecurityDTO.contactPhone;
-                    newApiSecurityDTO.IsActive = ApiSecurityDTO.isActive;                    
+                    newApiSecurityDTO.IsActive = ApiSecurityDTO.isActive;
 
                     context.AdefHelpDeskApiSecurity.Add(newApiSecurityDTO);
                     context.SaveChanges();
@@ -300,7 +301,68 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
             objDTOStatus.StatusMessage = "Deleted User";
             objDTOStatus.Success = true;
-            return objDTOStatus; 
+            return objDTOStatus;
+        }
+        #endregion
+
+        #region public ApiSecurityDTO Validate(ApiToken userCredentials)
+        public ApiSecurityDTO Validate(ApiToken userCredentials)
+        {
+            ApiSecurityDTO objApiSecurityDTO = new ApiSecurityDTO();
+
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(GetConnectionString());
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // First check the ApplicationGUID
+                if (userCredentials.ApplicationGUID == (context.AdefHelpDeskSettings.Where(x => x.SettingName == "ApplicationGUID").FirstOrDefault().SettingValue))
+                {
+                    // Check the Username and Password
+                    {
+                        objApiSecurityDTO = (from objApiSecurity in context.AdefHelpDeskApiSecurity
+                                             where objApiSecurity.Username.ToLower() == userCredentials.UserName.ToLower()
+                                             && objApiSecurity.Password == userCredentials.Password
+                                             select new ApiSecurityDTO
+                                             {
+                                                 id = objApiSecurity.Id,
+                                                 username = objApiSecurity.Username,
+                                                 contactName = objApiSecurity.ContactName,
+                                                 contactCompany = objApiSecurity.ContactCompany,
+                                                 contactWebsite = objApiSecurity.ContactWebsite,
+                                                 contactEmail = objApiSecurity.ContactEmail,
+                                                 contactPhone = objApiSecurity.ContactPhone,
+                                                 password = objApiSecurity.Password,
+                                                 isActive = objApiSecurity.IsActive,
+                                             }).FirstOrDefault();
+                    }
+                }
+            }
+
+            return objApiSecurityDTO;
+        }
+        #endregion
+
+        #region public static string GetAPIEncryptionKeyKey(string ConnectionString)
+        public static string GetAPIEncryptionKeyKey(string ConnectionString)
+        {
+            // Collection to hold ApiSecuritys
+            ApiSecurityDTO objApiSecurityDTO = new ApiSecurityDTO();
+
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(ConnectionString);
+
+            string APIEncryptionKeyKey = "";
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {                
+                var result = context.AdefHelpDeskSettings.Where(x => x.SettingName == "APIEncryptionKeyKey").FirstOrDefault();
+                if (result != null)
+                {
+                    APIEncryptionKeyKey = result.SettingValue;
+                }
+            }
+
+            return APIEncryptionKeyKey;
         }
         #endregion
 

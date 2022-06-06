@@ -47,6 +47,7 @@ using Microsoft.Extensions.Caching.Memory;
 using ADefHelpDeskApp.Models;
 using System.IO;
 using ADefHelpDeskApp.Controllers.InternalApi;
+using ADefHelpDeskApp.Jwt;
 
 namespace AdefHelpDeskBase.Controllers.WebInterface
 {
@@ -64,9 +65,10 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private string _SystemFiles;
         private IConfiguration _configuration { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly JWTAuthenticationService _authenticationService;
 
         /// <summary>
-        /// 
+        /// External Controller
         /// </summary>
         /// <param name="configuration"></param>
         /// <param name="hostEnvironment"></param>
@@ -74,13 +76,15 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="signInManager"></param>
         /// <param name="memoryCache"></param>
         /// <param name="httpContextAccessor"></param>
+        /// <param name="authenticationService"></param>
         public V1Controller(
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IMemoryCache memoryCache,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            JWTAuthenticationService authenticationService
             )
         {
             _configuration = configuration;
@@ -89,6 +93,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             _signInManager = signInManager;
             _cache = memoryCache;
             _httpContextAccessor = httpContextAccessor;
+            _authenticationService = authenticationService;
 
             // Set _SystemFiles 
             _SystemFiles =
@@ -117,14 +122,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [ProducesResponseType(typeof(string), 200)]
         public async Task<string> GetAuthToken([FromQuery] ApiToken objApiToken)
         {
-            var dict = new Dictionary<string, string>();
-            dict.Add("username", objApiToken.UserName);
-            dict.Add("password", objApiToken.Password);
-            dict.Add("applicationGUID", objApiToken.ApplicationGUID);
+            ApiToken AuthToken = new ApiToken();
+            AuthToken.UserName = objApiToken.UserName;
+            AuthToken.Password = objApiToken.Password;
+            AuthToken.ApplicationGUID = objApiToken.ApplicationGUID;
 
-            bool authorized = true;
-            string access_token = "";
+            string access_token = await _authenticationService.Authenticate(AuthToken);
 
+            bool authorized = (access_token.Length > 0);
 
             if (authorized)
             {

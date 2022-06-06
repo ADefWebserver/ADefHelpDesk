@@ -31,6 +31,7 @@ using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Security.Principal;
+using ADefHelpDeskApp.Jwt;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -52,18 +53,17 @@ namespace Microsoft.Extensions.DependencyInjection
             options.UseSqlServer(
                 Builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Auth Configuration
             Builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddEntityFrameworkStores<ApplicationDbContext>()
-               .AddDefaultTokenProviders();
-       
-            // Configure cookie (needed for JWT Auth)
+               .AddDefaultTokenProviders();       
+
+            // Auth and JWT Configuration
             Builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
-            Builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.SlidingExpiration = true;
-                    options.Cookie.Name = Builder.Configuration.GetSection("TokenAuthentication:CookieName").Value;
-                });
+            byte[] signingKey = Encoding.UTF8.GetBytes(
+                ApiSecurityController.GetAPIEncryptionKeyKey(
+                    Builder.Configuration.GetConnectionString("DefaultConnection")));
+            Builder.Services.AddAuthentication(signingKey);
 
             Builder.Services.AddRazorPages();
             Builder.Services.AddServerSideBlazor()
@@ -85,7 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 };
             });
 
-            // Swagger
+            // Swagger Configuration
             Builder.Services.AddControllers();
             Builder.Services.AddEndpointsApiExplorer();
             Builder.Services.AddSwaggerGen(options =>
@@ -134,6 +134,8 @@ namespace Microsoft.Extensions.DependencyInjection
             Builder.Services.AddScoped<GeneralSettings>();
             Builder.Services.AddScoped<InstallUpdateState>();
 
+            Builder.Services.AddScoped<JWTAuthenticationService>();
+            Builder.Services.AddScoped<TokenService>();            
             Builder.Services.AddScoped<ApplicationSettingsController>();
             Builder.Services.AddScoped<UserManagerController>();
             Builder.Services.AddScoped<RegisterController>();
