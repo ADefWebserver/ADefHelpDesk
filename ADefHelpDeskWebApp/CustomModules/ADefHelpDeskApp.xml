@@ -82,12 +82,11 @@
             <param name="objTask"></param>
             <returns></returns>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateUpdateTaskDetail(AdefHelpDeskBase.Models.DTOAPITask,Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateUpdateTaskDetail(AdefHelpDeskBase.Models.DTOTaskDetail)">
             <summary>
             Create Update Task Detail
             </summary>
-            <param name="objTask"></param>
-            <param name="objFile"></param>
+            <param name="objDTOTaskDetail"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetTask(System.Int32)">
@@ -269,33 +268,6 @@
             </summary>
             <returns>The data URI.</returns>
             <param name="attachment">The attachment.</param>
-        </member>
-        <member name="T:BlazorFileUploadSwagger.Controllers.TestController">
-            <summary>
-            An Test controller for testing <code>multipart/form-data</code> submission
-            </summary>
-        </member>
-        <member name="M:BlazorFileUploadSwagger.Controllers.TestController.TestAPI(BlazorFileUploadSwagger.Controllers.TestController.TestForm)">
-            <summary>
-            Test
-            </summary>
-            <param name="form">A form</param>
-            <returns></returns>
-        </member>
-        <member name="T:BlazorFileUploadSwagger.Controllers.TestController.TestForm">
-            <summary>
-            View the form submission result
-            </summary>
-        </member>
-        <member name="P:BlazorFileUploadSwagger.Controllers.TestController.TestForm.FormId">
-            <summary>
-            FormId
-            </summary>
-        </member>
-        <member name="P:BlazorFileUploadSwagger.Controllers.TestController.TestForm.fileattachment">
-            <summary>
-            File Attachemnt
-            </summary>
         </member>
     </members>
 </doc>

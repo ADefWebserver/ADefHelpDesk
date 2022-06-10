@@ -259,7 +259,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateTask(DTOTask objTask, IFormFile objFile)
+        #region public DTOStatus CreateTask([FromForm] DTOAPITask objTask)
         /// <summary>
         /// Create Task
         /// </summary>
@@ -304,7 +304,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateTask([FromBody] DTOTask objTask)
+        #region public DTOStatus UpdateTask([FromForm] DTOAPITask objTask)
         /// <summary>
         /// Update Task
         /// </summary>
@@ -313,7 +313,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateTask")]
-        public DTOStatus UpdateTask([FromBody] DTOAPITask objTask)
+        public DTOStatus UpdateTask([FromForm] DTOAPITask objTask)
         {
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
@@ -350,17 +350,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateUpdateTaskDetail([FromBody] DTOTask objTask, [FromForm] IFormFile objFile)
+        #region public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOTaskDetail objDTOTaskDetail)
         /// <summary>
         /// Create Update Task Detail
         /// </summary>
-        /// <param name="objTask"></param>
-        /// <param name="objFile"></param>
+        /// <param name="objDTOTaskDetail"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUpdateTaskDetail")]
-        public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOAPITask objTask, [FromForm] IFormFile objFile)
+        public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOTaskDetail objDTOTaskDetail)
         {
             DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
             objDTOStatus.isSuccess = true;

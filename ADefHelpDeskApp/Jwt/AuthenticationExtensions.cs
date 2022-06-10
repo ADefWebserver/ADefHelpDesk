@@ -21,6 +21,7 @@ namespace ADefHelpDeskApp.Jwt
             .AddJwtBearer(jwtOptions =>
             {
                 jwtOptions.SaveToken = true;
+                jwtOptions.ClaimsIssuer = "ADefHelpDesk";
                 jwtOptions.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = false,
