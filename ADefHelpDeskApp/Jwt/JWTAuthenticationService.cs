@@ -35,7 +35,7 @@ namespace ADefHelpDeskApp.Jwt
                 (objApiSecurityDTO.isActive)
                 )
             {
-                securityToken = await tokenService.GetToken();
+                securityToken = await tokenService.GetToken(objApiSecurityDTO);
             }
 
             return securityToken;
