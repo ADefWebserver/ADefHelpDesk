@@ -43,6 +43,7 @@ namespace ADefHelpDeskApp.Jwt
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[]
             {
                 new Claim("Username", paramApiSecurityDTO.username),
+                new Claim("Id", paramApiSecurityDTO.id.ToString()),
                 new Claim("ContactName",paramApiSecurityDTO.contactName),
                 new Claim("ContactCompany",paramApiSecurityDTO.contactCompany),
                 new Claim("IsActive",paramApiSecurityDTO.isActive.ToString()),

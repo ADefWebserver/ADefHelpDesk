@@ -26,8 +26,8 @@ namespace AdefHelpDeskBase.Models
 {
     public class TaskSearchResult
     {
-        public List<DTOTask> taskList;
-        public int totalRows;
-        public string errorMessage;
+        public List<DTOTask> taskList { get; set; }
+        public int totalRows { get; set; }
+        public string errorMessage { get; set; }
     }
 }

@@ -154,11 +154,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpGet("GetCurrentUser")]
         public IActionResult GetCurrentUser()
         {
-            string CurrentUser = "[Not Logged In]";
+            string CurrentUser = "[** Error **]";
 
             if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
-                CurrentUser = this.User.Claims.FirstOrDefault().Value;
+                var UserName = this.User.Claims.Where(x => x.Type == "Username").FirstOrDefault();
+                
+                if (UserName != null)
+                {
+                    CurrentUser = UserName.Value;
+                }
             }
 
             return Ok(CurrentUser);
