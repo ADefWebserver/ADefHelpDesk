@@ -67,6 +67,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JWTAuthenticationService _authenticationService;
 
+        private readonly UploadTaskController _uploadTaskController;
+
         /// <summary>
         /// External Controller
         /// </summary>
@@ -77,14 +79,17 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="memoryCache"></param>
         /// <param name="httpContextAccessor"></param>
         /// <param name="authenticationService"></param>
-        public V1Controller(
+        /// <param name="uploadTaskController"></param>
+        public V1Controller
+            (
             IConfiguration configuration,
             IWebHostEnvironment hostEnvironment,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IMemoryCache memoryCache,
             IHttpContextAccessor httpContextAccessor,
-            JWTAuthenticationService authenticationService
+            JWTAuthenticationService authenticationService,
+            UploadTaskController uploadTaskController
             )
         {
             _configuration = configuration;
@@ -94,6 +99,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             _cache = memoryCache;
             _httpContextAccessor = httpContextAccessor;
             _authenticationService = authenticationService;
+            _uploadTaskController = uploadTaskController;
 
             // Set _SystemFiles 
             _SystemFiles =
@@ -159,7 +165,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 var UserName = this.User.Claims.Where(x => x.Type == "Username").FirstOrDefault();
-                
+
                 if (UserName != null)
                 {
                     CurrentUser = UserName.Value;
@@ -235,14 +241,14 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         //Tasks
 
         #region public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
-       /// <summary>
-       /// Search Tasks
-       /// </summary>
-       /// <param name="searchData"></param>
-       /// <returns></returns>
-       // JwtBearerDefaults means this method will only work if a Jwt is being passed
-       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-       [HttpPost("SearchTasks")]
+        /// <summary>
+        /// Search Tasks
+        /// </summary>
+        /// <param name="searchData"></param>
+        /// <returns></returns>
+        // JwtBearerDefaults means this method will only work if a Jwt is being passed
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("SearchTasks")]
         public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
         {
             SearchTaskParameters objSearchTaskParameters = new SearchTaskParameters();
@@ -268,7 +274,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <summary>
         /// Create Task
         /// </summary>
-        /// <param name="objTask">A Task</param>
+        /// <param name="objTask">Task</param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -276,28 +282,34 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         public DTOStatus CreateTask([FromForm] DTOAPITask objTask)
         {
             var task = objTask;
-            
+
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            //string ContentRootPath = _hostEnvironment.ContentRootPath;
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            //string strConnectionString = GetConnectionString();
-            //int intUserId = -1;
-            //bool IsSuperUser = true;
-            //bool IsAdministrator = true;
-            //bool IsAuthenticated = true;
+            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string ContentRootPath = _hostEnvironment.ContentRootPath;
+            string strCurrentUser = this.User.Claims.Where(x => x.Type == "Username").FirstOrDefault().Value;
+            string strConnectionString = GetConnectionString();
+            int intUserId = -1;
+            bool IsSuperUser = true;
+            bool IsAdministrator = true;
+            bool IsAuthenticated = true;
 
             try
             {
-                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, new DTOAPITaskDetail());
 
-                //var result = UploadTaskController.CreateTask(
-                //    strConnectionString,
-                //    objFile);
+                // Get file data (if any)      
+                IFormFile objFile = null;
+                if (objTask.fileattachment != null)
+                {
+                    // Note: We only allow one file   
+                    objFile = objTask.fileattachment;
+                }
+
+                objDTOStatus = _uploadTaskController.CreateTaskMethod(strConnectionString, CurrentHostLocation, ContentRootPath, paramTask, objFile, strCurrentUser, intUserId, IsSuperUser, IsAdministrator, IsAuthenticated);
             }
             catch (Exception ex)
             {
@@ -325,25 +337,25 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            //string ContentRootPath = _hostEnvironment.ContentRootPath;
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            //string strConnectionString = GetConnectionString();
-            //int intUserId = -1;
-            //bool IsAuthenticated = true;
+            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string ContentRootPath = _hostEnvironment.ContentRootPath;
+            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            string strConnectionString = GetConnectionString();
+            int intUserId = -1;
+            bool IsAuthenticated = true;
 
             try
             {
-                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, null);
+                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, null);
 
-                //objDTOStatus = UploadTaskController.UpdateTaskMethod(
-                //    strConnectionString,
-                //    CurrentHostLocation,
-                //    ContentRootPath,
-                //    paramTask,
-                //    strCurrentUser,
-                //    intUserId,
-                //    IsAuthenticated);
+                objDTOStatus = _uploadTaskController.UpdateTaskMethod(
+                    strConnectionString,
+                    CurrentHostLocation,
+                    ContentRootPath,
+                    paramTask,
+                    strCurrentUser,
+                    intUserId,
+                    IsAuthenticated);
             }
             catch (Exception ex)
             {
@@ -355,16 +367,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOTaskDetail objDTOTaskDetail)
+        #region public DTOTaskDetailResponse CreateUpdateTaskDetail([FromForm] DTOAPITaskDetail objDTOAPITaskDetail)
         /// <summary>
         /// Create Update Task Detail
         /// </summary>
-        /// <param name="objDTOTaskDetail"></param>
+        /// <param name="objDTOAPITaskDetail"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUpdateTaskDetail")]
-        public DTOTaskDetailResponse CreateUpdateTaskDetail([FromBody] DTOTaskDetail objDTOTaskDetail)
+        public DTOTaskDetailResponse CreateUpdateTaskDetail([FromForm] DTOAPITaskDetail objDTOAPITaskDetail)
         {
             DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
             objDTOStatus.isSuccess = true;
@@ -372,31 +384,42 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             objDTOStatus.taskDetail = new DTOTaskDetail();
 
             // Get Settings
-            //string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            //string ContentRootPath = _hostEnvironment.ContentRootPath;
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            //string strConnectionString = GetConnectionString();
-            //int intUserId = -1;
-            //bool IsSuperUser = true;
-            //bool IsAdministrator = true;
-            //bool IsAuthenticated = true;
+            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string ContentRootPath = _hostEnvironment.ContentRootPath;
+            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
+            string strConnectionString = GetConnectionString();
+            int intUserId = -1;
+            bool IsSuperUser = true;
+            bool IsAdministrator = true;
+            bool IsAuthenticated = true;
 
             try
             {
-                //DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objTaskDetail);
+                // Set the TaskId and TicketPassword
+                DTOAPITask objTask = new DTOAPITask() { taskId = objDTOAPITaskDetail.taskId, ticketPassword = objDTOAPITaskDetail.ticketPassword };
 
-                //objDTOStatus = UploadTaskController.InsertUpdateTaskDetailMethod(
-                //    strConnectionString,
-                //    CurrentHostLocation,
-                //    ContentRootPath,
-                //    paramTask,
-                //    objFile,
-                //    strCurrentUser,
-                //    intUserId,
-                //    IsSuperUser,
-                //    IsAdministrator,
-                //    strCurrentUser,
-                //    IsAuthenticated);
+                DTOTask paramTask = ExternalAPIUtility.MapAPITaskToTask(objTask, objDTOAPITaskDetail);
+
+                // Get file data (if any)      
+                IFormFile objFile = null;
+                if (objDTOAPITaskDetail.fileattachment != null)
+                {
+                    // Note: We only allow one file   
+                    objFile = objDTOAPITaskDetail.fileattachment;
+                }
+
+                objDTOStatus = _uploadTaskController.InsertUpdateTaskDetailMethod(
+                    strConnectionString,
+                    CurrentHostLocation,
+                    ContentRootPath,
+                    paramTask,
+                    objFile,
+                    strCurrentUser,
+                    intUserId,
+                    IsSuperUser,
+                    IsAdministrator,
+                    strCurrentUser,
+                    IsAuthenticated);
             }
             catch (Exception ex)
             {
@@ -417,7 +440,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetTask")]
-
         public DTOTaskStatus GetTask([FromQuery] int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();

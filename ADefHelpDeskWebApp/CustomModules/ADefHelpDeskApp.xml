@@ -24,7 +24,27 @@
             Task Detail object
             </summary>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService)">
+        <member name="P:AdefHelpDeskBase.Models.DTOAPITaskDetail.taskId">
+            <summary>
+            Required
+            </summary>
+        </member>
+        <member name="P:AdefHelpDeskBase.Models.DTOAPITaskDetail.ticketPassword">
+            <summary>
+            Required
+            </summary>
+        </member>
+        <member name="P:AdefHelpDeskBase.Models.DTOAPITaskDetail.detailType">
+            <summary>
+            Comment - Visible / Comment / Work
+            </summary>
+        </member>
+        <member name="P:AdefHelpDeskBase.Models.DTOAPITaskDetail.contentType">
+            <summary>
+            Null / EML
+            </summary>
+        </member>
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService,ADefHelpDeskApp.Controllers.InternalApi.UploadTaskController)">
             <summary>
             External Controller
             </summary>
@@ -35,6 +55,7 @@
             <param name="memoryCache"></param>
             <param name="httpContextAccessor"></param>
             <param name="authenticationService"></param>
+            <param name="uploadTaskController"></param>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetAuthToken(AdefHelpDeskBase.Controllers.WebInterface.ApiToken)">
             <summary>
@@ -72,7 +93,7 @@
             <summary>
             Create Task
             </summary>
-            <param name="objTask">A Task</param>
+            <param name="objTask">Task</param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.UpdateTask(AdefHelpDeskBase.Models.DTOAPITask)">
@@ -82,11 +103,11 @@
             <param name="objTask"></param>
             <returns></returns>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateUpdateTaskDetail(AdefHelpDeskBase.Models.DTOTaskDetail)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateUpdateTaskDetail(AdefHelpDeskBase.Models.DTOAPITaskDetail)">
             <summary>
             Create Update Task Detail
             </summary>
-            <param name="objDTOTaskDetail"></param>
+            <param name="objDTOAPITaskDetail"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetTask(System.Int32)">

@@ -18,6 +18,7 @@
 // DEALINGS IN THE SOFTWARE.
 //
 //
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,10 +30,25 @@ namespace AdefHelpDeskBase.Models
     /// Task Detail object
     /// </summary>
     public class DTOAPITaskDetail
-    {   
+    {
+        /// <summary>
+        /// Required
+        /// </summary>
+        public int taskId { get; set; }
+        /// <summary>
+        /// Required
+        /// </summary>
+        public string ticketPassword { get; set; }
         [DefaultValue(-1)]
         public int? detailId { get; set; }
+        /// <summary>
+        /// Comment - Visible / Comment / Work
+        /// </summary>
+        [DefaultValue("Comment - Visible")]
         public string detailType { get; set; }
+        /// <summary>
+        /// Null / EML
+        /// </summary>
         public string contentType { get; set; }
         public string insertDate { get; set; }
         [DefaultValue(-1)]
@@ -44,5 +60,6 @@ namespace AdefHelpDeskBase.Models
         public string stopTime { get; set; }
         [DefaultValue(false)]
         public bool? sendTaskDetailEmails { get; set; }
+        public IFormFile fileattachment { get; set; }
     }
 }
