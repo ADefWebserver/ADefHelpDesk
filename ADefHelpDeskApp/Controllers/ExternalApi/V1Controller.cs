@@ -855,7 +855,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus DeleteUser([FromBody] int UserId)
+        #region public DTOStatus DeleteUser([FromQuery] int UserId)
         /// <summary>
         /// Delete User
         /// </summary>
@@ -864,7 +864,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteUser")]
-        public DTOStatus DeleteUser([FromBody] int UserId)
+        public DTOStatus DeleteUser([FromQuery] int UserId)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -946,7 +946,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus DeleteCategory([FromBody] int id)
+        #region public DTOStatus DeleteCategory([FromQuery] int id)
         /// <summary>
         /// Delete Category
         /// </summary>
@@ -955,7 +955,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteCategory")]
-        public DTOStatus DeleteCategory([FromBody] int id)
+        public DTOStatus DeleteCategory([FromQuery] int id)
         {
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
@@ -1133,7 +1133,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             return strConnectionString;
         }
         #endregion
-
     }
 }
 
