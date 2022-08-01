@@ -479,7 +479,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskStatus DeleteTask([FromBody] int TaskId)
+        #region public DTOTaskStatus DeleteTask([FromQuery] int TaskId)
         /// <summary>
         /// Delete Task
         /// </summary>
@@ -488,7 +488,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTask")]
-        public DTOTaskStatus DeleteTask([FromBody] int TaskId)
+        public DTOTaskStatus DeleteTask([FromQuery] int TaskId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
@@ -517,16 +517,16 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOTaskStatus DeleteTaskDetail([FromBody] int TaskId)
+        #region public DTOTaskStatus DeleteTaskDetail([FromQuery] int TaskDetailId)
         /// <summary>
         /// Delete Task Detail
         /// </summary>
-        /// <param name="TaskId"></param>
+        /// <param name="TaskDetailId"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteTaskDetail")]
-        public DTOTaskStatus DeleteTaskDetail([FromBody] int TaskId)
+        public DTOTaskStatus DeleteTaskDetail([FromQuery] int TaskDetailId)
         {
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
@@ -541,7 +541,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             try
             {
                 objDTOStatus.StatusMessage = TaskController.DeleteTaskDetail(
-                    TaskId,
+                    TaskDetailId,
                     strConnectionString,
                     strCurrentUser);
             }

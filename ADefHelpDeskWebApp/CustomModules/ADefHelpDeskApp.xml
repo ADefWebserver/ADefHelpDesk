@@ -128,7 +128,7 @@
             <summary>
             Delete Task Detail
             </summary>
-            <param name="TaskId"></param>
+            <param name="TaskDetailId"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.SearchUsers(AdefHelpDeskBase.Controllers.WebInterface.SearchUserParameters)">
