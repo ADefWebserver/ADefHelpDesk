@@ -27,8 +27,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 {
     public class SearchUserParameters
     {
-        public string searchString;
-        public int rowsPerPage;
-        public int pageNumber;
+        public string searchString { get; set; }
+        public int rowsPerPage { get; set; }
+        public int pageNumber { get; set; }
     }
 }

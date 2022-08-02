@@ -557,7 +557,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Users
 
-        #region public UserSearchResult SearchUsers([FromBody] SearchParameters searchData)
+        #region public UserSearchResult SearchUsers([FromForm] SearchParameters searchData)
         /// <summary>
         /// Search Users
         /// </summary>
@@ -566,7 +566,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SearchUsers")]
-        public UserSearchResult SearchUsers([FromBody] SearchUserParameters searchData)
+        public UserSearchResult SearchUsers([FromForm] SearchUserParameters searchData)
         {
             AdefHelpDeskBase.Models.SearchParameters objSearchParameters = new Models.SearchParameters();
             objSearchParameters.pageNumber = searchData.pageNumber;
@@ -592,7 +592,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public LoginStatus ValidateUser([FromBody] DTOAuthentication Authentication)
+        #region public LoginStatus ValidateUser([FromForm] DTOAuthentication Authentication)
         /// <summary>
         /// Validate User
         /// </summary>
@@ -601,7 +601,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("ValidateUser")]
-        public LoginStatus ValidateUser([FromBody] DTOAuthentication Authentication)
+        public LoginStatus ValidateUser([FromForm] DTOAuthentication Authentication)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -690,7 +690,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public LoginStatus MigrateUser([FromBody] DTOAuthentication Authentication)
+        #region public LoginStatus MigrateUser([FromForm] DTOAuthentication Authentication)
         /// <summary>
         /// Migrate User
         /// </summary>
@@ -699,7 +699,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("MigrateUser")]
-        public LoginStatus MigrateUser([FromBody] DTOMigration Migration)
+        public LoginStatus MigrateUser([FromForm] DTOMigration Migration)
         {
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
@@ -811,7 +811,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
+        #region public DTOStatus CreateUser([FromForm] DTOUser DTOUser)
         /// <summary>
         /// Create User
         /// </summary>
@@ -820,7 +820,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateUser")]
-        public DTOStatus CreateUser([FromBody] DTOUser DTOUser)
+        public DTOStatus CreateUser([FromForm] DTOUser DTOUser)
         {
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
@@ -834,7 +834,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateUser([FromBody] DTOUser DTOUser)
+        #region public DTOStatus UpdateUser([FromForm] DTOUser DTOUser)
         /// <summary>
         /// Update User
         /// </summary>
@@ -843,7 +843,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateUser")]
-        public DTOStatus UpdateUser([FromBody] DTOUser DTOUser)
+        public DTOStatus UpdateUser([FromForm] DTOUser DTOUser)
         {
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
@@ -910,7 +910,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public CategoryNode CreateCategory([FromBody] CategoryNode categoryNode)
+        #region public CategoryNode CreateCategory([FromForm]CategoryNode categoryNode)
         /// <summary>
         /// Create Category
         /// </summary>
@@ -919,7 +919,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateCategory")]
-        public CategoryNode CreateCategory([FromBody] CategoryNode categoryNode)
+        public CategoryNode CreateCategory([FromForm] CategoryNode categoryNode)
         {
             // Get Settings
             string strConnectionString = GetConnectionString();
@@ -928,7 +928,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateCategory([FromBody] CategoryNode categoryNode)
+        #region public DTOStatus UpdateCategory([FromForm] CategoryNode categoryNode)
         /// <summary>
         /// Update Category
         /// </summary>
@@ -937,7 +937,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateCategory")]
-        public DTOStatus UpdateCategory([FromBody] CategoryNode categoryNode)
+        public DTOStatus UpdateCategory([FromForm] CategoryNode categoryNode)
         {
             // Get Settings
             string strConnectionString = GetConnectionString();
@@ -983,7 +983,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOStatus UpdateRole([FromBody] RoleDTO RoleDTO)
+        #region public DTOStatus UpdateRole([FromForm] RoleDTO RoleDTO)
         /// <summary>
         /// Update Role
         /// </summary>
@@ -993,13 +993,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateRole")]
 
-        public DTOStatus UpdateRole([FromBody] RoleDTO RoleDTO)
+        public DTOStatus UpdateRole([FromForm] RoleDTO RoleDTO)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
         }
         #endregion
 
-        #region public RoleDTO CreateRole([FromBody] RoleDTO RoleDTO)
+        #region public RoleDTO CreateRole([FromForm] RoleDTO RoleDTO)
         /// <summary>
         /// Create Role
         /// </summary>
@@ -1009,13 +1009,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateRole")]
 
-        public RoleDTO CreateRole([FromBody] RoleDTO RoleDTO)
+        public RoleDTO CreateRole([FromForm] RoleDTO RoleDTO)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.CreateRole(RoleDTO, GetConnectionString());
         }
         #endregion
 
-        #region public DTOStatus DeleteRole([FromBody] RoleDTO RoleDTO)
+        #region public DTOStatus DeleteRole([FromForm] RoleDTO RoleDTO)
         /// <summary>
         /// Delete Role
         /// </summary>
@@ -1024,7 +1024,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("DeleteRole")]
-        public DTOStatus DeleteRole([FromBody] int Id)
+        public DTOStatus DeleteRole([FromForm] int Id)
         {
             return ADefHelpDeskApp.Controllers.InternalApi.RoleController.DeleteRole(Id, GetConnectionString());
         }
@@ -1063,7 +1063,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         }
         #endregion
 
-        #region public DTOFile GetFile([FromBody] DTOAPIFile paramDTOAPIFile)
+        #region public DTOFile GetFile([FromForm] DTOAPIFile paramDTOAPIFile)
         /// <summary>
         /// Get File
         /// </summary>
@@ -1073,7 +1073,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetFile")]
 
-        public DTOFile GetFile([FromBody] DTOAPIFile paramDTOAPIFile)
+        public DTOFile GetFile([FromForm] DTOAPIFile paramDTOAPIFile)
         {
             DTOFileParameter paramDTOFileParameter = new DTOFileParameter();
             paramDTOFileParameter.attachmentID = paramDTOAPIFile.attachmentID;
@@ -1092,7 +1092,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Logs
 
-        #region public SystemLogSearchResult SystemLogs([FromBody] SearchLogParameters objSearchLogParameters)
+        #region public SystemLogSearchResult SystemLogs([FromForm] SearchLogParameters objSearchLogParameters)
         /// <summary>
         /// Search Logs
         /// </summary>
@@ -1101,7 +1101,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("SystemLogs")]
-        public SystemLogSearchResult SystemLogs([FromBody] SearchLogParameters objSearchLogParameters)
+        public SystemLogSearchResult SystemLogs([FromForm] SearchLogParameters objSearchLogParameters)
         {
             //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             AdefHelpDeskBase.Models.SearchParameters SearchParameters = new Models.SearchParameters();

@@ -26,8 +26,8 @@ namespace AdefHelpDeskBase.Models
 {
     public class UserSearchResult
     {
-        public List<DTOUser> userList;
-        public int totalRows;
-        public string errorMessage;
+        public List<DTOUser> userList { get; set; }
+        public int totalRows { get; set; }
+        public string errorMessage { get; set; }
     }
 }
