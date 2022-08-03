@@ -66,8 +66,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private IConfiguration _configuration { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JWTAuthenticationService _authenticationService;
-
+            
         private readonly UploadTaskController _uploadTaskController;
+        private readonly CategoryTreeController _categoryTreeController;
 
         /// <summary>
         /// External Controller
@@ -80,6 +81,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// <param name="httpContextAccessor"></param>
         /// <param name="authenticationService"></param>
         /// <param name="uploadTaskController"></param>
+        /// <param name="categoryTreeController"></param>
         public V1Controller
             (
             IConfiguration configuration,
@@ -89,7 +91,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             IMemoryCache memoryCache,
             IHttpContextAccessor httpContextAccessor,
             JWTAuthenticationService authenticationService,
-            UploadTaskController uploadTaskController
+            UploadTaskController uploadTaskController,
+            CategoryTreeController categoryTreeController
             )
         {
             _configuration = configuration;
@@ -100,7 +103,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             _httpContextAccessor = httpContextAccessor;
             _authenticationService = authenticationService;
             _uploadTaskController = uploadTaskController;
-
+            _categoryTreeController = categoryTreeController;
+            
             // Set _SystemFiles 
             _SystemFiles =
                 System.IO.Path.Combine(
@@ -899,20 +903,21 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         // Categories
 
-        #region public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, [FromQuery] bool UseCache)
+        #region public List<CategoryDTO> GetCategoryNodes([FromQuery] bool RequestorVisibleOnly)
         /// <summary>
         /// Get Category Nodes
         /// </summary>
         /// <param name="RequestorVisibleOnly"></param>
-        /// <param name="UseCache"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetCategoryNodes")]
-        public List<CategoryDTO> GetCategoryNodes([FromBody] bool RequestorVisibleOnly, [FromQuery] bool UseCache)
+        public List<CategoryDTO> GetCategoryNodes([FromQuery] bool RequestorVisibleOnly)
         {
-            return new List<CategoryDTO>();
-            //return ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController.GetNodesMethod(RequestorVisibleOnly, UseCache, _cache, GetConnectionString());
+            // Get Settings
+            string strConnectionString = GetConnectionString();
+            
+            return _categoryTreeController.GetNodesMethod(RequestorVisibleOnly, false, _cache, new List<int>(), strConnectionString);
         }
         #endregion
 

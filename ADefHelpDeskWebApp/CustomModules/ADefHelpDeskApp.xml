@@ -49,7 +49,7 @@
             Null / EML
             </summary>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService,ADefHelpDeskApp.Controllers.InternalApi.UploadTaskController)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService,ADefHelpDeskApp.Controllers.InternalApi.UploadTaskController,ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController)">
             <summary>
             External Controller
             </summary>
@@ -61,6 +61,7 @@
             <param name="httpContextAccessor"></param>
             <param name="authenticationService"></param>
             <param name="uploadTaskController"></param>
+            <param name="categoryTreeController"></param>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetAuthToken(AdefHelpDeskBase.Controllers.WebInterface.ApiToken)">
             <summary>
@@ -185,12 +186,11 @@
             <param name="UserId"></param>
             <returns></returns>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetCategoryNodes(System.Boolean,System.Boolean)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetCategoryNodes(System.Boolean)">
             <summary>
             Get Category Nodes
             </summary>
             <param name="RequestorVisibleOnly"></param>
-            <param name="UseCache"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.CreateCategory(ADefHelpDeskApp.Models.CategoryNode)">
