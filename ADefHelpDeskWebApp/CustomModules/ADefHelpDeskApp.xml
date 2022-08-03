@@ -4,6 +4,11 @@
         <name>ADefHelpDeskApp</name>
     </assembly>
     <members>
+        <member name="P:ADefHelpDeskApp.Classes.DTOUser.isSuperUser">
+            <summary>
+            You cannot create SuperUser from API
+            </summary>
+        </member>
         <member name="T:AdefHelpDeskBase.Models.DTOAPITask">
             <summary>
             Task object
@@ -171,7 +176,7 @@
             Update User
             </summary>
             <param name="DTOUser"></param>
-            <returns></returns>
+            <returns>DTOStatus</returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.DeleteUser(System.Int32)">
             <summary>

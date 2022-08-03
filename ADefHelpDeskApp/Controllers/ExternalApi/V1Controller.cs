@@ -830,6 +830,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
             UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager);
 
+            // Cannot Create a SuperUser
+            DTOUser.isSuperUser = false;
+
             return objUserManagerController.CreateUserMethod(DTOUser, _hostEnvironment, _userManager, _signInManager, strConnectionString, CurrentHostLocation).Result;
         }
         #endregion
@@ -839,7 +842,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         /// Update User
         /// </summary>
         /// <param name="DTOUser"></param>
-        /// <returns></returns>
+        /// <returns>DTOStatus</returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateUser")]
@@ -850,6 +853,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
+
+            // Cannot Create a SuperUser
+            DTOUser.isSuperUser = false;
 
             return UserManagerController.UpdateUser(DTOUser.userId, DTOUser, _userManager, strConnectionString, strCurrentUser);
         }

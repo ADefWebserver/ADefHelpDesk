@@ -19,6 +19,7 @@
 //
 //
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace ADefHelpDeskApp.Classes
@@ -30,6 +31,10 @@ namespace ADefHelpDeskApp.Classes
         public string userName { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
+        /// <summary>
+        /// You cannot create SuperUser from API
+        /// </summary>
+        [DefaultValue("false")]
         public bool isSuperUser { get; set; }
         public string email { get; set; }
         public string password { get; set; }
