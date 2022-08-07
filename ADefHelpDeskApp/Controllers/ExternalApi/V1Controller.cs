@@ -1053,24 +1053,25 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpGet("SystemFiles")]
         public DTONode SystemFiles()
         {
-            //return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
-            return new DTONode();
+            return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
         }
         #endregion
 
-        #region public DTOResponse GetSystemFile([FromQuery] DTONode paramDTONode)
+        #region public DTOResponse GetSystemFile([FromQuery] string SystemFileName)
         /// <summary>
         /// Get System File
         /// </summary>
-        /// <param name="paramDTONode"></param>
+        /// <param name="SystemFileName"></param>
         /// <returns></returns>
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("GetSystemFile")]
-        public DTOResponse GetSystemFile([FromQuery] DTONode paramDTONode)
+        public DTOResponse GetSystemFile([FromQuery] string SystemFileName)
         {
-            // return FilesController.GetFileContentMethod(paramDTONode, _SystemFiles);
-            return new DTOResponse();
+            DTONode objDTONode = new DTONode();
+            objDTONode.data = SystemFileName;
+            
+            return FilesController.GetFileContentMethod(objDTONode, _SystemFiles);
         }
         #endregion
 
@@ -1094,10 +1095,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             paramDTOFileParameter.taskId = paramDTOAPIFile.taskId;
             paramDTOFileParameter.ticketPassword = paramDTOAPIFile.ticketPassword;
 
-            //var fileResult = FilesController.ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
-            //return fileResult;
-
-            return new DTOFile();
+            var fileResult = FilesController.ReturnFileMethod(paramDTOFileParameter, _SystemFiles, GetConnectionString());
+            return fileResult;
         }
         #endregion
 

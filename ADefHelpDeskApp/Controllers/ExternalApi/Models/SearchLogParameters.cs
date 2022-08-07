@@ -27,6 +27,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 {
     public class SearchLogParameters
     {
+        /// <summary>
+        /// Example: (LogMessage == null ? "" : LogMessage).ToLower().Contains("Test".ToLower())
+        /// </summary>
         public string searchString { get; set; }
         public int rowsPerPage { get; set; }
         public int pageNumber { get; set; }

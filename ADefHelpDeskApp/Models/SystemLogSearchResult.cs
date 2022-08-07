@@ -25,8 +25,8 @@ namespace AdefHelpDeskBase.Models
 {
     public class SystemLogSearchResult
     {
-        public List<DTOSystemLog> SystemLogList;
-        public int totalRows;
-        public string errorMessage;
+        public List<DTOSystemLog> SystemLogList { get; set; }
+        public int totalRows { get; set; }
+        public string errorMessage { get; set; }
     }
 }

@@ -49,6 +49,11 @@
             Null / EML
             </summary>
         </member>
+        <member name="P:AdefHelpDeskBase.Controllers.WebInterface.SearchLogParameters.searchString">
+            <summary>
+            Example: (LogMessage == null ? "" : LogMessage).ToLower().Contains("Test".ToLower())
+            </summary>
+        </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{AdefHelpDeskBase.Models.ApplicationUser},Microsoft.Extensions.Caching.Memory.IMemoryCache,Microsoft.AspNetCore.Http.IHttpContextAccessor,ADefHelpDeskApp.Jwt.JWTAuthenticationService,ADefHelpDeskApp.Controllers.InternalApi.UploadTaskController,ADefHelpDeskApp.Controllers.InternalApi.CategoryTreeController)">
             <summary>
             External Controller
@@ -247,11 +252,11 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetSystemFile(AdefHelpDeskBase.Models.DTONode)">
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetSystemFile(System.String)">
             <summary>
             Get System File
             </summary>
-            <param name="paramDTONode"></param>
+            <param name="SystemFileName"></param>
             <returns></returns>
         </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetFile(AdefHelpDeskBase.Models.DTOAPIFile)">
