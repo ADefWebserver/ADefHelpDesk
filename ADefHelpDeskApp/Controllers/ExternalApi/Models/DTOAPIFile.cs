@@ -30,6 +30,6 @@ namespace AdefHelpDeskBase.Models
         public string ticketPassword { get; set; }
         public int detailId { get; set; }
         public int attachmentID { get; set; }
-        public string emailFileName { get; set; }
+        public string fileName { get; set; }
     }
 }

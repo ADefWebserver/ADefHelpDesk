@@ -1112,7 +1112,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             DTOFileParameter paramDTOFileParameter = new DTOFileParameter();
             paramDTOFileParameter.attachmentID = paramDTOAPIFile.attachmentID;
             paramDTOFileParameter.detailId = paramDTOAPIFile.detailId;
-            paramDTOFileParameter.emailFileName = paramDTOAPIFile.emailFileName;
+            paramDTOFileParameter.emailFileName = paramDTOAPIFile.fileName;
             paramDTOFileParameter.portalId = paramDTOAPIFile.portalId;
             paramDTOFileParameter.taskId = paramDTOAPIFile.taskId;
             paramDTOFileParameter.ticketPassword = paramDTOAPIFile.ticketPassword;
