@@ -130,7 +130,7 @@ namespace AdefHelpDeskBase.Controllers
         }
         #endregion
 
-        // Private Methods
+        // Methods
 
         #region public static TaskSearchResult SearchTasks(SearchTaskParameters searchData, int intUserId, int iSAdministrator, string DefaultConnection)
         public static TaskSearchResult SearchTasks(SearchTaskParameters searchData, int intUserId, int iSAdministrator, string DefaultConnection)
@@ -390,6 +390,73 @@ namespace AdefHelpDeskBase.Controllers
             #endregion
 
             return objTask;
+        }
+        #endregion
+
+        #region public static DTOTaskDetail GetTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        public static DTOTaskDetail GetTaskDetail(DTOTaskDetail paramDTOTaskDetail, string DefaultConnection)
+        {
+            DTOTaskDetail objDTOTaskDetail = new DTOTaskDetail();
+            objDTOTaskDetail.detailId = -1; // TaskDetail Not found
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                AdefHelpDeskTaskDetails IQueryTaskDetail;
+
+                // Using TaskId
+                IQueryTaskDetail = (from TaskDetail in context.AdefHelpDeskTaskDetails
+                                    where TaskDetail.DetailId == paramDTOTaskDetail.detailId
+                                    select TaskDetail).FirstOrDefault();
+
+                if (IQueryTaskDetail == null)
+                {
+                    return objDTOTaskDetail;
+                }
+
+                objDTOTaskDetail.contentType = (IQueryTaskDetail.ContentType != null) ? IQueryTaskDetail.ContentType : Constants.TXT;
+                objDTOTaskDetail.description = IQueryTaskDetail.Description;
+                objDTOTaskDetail.detailId = IQueryTaskDetail.DetailId;
+                objDTOTaskDetail.detailType = IQueryTaskDetail.DetailType;
+                objDTOTaskDetail.insertDate = IQueryTaskDetail.InsertDate.ToLongDateString() + " " + IQueryTaskDetail.InsertDate.ToLongTimeString();
+                objDTOTaskDetail.startTime = (IQueryTaskDetail.StartTime != null) ? IQueryTaskDetail.StartTime.Value.ToShortDateString() + " " + IQueryTaskDetail.StartTime.Value.ToShortTimeString() : "";
+                objDTOTaskDetail.stopTime = (IQueryTaskDetail.StopTime != null) ? IQueryTaskDetail.StopTime.Value.ToShortDateString() + " " + IQueryTaskDetail.StopTime.Value.ToShortTimeString() : "";
+                objDTOTaskDetail.userId = IQueryTaskDetail.UserId;
+                objDTOTaskDetail.userName = UtilitySecurity.UserFromUserId(IQueryTaskDetail.UserId, DefaultConnection).userName;
+
+                // Add Attachments
+                objDTOTaskDetail.colDTOAttachment = new List<DTOAttachment>();
+
+                var AttachmentResults = (from attachment in context.AdefHelpDeskAttachments
+                                         where attachment.DetailId == objDTOTaskDetail.detailId
+                                         select attachment);
+
+                foreach (var itemAttachmement in AttachmentResults)
+                {
+                    DTOAttachment objDTOAttachment = new DTOAttachment();
+
+                    objDTOAttachment.attachmentID = itemAttachmement.AttachmentId;
+                    //objDTOAttachment.attachmentPath = itemAttachmement.AttachmentPath; -- Do not send for security reasons
+                    objDTOAttachment.fileName = itemAttachmement.FileName; 
+                    objDTOAttachment.originalFileName = itemAttachmement.OriginalFileName;
+                    objDTOAttachment.userId = itemAttachmement.UserId.ToString();
+
+                    objDTOTaskDetail.colDTOAttachment.Add(objDTOAttachment);
+
+                    // If file type is .EML it is a Email 
+                    if (Path.GetExtension(itemAttachmement.OriginalFileName).ToUpper() == Constants.EML)
+                    {
+                        // Construct path
+                        string FullFilePath = Path.Combine(itemAttachmement.AttachmentPath, itemAttachmement.FileName);
+                        // Set Email Description and ContentType
+                        SetEmailContents(itemAttachmement.FileName, itemAttachmement.AttachmentId, FullFilePath, DefaultConnection, ref objDTOTaskDetail);
+                        objDTOTaskDetail.contentType = Constants.EML.Replace(".", "");
+                    }
+                }
+            }
+
+            return objDTOTaskDetail;
         }
         #endregion
 

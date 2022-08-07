@@ -128,6 +128,13 @@
             <param name="TaskId"></param>
             <returns></returns>
         </member>
+        <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.GetTaskDetail(System.Int32)">
+            <summary>
+            Get Task
+            </summary>
+            <param name="TaskDetailId"></param>
+            <returns></returns>
+        </member>
         <member name="M:AdefHelpDeskBase.Controllers.WebInterface.V1Controller.DeleteTask(System.Int32)">
             <summary>
             Delete Task

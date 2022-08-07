@@ -66,7 +66,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         private IConfiguration _configuration { get; set; }
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JWTAuthenticationService _authenticationService;
-            
+
         private readonly UploadTaskController _uploadTaskController;
         private readonly CategoryTreeController _categoryTreeController;
 
@@ -104,7 +104,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             _authenticationService = authenticationService;
             _uploadTaskController = uploadTaskController;
             _categoryTreeController = categoryTreeController;
-            
+
             // Set _SystemFiles 
             _SystemFiles =
                 System.IO.Path.Combine(
@@ -480,6 +480,28 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
             }
 
             return objDTOStatus;
+        }
+        #endregion
+
+        #region public DTOTaskDetail GetTaskDetail([FromQuery] int TaskDetailId)
+        /// <summary>
+        /// Get Task
+        /// </summary>
+        /// <param name="TaskDetailId"></param>
+        /// <returns></returns>
+        // JwtBearerDefaults means this method will only work if a Jwt is being passed
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("GetTaskDetail")]
+        public DTOTaskDetail GetTaskDetail([FromQuery] int TaskDetailId)
+        {
+            string strConnectionString = GetConnectionString();
+
+            DTOTaskDetail obJDTOTaskDetail = new DTOTaskDetail();
+            obJDTOTaskDetail.detailId = TaskDetailId;
+
+            return TaskController.GetTaskDetail(
+                obJDTOTaskDetail,
+                strConnectionString);
         }
         #endregion
 
@@ -916,7 +938,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         {
             // Get Settings
             string strConnectionString = GetConnectionString();
-            
+
             return _categoryTreeController.GetNodesMethod(RequestorVisibleOnly, false, _cache, new List<int>(), strConnectionString);
         }
         #endregion
@@ -1053,7 +1075,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpGet("SystemFiles")]
         public DTONode SystemFiles()
         {
-            return FilesController.SystemFilesMethod(_hostEnvironment,_SystemFiles);
+            return FilesController.SystemFilesMethod(_hostEnvironment, _SystemFiles);
         }
         #endregion
 
@@ -1070,7 +1092,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         {
             DTONode objDTONode = new DTONode();
             objDTONode.data = SystemFileName;
-            
+
             return FilesController.GetFileContentMethod(objDTONode, _SystemFiles);
         }
         #endregion
