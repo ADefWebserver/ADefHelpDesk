@@ -1,0 +1,131 @@
+﻿{
+   "CodeGenerationMode": 2,
+   "ContextClassName": "ADefHelpDeskContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Models\\DataContext",
+   "ProjectRootNamespace": "AdefHelpDeskBase",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "Name": "[dbo].[ADefHelpDesk_ApiSecurity]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_ApiSecurityPermission]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Attachments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Categories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_LastSearch]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Log]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_RIAUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Roles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Settings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_SystemLog]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_TaskAssociations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_TaskCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_TaskDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Tasks]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_UserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Users]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ADefHelpDesk_Version]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoleClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserLogins]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserTokens]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "MICHAEL-HOME.ADefHelpdeskBlazor",
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoConstructor": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSpatial": false
+}
