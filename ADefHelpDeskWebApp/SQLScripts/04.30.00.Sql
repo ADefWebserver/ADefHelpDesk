@@ -31,6 +31,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_ADefHelpDesk_ApiSecurity_Username] ON [dbo]
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_ADefHelpDesk_ApiSecurityPermission_ADefHelpDesk_ApiSecurity]') AND parent_object_id = OBJECT_ID(N'[dbo].[ADefHelpDesk_ApiSecurityPermission]'))
 ALTER TABLE [dbo].[ADefHelpDesk_ApiSecurityPermission]  WITH CHECK ADD  CONSTRAINT [FK_ADefHelpDesk_ApiSecurityPermission_ADefHelpDesk_ApiSecurity] FOREIGN KEY([ApiSecurityUser])
 REFERENCES [dbo].[ADefHelpDesk_ApiSecurity] ([Id])
+ON DELETE CASCADE
 
 IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_ADefHelpDesk_ApiSecurityPermission_ADefHelpDesk_ApiSecurity]') AND parent_object_id = OBJECT_ID(N'[dbo].[ADefHelpDesk_ApiSecurityPermission]'))
 ALTER TABLE [dbo].[ADefHelpDesk_ApiSecurityPermission] CHECK CONSTRAINT [FK_ADefHelpDesk_ApiSecurityPermission_ADefHelpDesk_ApiSecurity]

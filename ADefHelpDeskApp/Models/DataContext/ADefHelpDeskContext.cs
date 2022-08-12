@@ -83,7 +83,6 @@ namespace AdefHelpDeskBase.Models.DataContext
                 entity.HasOne(d => d.ApiSecurityUserNavigation)
                     .WithMany(p => p.AdefHelpDeskApiSecurityPermission)
                     .HasForeignKey(d => d.ApiSecurityUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ADefHelpDesk_ApiSecurityPermission_ADefHelpDesk_ApiSecurity");
             });
 
