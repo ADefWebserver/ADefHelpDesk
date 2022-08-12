@@ -83,7 +83,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                               permissionLabel = x.PermissionName,
                                               isEnabled = x.IsEnabled
                                           }).ToList() ?? new List<Permission>()
-                                      }).OrderBy(x => x.username).ToList();                
+                                      }).OrderBy(x => x.username).ToList();
 
             }
 
@@ -95,7 +95,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         public List<Permission> DefaultPermissions()
         {
             List<Permission> colPermissions = new List<Permission>();
-            
+
             colPermissions.Add(new Permission { permissionLabel = "CurrentUser", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "GetCurrentVersion", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "ShowDashboard", isEnabled = false });
@@ -128,7 +128,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             colPermissions.Add(new Permission { permissionLabel = "SystemLogs", isEnabled = false });
 
             return colPermissions;
-        } 
+        }
         #endregion
 
         #region public DTOStatus Put(int id, ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
@@ -215,6 +215,28 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     Constants.WebAPIAccountUpdated,
                     CurrentUserName,
                     $"({CurrentUserName}) Updated Username: {ApiSecurityDTO.username}");
+
+                // Update Permissions
+                // Clear existing Permissions
+                var PermissionsToDelete = context.AdefHelpDeskApiSecurityPermission
+                    .Where(x => x.ApiSecurityUser == id).ToList();
+
+                foreach (var permission in PermissionsToDelete)
+                {
+                    context.AdefHelpDeskApiSecurityPermission.DeleteByKey(permission);
+                }
+                context.SaveChanges();
+
+                // Add new Permissions
+                foreach (var permission in ApiSecurityDTO.permissions.OrderBy(p => p.permissionLabel).ToList())
+                {
+                    var newApiSecurityPermission = new AdefHelpDeskApiSecurityPermission();
+                    newApiSecurityPermission.ApiSecurityUser = id;
+                    newApiSecurityPermission.PermissionName = permission.permissionLabel;
+                    newApiSecurityPermission.IsEnabled = permission.isEnabled;
+                    context.AdefHelpDeskApiSecurityPermission.Add(newApiSecurityPermission);
+                }
+                context.SaveChanges();
             }
 
             objDTOStatus.StatusMessage = "";
@@ -295,6 +317,29 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                         Constants.WebAPIAccountCreated,
                         CurrentUserName,
                         $"({CurrentUserName}) Created Username: {newApiSecurityDTO.Username}");
+
+                    // Update Permissions
+
+                    // Clear existing Permissions
+                    var PermissionsToDelete = context.AdefHelpDeskApiSecurityPermission
+                        .Where(x => x.ApiSecurityUser == ApiSecurityDTO.id).ToList();
+
+                    foreach (var permission in PermissionsToDelete)
+                    {
+                        context.AdefHelpDeskApiSecurityPermission.Remove(permission);
+                    }
+                    context.SaveChanges();
+
+                    // Add new Permissions
+                    foreach (var permission in ApiSecurityDTO.permissions.OrderBy(p => p.permissionLabel).ToList())
+                    {
+                        var newApiSecurityPermission = new AdefHelpDeskApiSecurityPermission();
+                        newApiSecurityPermission.ApiSecurityUser = newApiSecurityDTO.Id;
+                        newApiSecurityPermission.PermissionName = permission.permissionLabel;
+                        newApiSecurityPermission.IsEnabled = permission.isEnabled;
+                        context.AdefHelpDeskApiSecurityPermission.Add(newApiSecurityPermission);
+                    }
+                    context.SaveChanges();
                 }
 
                 objDTOStatus.StatusMessage = "";
@@ -402,7 +447,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
 
             string APIEncryptionKeyKey = "";
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-            {                
+            {
                 var result = context.AdefHelpDeskSettings.Where(x => x.SettingName == "APIEncryptionKeyKey").FirstOrDefault();
                 if (result != null)
                 {

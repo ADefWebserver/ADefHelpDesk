@@ -105,7 +105,7 @@
 
 		if(ApiSecurity.permissions.Count == 0)
 		{
-			ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions();
+            ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
 		}
 
 		ApiSecurityDTO result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",

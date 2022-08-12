@@ -22,164 +22,164 @@
 
 @if (@strError != "")
 {
-	<h4 style="color:red">@strError</h4>
+    <h4 style="color:red">@strError</h4>
 }
 <div class="row">
-	<div class="col-md-12">
-		<RadzenTabs RenderMode="TabRenderMode.Server">
-			<Tabs>
-				<RadzenTabsItem Text="Details">
-					<table class="form-group" cellpadding="4" cellspacing="4">
-						<tbody>
-							<tr>
-								<td>
-									<label for="User Name" class="control-label" style="font-weight: bold">User Name: </label>
-								</td>
-								<td>
-									@if (@SelectedApiSecurity.id == -1)
-									{
-										<RadzenTextBox @bind-Value="SelectedApiSecurity.username" style="width: 100%;" />
-									}
-									else
-									{
-										<b>@SelectedApiSecurity.username</b>
-									}
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Password" class="control-label" style="font-weight: bold">Password: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.password" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Name" class="control-label" style="font-weight: bold">Name: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactName" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Company" class="control-label" style="font-weight: bold">Company: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactCompany" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Website" class="control-label" style="font-weight: bold">Website: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactWebsite" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Email" class="control-label" style="font-weight: bold">Email: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactEmail" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Phone" class="control-label" style="font-weight: bold">Phone: </label>
-								</td>
-								<td>
-									<RadzenTextBox @bind-Value="SelectedApiSecurity.contactPhone" style="width: 100%;" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="ApiPermissions" class="control-label" style="font-weight: bold">API Permissions: </label>
-								</td>
-								<td>
-								 <RadzenButton Click="OpenPopup"
-                                  Text="Open"
-                                  Size="Radzen.ButtonSize.Small"
-                                  ButtonStyle="ButtonStyle.Primary" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="Active" class="control-label" style="font-weight: bold">Active: </label>
-								</td>
-								<td>
-									<RadzenCheckBox TValue="bool" @bind-Value=@SelectedApiSecurity.isActive />
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</RadzenTabsItem>
-				<RadzenTabsItem Text="Connection Information">
-					@if (SelectedApiSecurity.id > -1)
-					{
-						<table class="form-group" cellpadding="4" cellspacing="4">
-							<tbody>
-								<tr>
-									<td>
-										<label for="API Web Address" class="control-label">API Web Address:</label>
-									</td>
-									<td>
-										<b>@AppicationURL</b>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<label for="Application GUID" class="control-label">Application GUID:</label>
-									</td>
-									<td>
-										<b>@AppicationGUID</b>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<label for="User Name" class="control-label">User Name:</label>
-									</td>
-									<td>
-										<b>@SelectedApiSecurity.username</b>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<label for="Password" class="control-label">Password: </label>
-									</td>
-									<td>
-										<b>@SelectedApiSecurity.password</b>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					}
-					else
-					{
-						<p>Must save record first</p>
-					}
-				</RadzenTabsItem>
-			</Tabs>
-		</RadzenTabs>
-	</div>
+    <div class="col-md-12">
+        <RadzenTabs RenderMode="TabRenderMode.Server">
+            <Tabs>
+                <RadzenTabsItem Text="Details">
+                    <table class="form-group" cellpadding="4" cellspacing="4">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="User Name" class="control-label" style="font-weight: bold">User Name: </label>
+                                </td>
+                                <td>
+                                    @if (@SelectedApiSecurity.id == -1)
+                                    {
+                                        <RadzenTextBox @bind-Value="SelectedApiSecurity.username" style="width: 100%;" />
+                                    }
+                                    else
+                                    {
+                                        <b>@SelectedApiSecurity.username</b>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Password" class="control-label" style="font-weight: bold">Password: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.password" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Name" class="control-label" style="font-weight: bold">Name: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.contactName" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Company" class="control-label" style="font-weight: bold">Company: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.contactCompany" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Website" class="control-label" style="font-weight: bold">Website: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.contactWebsite" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Email" class="control-label" style="font-weight: bold">Email: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.contactEmail" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Phone" class="control-label" style="font-weight: bold">Phone: </label>
+                                </td>
+                                <td>
+                                    <RadzenTextBox @bind-Value="SelectedApiSecurity.contactPhone" style="width: 100%;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="ApiPermissions" class="control-label" style="font-weight: bold">API Permissions: </label>
+                                </td>
+                                <td>
+                                    <RadzenButton Click="OpenPopup"
+                                                  Text="Open"
+                                                  Size="Radzen.ButtonSize.Small"
+                                                  ButtonStyle="ButtonStyle.Primary" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="Active" class="control-label" style="font-weight: bold">Active: </label>
+                                </td>
+                                <td>
+                                    <RadzenCheckBox TValue="bool" @bind-Value=@SelectedApiSecurity.isActive />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Connection Information">
+                    @if (SelectedApiSecurity.id > -1)
+                    {
+                        <table class="form-group" cellpadding="4" cellspacing="4">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="API Web Address" class="control-label">API Web Address:</label>
+                                    </td>
+                                    <td>
+                                        <b>@AppicationURL</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="Application GUID" class="control-label">Application GUID:</label>
+                                    </td>
+                                    <td>
+                                        <b>@AppicationGUID</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="User Name" class="control-label">User Name:</label>
+                                    </td>
+                                    <td>
+                                        <b>@SelectedApiSecurity.username</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="Password" class="control-label">Password: </label>
+                                    </td>
+                                    <td>
+                                        <b>@SelectedApiSecurity.password</b>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>Must save record first</p>
+                    }
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </div>
 </div>
 <br />
 <div class="row">
-	<div class="col-md-12">
-		<RadzenButton Click="UpdateApiSecurity"
-					  Text="Save" ButtonStyle="ButtonStyle.Success"
-					  Style="margin-bottom: 10px; width: 150px" />
-		&nbsp;
-		@if (SelectedApiSecurity.id > 0)
-		{
-			<RadzenButton Click="DeleteApiSecurityDialog"
-					  ButtonStyle="ButtonStyle.Danger"
-					  Text="Delete"
-					  Style="margin-bottom: 10px; width: 150px" />
-		}
-	</div>
+    <div class="col-md-12">
+        <RadzenButton Click="UpdateApiSecurity"
+                      Text="Save" ButtonStyle="ButtonStyle.Success"
+                      Style="margin-bottom: 10px; width: 150px" />
+        &nbsp;
+        @if (SelectedApiSecurity.id > 0)
+        {
+            <RadzenButton Click="DeleteApiSecurityDialog"
+                      ButtonStyle="ButtonStyle.Danger"
+                      Text="Delete"
+                      Style="margin-bottom: 10px; width: 150px" />
+        }
+    </div>
 </div>
 @if (ShowPopup)
 {
@@ -190,133 +190,149 @@
                     <h3 class="modal-title">Edit Permissions</h3>
                 </div>
                 <div class="modal-body">
-					<div class="overflow-auto">
-					<RadzenCheckBoxList TValue="string"
-									@bind-Value="values"
-									Orientation="Orientation.Vertical"
-									Data="SelectedApiSecurity.permissions" 
-									TextProperty="permissionLabel" 
-									ValueProperty="permissionLabel" 
-									Style="width: 100%;height: 400px" />									
-					</div>
+                    <div class="overflow-auto">
+                        <RadzenCheckBoxList TValue="string"
+                                        @bind-Value="PermissionValues"
+                                        Orientation="Orientation.Vertical"
+                                        Data="SelectedApiSecurity.permissions"
+                                        TextProperty="permissionLabel"
+                                        ValueProperty="permissionLabel"
+                                        Style="width: 100%;height: 400px" />
+                    </div>
                     <br /><br />
                     <RadzenButton Click="ClosePopup"
-                                  Text="Close"
-                                  Size="Radzen.ButtonSize.Small"
-                                  ButtonStyle="ButtonStyle.Secondary" />
+                              Text="Close"
+                              Size="Radzen.ButtonSize.Small"
+                              ButtonStyle="ButtonStyle.Secondary" />
                 </div>
             </div>
         </div>
     </div>
 }
 @code {
-	[CascadingParameter]
-	private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-	[Parameter] public ApiSecurityDTO SelectedApiSecurity { get; set; }
+    [Parameter] public ApiSecurityDTO SelectedApiSecurity { get; set; }
 
-	System.Security.Claims.ClaimsPrincipal CurrentUser;
-	string strError = "";
-	string AppicationGUID = "";
-	string AppicationURL = "";
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    string strError = "";
+    string AppicationGUID = "";
+    string AppicationURL = "";
     bool ShowPopup = false;
-	IEnumerable<string> values = new List<string>();
-    
-	protected override async Task OnInitializedAsync()
-	{
-		// Get the current user
-		CurrentUser = (await authenticationStateTask).User;
+    IEnumerable<string> PermissionValues = new List<string>();
 
-		_ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
-		var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
-		AppicationGUID = DTOSettings.applicationGUID;
-		AppicationURL = $"{NavigationManager.BaseUri}swagger";
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
 
-		_ApiSecurityController = (ApiSecurityController)ScopedServices.GetService(typeof(ApiSecurityController));
-	}
+        _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
+        var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
+        AppicationGUID = DTOSettings.applicationGUID;
+        AppicationURL = $"{NavigationManager.BaseUri}swagger";
 
-	private void UpdateApiSecurity()
-	{
-		try
-		{
-			strError = "";
-			DTOStatus Result;
+        _ApiSecurityController = (ApiSecurityController)ScopedServices.GetService(typeof(ApiSecurityController));
 
-			if (SelectedApiSecurity.id == -1)
-			{
-				Result = _ApiSecurityController.Post(SelectedApiSecurity, CurrentUser.Identity.Name);
-			}
-			else
-			{
-				Result = _ApiSecurityController.Put(SelectedApiSecurity.id, SelectedApiSecurity, CurrentUser.Identity.Name);
-			}
+        // Set the permissions
+        PermissionValues = SelectedApiSecurity.permissions.Where(x => x.isEnabled).Select(x => x.permissionLabel);
+    }
 
-			if (Result.Success)
-			{
-				dialogService.Close(SelectedApiSecurity);
-			}
-			else
-			{
-				strError = Result.StatusMessage;
-			}
-		}
-		catch (Exception ex)
-		{
-			strError = ex.GetBaseException().Message;
-		}
-	}
+    private void UpdateApiSecurity()
+    {
+        try
+        {
+            strError = "";
+            DTOStatus Result;
 
-	async Task DeleteApiSecurityDialog() => await dialogService
-		.OpenAsync("Delete ApiSecurity", ds =>
-	@<RadzenCard Style="padding: 20px;">
-		<p Style="margin-bottom: 10px;">Confirm?</p>
-		<div class="row">
-			<div class="col-md-12">
-				<RadzenButton Text="Yes" Click="DeleteApiSecurity"
-						  Style="margin-bottom: 10px; width: 150px" />
-				<RadzenButton Text="No" Click="()=> ds.Close(false)"
-						  ButtonStyle="ButtonStyle.Secondary"
-						  Style="margin-bottom: 10px; width: 150px" />
-			</div>
-		</div>
-	</RadzenCard>
-	);
+            // Update the permissions
+            SelectedApiSecurity.permissions = 
+            _ApiSecurityController.DefaultPermissions()
+            .Where(x => !PermissionValues.Contains(x.permissionLabel)).ToList();
 
-	private void DeleteApiSecurity()
-	{
-		try
-		{
-			strError = "";
-			DTOStatus Result;
+            foreach (var PermissionValue in PermissionValues)
+            {
+                Permission objPermission = new Permission();
+                objPermission.permissionLabel = PermissionValue;
+                objPermission.isEnabled = true;
+                SelectedApiSecurity.permissions.Add(objPermission);
+            }
 
-			Result = _ApiSecurityController.Delete(SelectedApiSecurity.id, CurrentUser.Identity.Name);
+            if (SelectedApiSecurity.id == -1)
+            {
+                Result = _ApiSecurityController.Post(SelectedApiSecurity, CurrentUser.Identity.Name);
+            }
+            else
+            {
+                Result = _ApiSecurityController.Put(SelectedApiSecurity.id, SelectedApiSecurity, CurrentUser.Identity.Name);
+            }
 
-			if (Result.Success)
-			{
-				SelectedApiSecurity.id = -1;
-				dialogService.Close(false);
-				dialogService.Close(SelectedApiSecurity);
-			}
-			else
-			{
-				strError = Result.StatusMessage;
-			}
-		}
-		catch (Exception ex)
-		{
-			strError = ex.GetBaseException().Message;
-		}
-	}
+            if (Result.Success)
+            {
+                dialogService.Close(SelectedApiSecurity);
+            }
+            else
+            {
+                strError = Result.StatusMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
 
-	void OpenPopup()
-	{
-		// Open Popup
-		ShowPopup = true;
-	}
+    async Task DeleteApiSecurityDialog() => await dialogService
+    .OpenAsync("Delete ApiSecurity", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <p Style="margin-bottom: 10px;">Confirm?</p>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenButton Text="Yes" Click="DeleteApiSecurity"
+                          Style="margin-bottom: 10px; width: 150px" />
+                <RadzenButton Text="No" Click="()=> ds.Close(false)"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Style="margin-bottom: 10px; width: 150px" />
+            </div>
+        </div>
+    </RadzenCard>
+    );
 
-	void ClosePopup()
-	{
-		// Close Popup
-		ShowPopup = false;
-	}
+    private void DeleteApiSecurity()
+    {
+        try
+        {
+            strError = "";
+            DTOStatus Result;
+
+            Result = _ApiSecurityController.Delete(SelectedApiSecurity.id, CurrentUser.Identity.Name);
+
+            if (Result.Success)
+            {
+                SelectedApiSecurity.id = -1;
+                dialogService.Close(false);
+                dialogService.Close(SelectedApiSecurity);
+            }
+            else
+            {
+                strError = Result.StatusMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+
+    void OpenPopup()
+    {
+        // Open Popup
+        ShowPopup = true;
+    }
+
+    void ClosePopup()
+    {
+        // Close Popup
+        ShowPopup = false;
+    }
 }
