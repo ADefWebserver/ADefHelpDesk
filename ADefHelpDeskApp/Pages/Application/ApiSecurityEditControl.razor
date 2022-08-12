@@ -96,6 +96,17 @@
 							</tr>
 							<tr>
 								<td>
+									<label for="ApiPermissions" class="control-label" style="font-weight: bold">API Permissions: </label>
+								</td>
+								<td>
+								 <RadzenButton Click="OpenPopup"
+                                  Text="Open"
+                                  Size="Radzen.ButtonSize.Small"
+                                  ButtonStyle="ButtonStyle.Primary" />
+								</td>
+							</tr>
+							<tr>
+								<td>
 									<label for="Active" class="control-label" style="font-weight: bold">Active: </label>
 								</td>
 								<td>
@@ -170,6 +181,34 @@
 		}
 	</div>
 </div>
+@if (ShowPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Permissions</h3>
+                </div>
+                <div class="modal-body">
+					<div class="overflow-auto">
+					<RadzenCheckBoxList TValue="string"
+									@bind-Value="values"
+									Orientation="Orientation.Vertical"
+									Data="SelectedApiSecurity.permissions" 
+									TextProperty="permissionLabel" 
+									ValueProperty="permissionLabel" 
+									Style="width: 100%;height: 400px" />									
+					</div>
+                    <br /><br />
+                    <RadzenButton Click="ClosePopup"
+                                  Text="Close"
+                                  Size="Radzen.ButtonSize.Small"
+                                  ButtonStyle="ButtonStyle.Secondary" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -180,7 +219,9 @@
 	string strError = "";
 	string AppicationGUID = "";
 	string AppicationURL = "";
-
+    bool ShowPopup = false;
+	IEnumerable<string> values = new List<string>();
+    
 	protected override async Task OnInitializedAsync()
 	{
 		// Get the current user
@@ -265,5 +306,17 @@
 		{
 			strError = ex.GetBaseException().Message;
 		}
+	}
+
+	void OpenPopup()
+	{
+		// Open Popup
+		ShowPopup = true;
+	}
+
+	void ClosePopup()
+	{
+		// Close Popup
+		ShowPopup = false;
 	}
 }

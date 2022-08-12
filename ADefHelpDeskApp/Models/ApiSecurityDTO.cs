@@ -18,6 +18,8 @@
 // DEALINGS IN THE SOFTWARE.
 //
 //
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ADefHelpDeskApp.Classes
@@ -33,6 +35,13 @@ namespace ADefHelpDeskApp.Classes
         public string contactWebsite { get; set; }
         public string contactEmail { get; set; }
         public string contactPhone { get; set; }
+        public List<Permission> permissions { get; set; }
         public bool isActive { get; set; }
+    }
+
+    public class Permission
+    {
+        public string permissionLabel { get; set; }
+        public bool isEnabled { get; set; }
     }
 }

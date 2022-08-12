@@ -98,9 +98,15 @@
 		NewApiSecurity.id = -1;
 		await EditAPI(NewApiSecurity);
 	}
+
 	async Task EditAPI(ApiSecurityDTO ApiSecurity)
 	{
 		Message = "";
+
+		if(ApiSecurity.permissions.Count == 0)
+		{
+			ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions();
+		}
 
 		ApiSecurityDTO result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
 		new Dictionary<string, object>() { { "SelectedApiSecurity", ApiSecurity } },

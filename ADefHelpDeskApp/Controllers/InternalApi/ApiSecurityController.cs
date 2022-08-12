@@ -34,6 +34,7 @@ using ADefHelpDeskApp.Classes;
 using Microsoft.Extensions.Configuration;
 using AdefHelpDeskBase.Models.DataContext;
 using AdefHelpDeskBase.Controllers.WebInterface;
+using System.Collections;
 
 namespace ADefHelpDeskApp.Controllers.InternalApi
 {
@@ -65,6 +66,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             {
                 // This returns all ApiSecuritys in the database 
                 colApiSecurityDTOs = (from objApiSecurity in context.AdefHelpDeskApiSecurity
+                                      .Include(x => x.AdefHelpDeskApiSecurityPermission)
                                       select new ApiSecurityDTO
                                       {
                                           id = objApiSecurity.Id,
@@ -76,11 +78,57 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                           contactPhone = objApiSecurity.ContactPhone,
                                           password = objApiSecurity.Password,
                                           isActive = objApiSecurity.IsActive,
-                                      }).OrderBy(x => x.username).ToList();
+                                          permissions = objApiSecurity.AdefHelpDeskApiSecurityPermission.Select(x => new Permission
+                                          {
+                                              permissionLabel = x.PermissionName,
+                                              isEnabled = x.IsEnabled
+                                          }).ToList() ?? new List<Permission>()
+                                      }).OrderBy(x => x.username).ToList();                
+
             }
 
             return colApiSecurityDTOs;
         }
+        #endregion
+
+        #region public List<Permission> DefaultPermissions()
+        public List<Permission> DefaultPermissions()
+        {
+            List<Permission> colPermissions = new List<Permission>();
+            
+            colPermissions.Add(new Permission { permissionLabel = "CurrentUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetCurrentVersion", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "ShowDashboard", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "SearchTasks", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "CreateTask", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "UpdateTask", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "CreateUpdateTaskDetail", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetTask", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "DeleteTask", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "DeleteTaskDetail", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "SearchUsers", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "ValidateUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "MigrateUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "CreateUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "UpdateUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "DeleteUser", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetCategoryNodes", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "CreateCategory", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "UpdateCategory", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "DeleteCategory", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetRoles", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "UpdateRole", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "CreateRole", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "DeleteRole", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "SystemFiles", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "SystemFile", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetTaskDetail", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetFile", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "SystemLogs", isEnabled = false });
+
+            return colPermissions;
+        } 
         #endregion
 
         #region public DTOStatus Put(int id, ApiSecurityDTO ApiSecurityDTO, string CurrentUserName)
