@@ -103,9 +103,16 @@
 	{
 		Message = "";
 
-		if(ApiSecurity.permissions.Count == 0)
+		if (ApiSecurity.permissions != null)
 		{
-            ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
+			if (ApiSecurity.permissions.Count == 0)
+			{
+				ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
+			}
+		}
+		else
+		{
+			ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
 		}
 
 		ApiSecurityDTO result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
