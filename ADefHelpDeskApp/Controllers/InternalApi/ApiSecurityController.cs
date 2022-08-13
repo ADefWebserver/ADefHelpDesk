@@ -414,6 +414,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                     // Check the Username and Password
                     {
                         objApiSecurityDTO = (from objApiSecurity in context.AdefHelpDeskApiSecurity
+                                             .Include(x => x.AdefHelpDeskApiSecurityPermission)
                                              where objApiSecurity.Username.ToLower() == userCredentials.UserName.ToLower()
                                              && objApiSecurity.Password == userCredentials.Password
                                              select new ApiSecurityDTO
@@ -427,6 +428,11 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
                                                  contactPhone = objApiSecurity.ContactPhone,
                                                  password = objApiSecurity.Password,
                                                  isActive = objApiSecurity.IsActive,
+                                                 permissions = objApiSecurity.AdefHelpDeskApiSecurityPermission.Select(x => new Permission
+                                                 {
+                                                     permissionLabel = x.PermissionName,
+                                                     isEnabled = x.IsEnabled
+                                                 }).ToList() ?? new List<Permission>()
                                              }).FirstOrDefault();
                     }
                 }

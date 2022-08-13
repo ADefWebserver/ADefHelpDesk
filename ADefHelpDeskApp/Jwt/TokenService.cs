@@ -49,6 +49,13 @@ namespace ADefHelpDeskApp.Jwt
                 new Claim("IsActive",paramApiSecurityDTO.isActive.ToString()),
             });
 
+            // Add permissions
+            foreach(var permission in paramApiSecurityDTO.permissions)
+            {
+                var NewClaim = new Claim(permission.permissionLabel, permission.isEnabled.ToString());
+                claimsIdentity.AddClaim(NewClaim);
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Expires = DateTime.UtcNow.AddHours(expiringHours),
