@@ -2,6 +2,10 @@
 using ADefHelpDeskApp.Controllers.InternalApi;
 using AdefHelpDeskBase.Controllers.WebInterface;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ADefHelpDeskApp.Jwt
@@ -40,5 +44,23 @@ namespace ADefHelpDeskApp.Jwt
 
             return securityToken;
         }
+        
+        public void APISecurityCheck(IEnumerable<Claim> claims, string ControllerMethod)
+        {
+            var claim = claims.Where(x => x.Type == ControllerMethod).FirstOrDefault();
+
+            if (claim != null)
+            {
+                if(claim.Value.ToLower() == "false")
+                {
+                    throw new Exception($"Permission to execute method {ControllerMethod} is not allowed");
+                }
+            }
+            else
+            {
+                throw new Exception($"Permission to execute method {ControllerMethod} is not allowed");
+            }
+        }
+
     }
 }

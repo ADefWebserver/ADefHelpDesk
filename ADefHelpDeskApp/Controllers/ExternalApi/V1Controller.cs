@@ -163,7 +163,7 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetCurrentUser")]
         public IActionResult GetCurrentUser()
-        {
+        {           
             string CurrentUser = "[** Error **]";
 
             if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
@@ -237,6 +237,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpGet("ShowDashboard")]
         public DTODashboard ShowDashboard()
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "ShowDashboard");
+            
             string strConnectionString = GetConnectionString();
             return DashboardController.ShowDashboard(strConnectionString);
         }
@@ -255,6 +257,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("SearchTasks")]
         public TaskSearchResult SearchTasks([FromBody] SearchParameters searchData)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "SearchTasks");
+            
             SearchTaskParameters objSearchTaskParameters = new SearchTaskParameters();
             objSearchTaskParameters.assignedRoleId = searchData.assignedRoleId;
             objSearchTaskParameters.createdDate = searchData.createdDate;
@@ -285,6 +289,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("CreateTask")]
         public DTOStatus CreateTask([FromForm] DTOAPITask objTask)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "CreateTask");
+            
             var task = objTask;
 
             DTOStatus objDTOStatus = new DTOStatus();
@@ -336,6 +342,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("UpdateTask")]
         public DTOStatus UpdateTask([FromForm] DTOAPITask objTask)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "UpdateTask");
+            
             DTOStatus objDTOStatus = new DTOStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
@@ -382,6 +390,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("CreateUpdateTaskDetail")]
         public DTOTaskDetailResponse CreateUpdateTaskDetail([FromForm] DTOAPITaskDetail objDTOAPITaskDetail)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "CreateUpdateTaskDetail");
+            
             DTOTaskDetailResponse objDTOStatus = new DTOTaskDetailResponse();
             objDTOStatus.isSuccess = true;
             objDTOStatus.message = "";
@@ -446,13 +456,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetTask")]
         public DTOTaskStatus GetTask([FromQuery] int TaskId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetTask");
+            
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
             int intUserId = -1;
@@ -494,6 +504,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetTaskDetail")]
         public DTOTaskDetail GetTaskDetail([FromQuery] int TaskDetailId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetTaskDetail");
+            
             string strConnectionString = GetConnectionString();
 
             DTOTaskDetail obJDTOTaskDetail = new DTOTaskDetail();
@@ -516,13 +528,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("DeleteTask")]
         public DTOTaskStatus DeleteTask([FromQuery] int TaskId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "DeleteTask");
+            
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
@@ -554,13 +566,13 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("DeleteTaskDetail")]
         public DTOTaskStatus DeleteTaskDetail([FromQuery] int TaskDetailId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "DeleteTaskDetail");
+            
             DTOTaskStatus objDTOStatus = new DTOTaskStatus();
             objDTOStatus.Success = true;
             objDTOStatus.StatusMessage = "";
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
@@ -594,6 +606,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("SearchUsers")]
         public UserSearchResult SearchUsers([FromForm] SearchUserParameters searchData)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "SearchUsers");
+            
             AdefHelpDeskBase.Models.SearchParameters objSearchParameters = new Models.SearchParameters();
             objSearchParameters.pageNumber = searchData.pageNumber;
             objSearchParameters.rowsPerPage = searchData.rowsPerPage;
@@ -614,6 +628,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetUser")]
         public DTOUser GetUser([FromQuery] int UserId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetUser");
+            
             return UserManagerController.GetUserMethod(UserId, GetConnectionString());
         }
         #endregion
@@ -629,6 +645,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("ValidateUser")]
         public LoginStatus ValidateUser([FromForm] DTOAuthentication Authentication)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "ValidateUser");
+            
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
             objLoginStatus.isLoggedIn = false;
@@ -727,6 +745,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("MigrateUser")]
         public LoginStatus MigrateUser([FromForm] DTOMigration Migration)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "MigrateUser");
+            
             // LoginStatus to return
             LoginStatus objLoginStatus = new LoginStatus();
             objLoginStatus.isLoggedIn = false;
@@ -848,10 +868,10 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("CreateUser")]
         public DTOStatus CreateUser([FromForm] DTOUser DTOUser)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "CreateUser");
+            
             // Get Settings
             string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
-            string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
             UserManagerController objUserManagerController = new UserManagerController(_configuration, _hostEnvironment, _userManager, _signInManager);
@@ -874,9 +894,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("UpdateUser")]
         public DTOStatus UpdateUser([FromForm] DTOUser DTOUser)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "UpdateUser");
+            
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
@@ -898,12 +918,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("DeleteUser")]
         public DTOStatus DeleteUser([FromQuery] int UserId)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "DeleteUser");
+            
             // Status to return
             DTOStatus objDTOStatus = new DTOStatus();
 
             // Get Settings
-            string CurrentHostLocation = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            string ContentRootPath = _hostEnvironment.ContentRootPath;
             string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
             string strConnectionString = GetConnectionString();
 
@@ -936,6 +956,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetCategoryNodes")]
         public List<CategoryDTO> GetCategoryNodes([FromQuery] bool RequestorVisibleOnly)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetCategoryNodes");
+            
             // Get Settings
             string strConnectionString = GetConnectionString();
 
@@ -954,10 +976,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("CreateCategory")]
         public CategoryNode CreateCategory([FromForm] CategoryNode categoryNode)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "CreateCategory");
+            
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.CreateCategory(categoryNode, strConnectionString);
+            return CategoryController.CreateCategory(categoryNode, strConnectionString);
         }
         #endregion
 
@@ -972,10 +996,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("UpdateCategory")]
         public DTOStatus UpdateCategory([FromForm] CategoryNode categoryNode)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "UpdateCategory");
+            
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.UpdateCategory(categoryNode.Id, categoryNode, strConnectionString);
+            return CategoryController.UpdateCategory(categoryNode.Id, categoryNode, strConnectionString);
         }
         #endregion
 
@@ -990,13 +1016,12 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("DeleteCategory")]
         public DTOStatus DeleteCategory([FromQuery] int id)
         {
-            // Status to return
-            DTOStatus objDTOStatus = new DTOStatus();
-
+            _authenticationService.APISecurityCheck(this.User.Claims, "DeleteCategory");
+            
             // Get Settings
             string strConnectionString = GetConnectionString();
 
-            return ADefHelpDeskApp.Controllers.InternalApi.CategoryController.DeleteCategory(id, strConnectionString);
+            return CategoryController.DeleteCategory(id, strConnectionString);
         }
         #endregion
 
@@ -1012,7 +1037,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetRoles")]
         public List<RoleDTO> GetRoles()
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.GetRolesMethod(GetConnectionString());
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetRoles");
+            
+            return RoleController.GetRolesMethod(GetConnectionString());
         }
         #endregion
 
@@ -1025,10 +1052,11 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("UpdateRole")]
-
         public DTOStatus UpdateRole([FromForm] RoleDTO RoleDTO)
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
+            _authenticationService.APISecurityCheck(this.User.Claims, "UpdateRole");
+            
+            return RoleController.UpdateRole(RoleDTO.iD, RoleDTO, GetConnectionString());
         }
         #endregion
 
@@ -1041,10 +1069,11 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         // JwtBearerDefaults means this method will only work if a Jwt is being passed
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("CreateRole")]
-
         public RoleDTO CreateRole([FromForm] RoleDTO RoleDTO)
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.CreateRole(RoleDTO, GetConnectionString());
+            _authenticationService.APISecurityCheck(this.User.Claims, "CreateRole");
+            
+            return RoleController.CreateRole(RoleDTO, GetConnectionString());
         }
         #endregion
 
@@ -1059,7 +1088,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("DeleteRole")]
         public DTOStatus DeleteRole([FromForm] int Id)
         {
-            return ADefHelpDeskApp.Controllers.InternalApi.RoleController.DeleteRole(Id, GetConnectionString());
+            _authenticationService.APISecurityCheck(this.User.Claims, "DeleteRole");
+            
+            return RoleController.DeleteRole(Id, GetConnectionString());
         }
         #endregion
 
@@ -1075,6 +1106,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpGet("SystemFiles")]
         public DTONode SystemFiles()
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "SystemFiles");
+            
             return FilesController.SystemFilesMethod(_hostEnvironment, _SystemFiles);
         }
         #endregion
@@ -1090,6 +1123,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("GetSystemFile")]
         public DTOResponse GetSystemFile([FromQuery] string SystemFileName)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetSystemFile");
+            
             DTONode objDTONode = new DTONode();
             objDTONode.data = SystemFileName;
 
@@ -1109,6 +1144,8 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
 
         public DTOFile GetFile([FromForm] DTOAPIFile paramDTOAPIFile)
         {
+            _authenticationService.APISecurityCheck(this.User.Claims, "GetFile");
+            
             DTOFileParameter paramDTOFileParameter = new DTOFileParameter();
             paramDTOFileParameter.attachmentID = paramDTOAPIFile.attachmentID;
             paramDTOFileParameter.detailId = paramDTOAPIFile.detailId;
@@ -1135,8 +1172,9 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
         [HttpPost("SystemLogs")]
         public SystemLogSearchResult SystemLogs([FromForm] SearchLogParameters objSearchLogParameters)
         {
-            //string strCurrentUser = this.User.Claims.FirstOrDefault().Value;
-            AdefHelpDeskBase.Models.SearchParameters SearchParameters = new Models.SearchParameters();
+            _authenticationService.APISecurityCheck(this.User.Claims, "SystemLogs");
+
+            Models.SearchParameters SearchParameters = new Models.SearchParameters();
             SearchParameters.searchString = objSearchLogParameters.searchString;
             SearchParameters.pageNumber = objSearchLogParameters.pageNumber;
             SearchParameters.rowsPerPage = objSearchLogParameters.rowsPerPage;

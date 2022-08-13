@@ -96,14 +96,13 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
         {
             List<Permission> colPermissions = new List<Permission>();
 
-            colPermissions.Add(new Permission { permissionLabel = "CurrentUser", isEnabled = false });
-            colPermissions.Add(new Permission { permissionLabel = "GetCurrentVersion", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "ShowDashboard", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "SearchTasks", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "CreateTask", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "UpdateTask", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "CreateUpdateTaskDetail", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "GetTask", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetTaskDetail", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "DeleteTask", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "DeleteTaskDetail", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "SearchUsers", isEnabled = false });
@@ -122,8 +121,7 @@ namespace ADefHelpDeskApp.Controllers.InternalApi
             colPermissions.Add(new Permission { permissionLabel = "CreateRole", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "DeleteRole", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "SystemFiles", isEnabled = false });
-            colPermissions.Add(new Permission { permissionLabel = "SystemFile", isEnabled = false });
-            colPermissions.Add(new Permission { permissionLabel = "GetTaskDetail", isEnabled = false });
+            colPermissions.Add(new Permission { permissionLabel = "GetSystemFile", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "GetFile", isEnabled = false });
             colPermissions.Add(new Permission { permissionLabel = "SystemLogs", isEnabled = false });
 
