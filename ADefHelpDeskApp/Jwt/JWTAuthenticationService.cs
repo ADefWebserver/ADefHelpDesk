@@ -61,6 +61,5 @@ namespace ADefHelpDeskApp.Jwt
                 throw new Exception($"Permission to execute method {ControllerMethod} is not allowed");
             }
         }
-
     }
 }
