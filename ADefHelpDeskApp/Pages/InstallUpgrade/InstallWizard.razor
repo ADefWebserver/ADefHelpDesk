@@ -167,6 +167,16 @@
         {
             try
             {
+                if (CurrentUser.Identity == null)
+                {
+                    return false;
+                }
+
+                if (CurrentUser.Identity.Name == null)
+                {
+                    return false;
+                }
+
                 // Get the user
                 var objUser = await (from user in context.AdefHelpDeskUsers
                                      where user.Username.ToLower() == CurrentUser.Identity.Name.ToLower()
