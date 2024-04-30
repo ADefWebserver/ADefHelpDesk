@@ -245,7 +245,7 @@
             // Update DefaultConnection in the appsettings.json file
             connectionString.Update(opt =>
             {
-                opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+                opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             });
 
             return strConnectionString;
@@ -265,7 +265,7 @@
             objConnectionSetting.Password) :
             "integrated security=True";
 
-        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3};TrustServerCertificate=True",
             SB.ToString(),
             objConnectionSetting.ServerName,
             objConnectionSetting.DatabaseName,
