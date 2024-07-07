@@ -32,6 +32,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Security.Principal;
 using ADefHelpDeskApp.Jwt;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -44,6 +45,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(Builder.Services));
             }
+
+            Builder.Services.AddCascadingAuthenticationState();
 
             Builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
