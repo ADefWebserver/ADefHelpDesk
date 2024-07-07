@@ -1,4 +1,7 @@
 ﻿@page "/logincontrol"
+@using ADefHelpDeskApp.Controllers
+@using AdefHelpDeskBase.Models
+@inherits OwningComponentBase<ApplicationSettingsController>
 <h4>Login</h4>
 <AuthorizeView>
     <NotAuthorized>
@@ -44,4 +47,11 @@
     string Username = "";
     string Password = "";
     string RememberMe = "on";
+
+    public DTOApplicationSetting ApplicationSetting = new DTOApplicationSetting();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApplicationSetting = await Task.Run(() => @Service.GetTermsOfUse());
+    }
 }
