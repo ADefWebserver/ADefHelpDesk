@@ -1,18 +1,16 @@
 ﻿@using System.IO;
 @using System.Runtime.Loader;
-
-<Router AppAssembly="ADefHelpDeskAppAssembly">
+<Router AppAssembly="@ADefHelpDeskAppAssembly">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="ADefHelpDeskAppMainLayout" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="@ADefHelpDeskAppMainLayout">
+            <NotAuthorized>
+
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="ADefHelpDeskAppMainLayout">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
 </Router>
+
 @code {
     System.Reflection.Assembly ADefHelpDeskAppAssembly;
     Type ADefHelpDeskAppMainLayout;
