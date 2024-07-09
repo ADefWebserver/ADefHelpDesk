@@ -7,14 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Remove="wwwroot\images\logo.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="Uploads\placeholder.txt" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Excubo.Blazor.TreeViews" Version="4.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.6" />
@@ -36,37 +28,12 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="CustomModules\" />
-	</ItemGroup>
+	<PropertyGroup>
+		<DocumentationFile>bin\Debug\net8.0\ADefHelpDeskWebApp.xml</DocumentationFile>
+		<NoWarn>1701;1702;1705;1591</NoWarn>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-		<None Include="wwwroot\css\open-iconic\FONT-LICENSE" />
-		<None Include="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
-		<None Include="wwwroot\css\open-iconic\ICON-LICENSE" />
-		<None Include="wwwroot\css\open-iconic\README.md" />
-		<None Include="wwwroot\images\logo.png">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Include="Uploads\placeholder.txt">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="wwwroot\background.png">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="wwwroot\favicon.ico">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="CustomModules\ADefHelpDeskApp.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 		<None Update="SQLScripts\01.00.00.sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

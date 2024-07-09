@@ -1,0 +1,202 @@
+﻿@inherits LayoutComponentBase
+@using ADefHelpDeskApp
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject InstallUpdateState _InstallUpdateState
+@inject NavigationManager NavigationManager
+<RadzenDialog />
+<RadzenNotification />
+<RadzenTooltip />
+<RadzenContextMenu />
+ <div class="customToolbar">
+<RadzenHeader>
+    <ChildContent>
+        <NavMenu />
+    </ChildContent>
+</RadzenHeader>
+</div>
+<RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+    <ChildContent>
+        <RadzenContentContainer Name="main">
+            <div style="width:100%" class="my-5">
+                @Body
+            </div>
+        </RadzenContentContainer>
+    </ChildContent>
+</RadzenBody>
+<RadzenFooter>
+    <ChildContent>
+        <FooterControl />
+    </ChildContent>
+</RadzenFooter>
+@code {
+    // ********************************
+    string CurrentVersion = "04.30.00";
+    // ********************************
+
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+
+    RadzenBody body0;
+    bool bodyExpanded = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Check for Install/Upgrade
+        // The Index.razor page will detect this and load the
+        // Install/Upgrade Wizard
+        try
+        {
+            if (!context.Database.CanConnect())
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            string error = ex.Message;
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
+        // The database connection may be good,
+        // but the database tables are missing
+        try
+        {
+            var DatabaseSetUp = await IsDatabaseSetUpOrUpgradeAsync(strDefaultConnection);
+
+            if (!DatabaseSetUp)
+            {
+                NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            string error = ex.Message;
+            NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+        }
+
+        // The database connection may be good,
+        // but the Administrator account may not exist
+        try
+        {
+            var AdminExists = await AdminExistsAsync(strDefaultConnection);
+
+            if (!AdminExists)
+            {
+                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            string error = ex.Message;
+            NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+        }
+    }
+
+    public async Task<bool> IsDatabaseSetUpOrUpgradeAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        try
+        {
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // If we can get Version Number database is set up
+                var result = await context.AdefHelpDeskVersion
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking().FirstOrDefaultAsync();
+
+                if (result == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    // Do we need to perform an upgrade
+                    if (ConvertToInteger(CurrentVersion) > ConvertToInteger(result.VersionNumber))
+                    {
+                        try
+                        {
+                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                        }
+                        catch (Exception ex)
+                        {
+                            string error = ex.Message;
+                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            string error = ex.Message;
+            return false;
+        }
+    }
+
+    public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    {
+        bool result = false;
+
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            try
+            {
+                // Get the user
+                var objUser = await (from user in context.AdefHelpDeskUsers
+                                     where user.IsSuperUser == true
+                                     select user).FirstOrDefaultAsync();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+
+    private int ConvertToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+        string strVersion = strParamVersion;
+
+        // Split into parts seperated by periods
+        char[] splitchar = { '.' };
+        var strSegments = strVersion.Split(splitchar);
+
+        // Process the segments
+        int i = 0;
+        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+        foreach (var strSegment in strSegments)
+        {
+            int intSegmentNumber = Convert.ToInt32(strSegment);
+            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+            i++;
+        }
+
+        return intVersionNumber;
+    }
+ }

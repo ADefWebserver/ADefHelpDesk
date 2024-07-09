@@ -1,30 +1,10 @@
-﻿@using System.IO;
-@using System.Runtime.Loader;
-<Router AppAssembly="@ADefHelpDeskAppAssembly">
+﻿<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="routeData" DefaultLayout="@ADefHelpDeskAppMainLayout">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
             <NotAuthorized>
-
+                <h4>Not Authorized</h4>
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
-
-@code {
-    System.Reflection.Assembly ADefHelpDeskAppAssembly;
-    Type ADefHelpDeskAppMainLayout;
-
-    protected override void OnInitialized()
-    {
-        string path =
-            Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.dll");
-
-        ADefHelpDeskAppAssembly =
-            AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-
-        ADefHelpDeskAppMainLayout =
-            ADefHelpDeskAppAssembly
-            .GetType("ADefHelpDeskApp.Components.Layout.MainLayout");
-    }
-}

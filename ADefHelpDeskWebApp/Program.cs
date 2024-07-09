@@ -1,5 +1,20 @@
+using ADefHelpDeskApp;
+using ADefHelpDeskWebApp.Classes;
+using ADefHelpDeskWebApp.Controllers;
+using ADefHelpDeskWebApp.Controllers.InternalApi;
+using ADefHelpDeskWebApp.Data;
+using ADefHelpDeskWebApp.Jwt;
+using AdefHelpDeskBase.Controllers;
+using AdefHelpDeskBase.Models;
+using AdefHelpDeskBase.Models.DataContext;
 using ADefHelpDeskWebApp.Components;
-using System.Runtime.Loader;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Radzen;
+using System.Text;
+using Tewr.Blazor.FileReader;
 
 namespace ADefHelpDeskWebApp
 {
@@ -20,58 +35,125 @@ namespace ADefHelpDeskWebApp
             // Get HostingEnvironment
             var env = builder.Environment;
 
-            // Before we load the CustomClassLibrary.dll (and potentially lock it)
-            // Determine if we have files in the Upgrade directory and process it first
-            if (System.IO.File.Exists(env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.dll"))
+            builder.Services.AddCascadingAuthenticationState();
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Auth Configuration
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders();
+
+            // Auth and JWT Configuration
+            builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
+            byte[] signingKey = Encoding.UTF8.GetBytes(
+                ApiSecurityController.GetAPIEncryptionKeyKey(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddAuthentication(signingKey);
+
+            builder.Services.AddRazorPages();
+            builder.Services.AddServerSideBlazor()
+                .AddCircuitOptions(options => { options.DetailedErrors = true; });
+
+            // Allows appsettings.json to be updated programatically
+            builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
+            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+            builder.Services.AddHttpClient();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<HttpContextAccessor>();
+            builder.Services.AddScoped<HttpClient>(s =>
             {
-                string WebConfigOrginalFileNameAndPath = env.ContentRootPath + @"\Web.config";
-                string WebConfigTempFileNameAndPath = env.ContentRootPath + @"\Web.config.txt";
-
-                if (System.IO.File.Exists(WebConfigOrginalFileNameAndPath))
+                var navigationManager = s.GetRequiredService<NavigationManager>();
+                return new HttpClient
                 {
-                    // Temporarily rename the web.config file
-                    // to release the locks on any assemblies
-                    System.IO.File.Copy(WebConfigOrginalFileNameAndPath, WebConfigTempFileNameAndPath);
-                    System.IO.File.Delete(WebConfigOrginalFileNameAndPath);
+                    BaseAddress = new Uri(navigationManager.Uri)
+                };
+            });
 
-                    // Give the site time to release locks on the assemblies
-                    Task.Delay(2000).Wait(); // Wait 2 seconds with blocking
+            // Swagger Configuration
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Version = "v1",
+                        Title = "External API",
+                        Description = "ADefHelpDesk Web API"
+                    });
 
-                    // Rename the temp web.config file back to web.config
-                    // so the site will be active again
-                    System.IO.File.Copy(WebConfigTempFileNameAndPath, WebConfigOrginalFileNameAndPath);
-                    System.IO.File.Delete(WebConfigTempFileNameAndPath);
-                }
+                options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+                });
 
-                // Delete current 
-                System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.dll");
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "bearerAuth"
+                                }
+                            },
+                            new string[] {}
+                    }
+                });
 
-                // Copy new 
-                System.IO.File.Copy(
-                    env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.dll",
-                    env.ContentRootPath + @"\CustomModules\ADefHelpDeskApp.dll");
+                var xmlPath = Path.GetFullPath(@"bin\Debug\net8.0\ADefHelpDeskWebApp.xml");
+                options.IncludeXmlComments(xmlPath);
+            });
 
-                // Delete Upgrade - so it wont be processed again
-                System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\ADefHelpDeskApp.dll");
-            }
+            // Add Caching support
+            builder.Services.AddMemoryCache();
 
-            var ADefHelpDeskAppPath = Path.GetFullPath(@"CustomModules\ADefHelpDeskApp.dll");
+            // ADefHelpDesk Services
+            builder.Services.AddScoped<GeneralSettings>();
+            builder.Services.AddScoped<InstallUpdateState>();
 
-            var ADefHelpDeskAppAssembly =
-                AssemblyLoadContext
-                .Default.LoadFromAssemblyPath(ADefHelpDeskAppPath);
+            builder.Services.AddScoped<JWTAuthenticationService>();
+            builder.Services.AddScoped<TokenService>();
+            builder.Services.AddScoped<ApplicationSettingsController>();
+            builder.Services.AddScoped<UserManagerController>();
+            builder.Services.AddScoped<RegisterController>();
+            builder.Services.AddScoped<ProfileController>();
+            builder.Services.AddScoped<CategoryTreeController>();
+            builder.Services.AddScoped<CategoryNodesController>();
+            builder.Services.AddScoped<CategoryController>();
+            builder.Services.AddScoped<RoleController>();
+            builder.Services.AddScoped<EmailAdminController>();
+            builder.Services.AddScoped<SystemLogController>();
+            builder.Services.AddScoped<ApiSecurityController>();
+            builder.Services.AddScoped<FilesController>();
+            builder.Services.AddScoped<DashboardController>();
+            builder.Services.AddScoped<TaskController>();
+            builder.Services.AddScoped<UploadTaskController>();
+            builder.Services.AddScoped<SearchParametersController>();
+            builder.Services.AddScoped<LogController>();
 
-            Type ADefHelpDeskAppRegisterServicesType =
-                ADefHelpDeskAppAssembly
-                .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
+            // Radzen Services
+            builder.Services.AddScoped<DialogService>();
+            builder.Services.AddScoped<NotificationService>();
+            builder.Services.AddScoped<TooltipService>();
+            builder.Services.AddScoped<ContextMenuService>();
 
-            // AddApplicationPart is what makes the WebAPI routes
-            // from the external assembly availiable
-            builder.Services.AddMvc(options => options.EnableEndpointRouting = false)
-                    .AddApplicationPart(ADefHelpDeskAppAssembly);
-
-            ADefHelpDeskAppRegisterServicesType.GetMethod("AddADefHelpDeskAppServices")
-                .Invoke(null, new object[] { builder });
+            // Tewr.Blazor.FileReader
+            builder.Services.AddFileReaderService();
 
             var app = builder.Build();
 

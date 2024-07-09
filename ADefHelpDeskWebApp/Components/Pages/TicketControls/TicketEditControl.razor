@@ -1,0 +1,787 @@
+﻿@inherits OwningComponentBase
+@using ADefHelpDeskWebApp.Models
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskWebApp.Controllers
+@using ADefHelpDeskWebApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
+@inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
+@inject LogController _LogController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject TaskController _TaskController
+@inject UploadTaskController _UploadTaskController
+@inject SearchParametersController _SearchParametersController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
+<div style="height: 630px;max-height: 95%">
+    @if (@showWaitGraphic)
+    {
+        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Loading...</h2>
+                    </div>
+                    <div class="modal-body">
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col-xl-12 col-lg-12 py-2">
+        <RadzenTabs RenderMode="TabRenderMode.Server">
+            <Tabs>
+                @if (!IsAdmin) // Non-Admin (Info) Tab
+                {
+                    <RadzenTabsItem Text="Info">
+                        <RadzenTabs RenderMode="TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="Ticket Details">
+                                    <table class="form-group" cellpadding="2" cellspacing="2" style="height:430px;overflow: auto;">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <b>Status:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Status}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Priority:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Priority}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Name:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.RequesterName}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Phone:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.RequesterPhone}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Description:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{SelectedTaskForm.Description}")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Due Date:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Hours:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedHours.HasValue) ? SelectedTaskForm.EstimatedHours.Value : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Start:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedStart.HasValue) ? SelectedTaskForm.EstimatedStart.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedStart.Value.ToShortTimeString() : "") }")
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. End:</b>
+                                                </td>
+                                                <td>
+                                                    @($"{((SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "") }")
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Tags">
+                                    <div style="height:447px;overflow: auto;">
+                                        <TreeView Items="colAllTags"
+                                              GetChildren="(treenode) => treenode.children">
+                                            <ItemTemplate Context="treenode">
+                                                &nbsp;
+                                                @if (@treenode.Item.data.selectable)
+                                            {
+                                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                            TValue="bool"
+                                                            @onclick:stopPropagation="true" />
+                                            }
+                                            &nbsp;@treenode.Item.label
+                                        </ItemTemplate>
+                                    </TreeView>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </RadzenTabsItem>
+                }
+                else // Admin (Info) Tab
+                {
+                    <RadzenTabsItem Text="Info">
+                        <div class="row">
+                            <div class="col text-right">
+                                @if (!@showWaitGraphic)
+                                {
+                                    <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Success"
+                                          Click="Save" Icon="save"
+                                          Style="margin-bottom: 10px" />
+                                    <RadzenButton Text="Delete" ButtonStyle="ButtonStyle.Danger"
+                                          Click="DeleteTicketDialog" Icon="delete"
+                                          Style="margin-bottom: 10px;" />
+                                } &nbsp;
+                            </div>
+                        </div>
+                        <RadzenTabs RenderMode="TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="Ticket Details">
+                                    <table class="form-group" cellpadding="2" cellspacing="2">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <b>Status:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDropDown Data=statusDropdown @bind-Value=SelectedTaskForm.Status
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                Style="width:150px" />
+                                                </td>
+                                                <td>
+                                                    <b>Priority:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenDropDown Data=priorityDropdown @bind-Value=SelectedTaskForm.Priority
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                Style="width:150px" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Assigned:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDropDown Data=@rolesDropdown @bind-Value=@SelectedTaskForm.AssignedRoleId
+                                                                TextProperty="ItemLabel"
+                                                                ValueProperty="ItemStringValue"
+                                                                style="width: 100%;" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    @if (SelectedTaskForm.RequesterUserId != -1)
+                                                    {
+                                                        <a href="javascript: void(0)" @onclick="ClearUser"><b>[Clear User]</b></a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="javascript: void(0)" @onclick="SetUser"><b>[Set User]</b></a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Name:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    @if (!ShowManualUser)
+                                                    {
+                                                        @($"{SelectedTaskForm.RequesterName}  ")
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterName style="width: 100%;" />
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Email:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    @if (!ShowManualUser)
+                                                    {
+                                                        @($"{SelectedTaskForm.RequesterEmail}")
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterEmail style="width: 100%;" />
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Phone:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.RequesterPhone style="width: 150px;" />
+                                                </td>
+                                                <td>
+                                                    <b>Est. Hours:</b>
+                                                </td>
+                                                <td>
+                                                    <RadzenNumeric @bind-Value=@SelectedTaskForm.EstimatedHours TValue="int?" Min="0" Max="10000" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Description:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenTextBox @bind-Value=SelectedTaskForm.Description style="width: 100%;" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Due Date:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.DueDate DateFormat="d" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. Start:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.EstimatedStart TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Est. End:</b>
+                                                </td>
+                                                <td colspan="3">
+                                                    <RadzenDatePicker @bind-Value=SelectedTaskForm.EstimatedCompletion TValue="DateTime?" ShowTime="true" ShowSeconds="true" HoursStep="1.5" MinutesStep="5" SecondsStep="10" DateFormat="MM/dd/yyyy HH:mm" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Tags">
+                                    <div style="height:400px;overflow: auto;">
+                                        <TreeView Items="colAllTags"
+                                              GetChildren="(treenode) => treenode.children">
+                                            <ItemTemplate Context="treenode">
+                                                &nbsp;
+                                                @if (@treenode.Item.data.selectable)
+                                            {
+                                                <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                                            TValue="bool"
+                                                            @onclick:stopPropagation="true" />
+                                            }
+                                            &nbsp;@treenode.Item.label
+                                        </ItemTemplate>
+                                    </TreeView>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </RadzenTabsItem>
+                }
+                <RadzenTabsItem Text="Comments">
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add"
+                                  Click=@(() => NewTaskComment()) Style="margin-bottom: 10px" />
+                    <RadzenDataList AllowPaging="false" Data="@TaskDetailsComments" TItem="DTOTaskDetail">
+                        <Template Context="data">
+                            <div class="d-flex flex-row">
+                                <div class="col-md-3">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskClick(data, "Comment")) Text=@EditLabelText Style="margin-bottom: 10px" />
+                                </div>
+                                <div class="col-md-9">
+                                    <div>
+                                        <p><b>Date:</b>@($" {@data.insertDate}")</p>
+                                        <p><b>User:</b>@($" {@data.userName}")</p>
+                                        <p>@($"{Utility.SummarizeContent(@data.description, 100)}")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataList>
+                </RadzenTabsItem>
+                @if (IsAdmin == true)
+                {
+                    <RadzenTabsItem Text="Work">
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" Text="Add"
+                                  Click=@(() => NewTaskWork()) Style="margin-bottom: 10px" />
+                        <RadzenDataList AllowPaging="false" Data="@TaskDetailsWork" TItem="DTOTaskDetail">
+                            <Template Context="data">
+                                <div class="d-flex flex-row">
+                                    <div class="col-md-3">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Click=@(() => EditTaskClick(data, "Work")) Text="Edit" Style="margin-bottom: 10px" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div>
+                                            <p>@($"{@data.description}")</p>
+                                            <p><b>Start:</b>@($" {@data.startTime}")</p>
+                                            <p><b>Stop:</b>@($" {@data.stopTime}")</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataList>
+                    </RadzenTabsItem>
+                }
+                @if (IsAdmin == true)
+                {
+                    <RadzenTabsItem Text="Logs">
+                        <RadzenDataList AllowPaging="false" Data="@colLogs" TItem="DTOLog">
+                            <Template Context="data">
+                                <p><b>Date:</b>@($" {@data.DateCreated}")</p>
+                                <p><b>Description:</b>@($" {@data.LogDescription}")</p>
+                            </Template>
+                        </RadzenDataList>
+                        <RadzenPager ShowPagingSummary="true" PagingSummaryFormat="@pagingSummaryFormat"
+                                 Count="pageCount" PageSize="3" PageNumbersCount="5" PageChanged="@PageChanged" />
+                    </RadzenTabsItem>
+                }
+            </Tabs>
+        </RadzenTabs>
+    </div>
+</div>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter]
+    public DTOTask SelectedTask { get; set; }
+
+    private DTOTaskForm SelectedTaskForm = new DTOTaskForm();
+
+    private bool IsAdmin = false;
+    private bool ShowManualUser = true;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
+    private string strDefaultConnection;
+
+    private bool showWaitGraphic = false;
+    private string Message = "";
+    private string EditLabelText = "View";
+
+    public string ApplicationName = "";
+    public string ApplicationGUID = "";
+    public string FileUploadPermission = "";
+
+    private List<DTOTaskDetail> TaskDetailsComments = new List<DTOTaskDetail>();
+    private List<DTOTaskDetail> TaskDetailsWork = new List<DTOTaskDetail>();
+
+    private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    private List<SelectItem> priorityDropdown = new List<SelectItem>();
+    private List<SelectItem> statusDropdown = new List<SelectItem>();
+    private List<SelectItem> rolesDropdown = new List<SelectItem>();
+    private List<DTOLog> colLogs = new List<DTOLog>();
+
+    string pagingSummaryFormat = "{0} of {1}";
+    int pageCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
+
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _UploadTaskController = (UploadTaskController)ScopedServices.GetService(typeof(UploadTaskController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _LogController = (LogController)ScopedServices.GetService(typeof(LogController));
+
+        PopulateDropdowns();
+
+        SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
+        TaskDetailsComments = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType != "Work").ToList();
+        TaskDetailsWork = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
+        colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, SelectedTaskForm.selectedTreeNodes ?? new List<int>());
+
+        @if (IsAdmin == true)
+        {
+            EditLabelText = "Edit";
+            colLogs = GetLogs(0, 3);
+        }
+
+        ShowManualUser = (SelectedTaskForm.RequesterUserId == -1);
+    }
+
+    void PageChanged(PagerEventArgs args)
+    {
+        colLogs = GetLogs(args.Skip, args.Top);
+    }
+
+    List<DTOLog> GetLogs(int skip, int take)
+    {
+        SearchParameters searchData = new SearchParameters();
+        searchData.searchString = SelectedTaskForm.TaskId.ToString();
+        searchData.rowsPerPage = 3;
+        searchData.pageNumber = skip / 3;
+
+        var result = _LogController.Logs(searchData);
+        pageCount = result.totalRows;
+
+        return result.LogList;
+    }
+
+    private void PopulateDropdowns()
+    {
+        // ** Priority Dropdown
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+
+        // ** Status Dropdown
+        statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+        // ** Roles Dropdown
+        rolesDropdown.Add(new SelectItem() { ItemLabel = "[Unassigned]", ItemStringValue = "0" });
+
+        var AllRoles = _RoleController.GetRoles();
+        foreach (var role in AllRoles)
+        {
+            rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+        }
+    }
+
+    async Task NewTaskComment()
+    {
+        DTOTaskDetail NewDTOTaskDetail = new DTOTaskDetail();
+        NewDTOTaskDetail.detailId = -1;
+        NewDTOTaskDetail.detailType = "Comment - Visible";
+
+        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"New Comment",
+        new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", NewDTOTaskDetail } },
+        new DialogOptions() { Width = "600px" });
+
+        if (result != null)
+        {
+            RefreshTask();
+        }
+    }
+
+    async Task NewTaskWork()
+    {
+        DTOTaskDetail NewDTOTaskDetail = new DTOTaskDetail();
+        NewDTOTaskDetail.detailId = -1;
+        NewDTOTaskDetail.detailType = "Work";
+
+        DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"New Work",
+        new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", NewDTOTaskDetail } },
+        new DialogOptions() { Width = "600px" });
+
+        if (result != null)
+        {
+            RefreshTask();
+        }
+    }
+
+    async Task EditTaskClick(DTOTaskDetail paramDTOTaskDetail, string TaskType)
+    {
+        Message = "";
+
+        try
+        {
+            if (paramDTOTaskDetail.detailId != -1)
+            {
+                try
+                {
+                    if (paramDTOTaskDetail.contentType.ToLower() == "eml")
+                    {
+                        showWaitGraphic = true;
+                        //StateHasChanged();
+                    }
+
+                    // Get full Task Details
+                    var objDTOTaskDetail = await _TaskController.RetrieveTaskDetail(paramDTOTaskDetail, strDefaultConnection);
+
+                    if (paramDTOTaskDetail.contentType.ToLower() == "eml")
+                    {
+                        showWaitGraphic = false;
+                        //StateHasChanged();
+                    }
+
+                    DTOTaskDetail result = await DialogService.OpenAsync<TicketEditDetailControl>($"{EditLabelText} {TaskType}",
+                    new Dictionary<string, object>() { { "SelectedTask", SelectedTask }, { "SelectedTaskDetail", objDTOTaskDetail } },
+                    new DialogOptions() { Width = "800px" });
+
+                    if (result != null)
+                    {
+                        RefreshTask();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    showWaitGraphic = false;
+                    StateHasChanged();
+                    throw ex;
+                }
+            }
+            else
+            {
+                Message = $"Task Detail # {paramDTOTaskDetail.detailId} not found";
+                await DisplayMessageDialog();
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+            await DisplayMessageDialog();
+        }
+    }
+
+    private async void Save()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+            StateHasChanged();
+
+            // Get Selected Tree Nodes
+            var SelectedTreeNodes = _CategoryTreeController.GetSelected(colAllTags);
+
+            // Get the form values - - Convert DTOTaskForm to DTOTask
+            DTOTask ExistingDTOTask = new DTOTask();
+
+            ExistingDTOTask.taskId = SelectedTaskForm.TaskId;
+            ExistingDTOTask.description = SelectedTaskForm.Description;
+            ExistingDTOTask.status = SelectedTaskForm.Status;
+            ExistingDTOTask.priority = SelectedTaskForm.Priority;
+            ExistingDTOTask.createdDate = DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString();
+            ExistingDTOTask.estimatedStart = (SelectedTaskForm.EstimatedStart.HasValue) ? SelectedTaskForm.EstimatedStart.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedStart.Value.ToShortTimeString() : "";
+            ExistingDTOTask.estimatedCompletion = (SelectedTaskForm.EstimatedCompletion.HasValue) ? SelectedTaskForm.EstimatedCompletion.Value.ToShortDateString() + " " + SelectedTaskForm.EstimatedCompletion.Value.ToShortTimeString() : "";
+            ExistingDTOTask.dueDate = (SelectedTaskForm.DueDate.HasValue) ? SelectedTaskForm.DueDate.Value.ToShortDateString() : "";
+            ExistingDTOTask.assignedRoleId = (SelectedTaskForm.AssignedRoleId != null) ? Convert.ToInt32(SelectedTaskForm.AssignedRoleId) : null;
+            ExistingDTOTask.requesterUserId = (SelectedTaskForm.RequesterUserId != -1) ? SelectedTaskForm.RequesterUserId : null;
+            ExistingDTOTask.requesterName = SelectedTaskForm.RequesterName;
+            ExistingDTOTask.requesterEmail = SelectedTaskForm.RequesterEmail;
+            ExistingDTOTask.requesterPhone = SelectedTaskForm.RequesterPhone;
+            ExistingDTOTask.estimatedHours = SelectedTaskForm.EstimatedHours;
+            ExistingDTOTask.selectedTreeNodes = SelectedTreeNodes;
+            ExistingDTOTask.colDTOTaskDetail = new List<DTOTaskDetail>();
+
+            // Get additional values
+            int intUserId = (objCurrentUser.userId != -1) ? objCurrentUser.userId : -1;
+            bool IsSuperUser = false;
+            bool IsAdministrator = false;
+            string strCurrentUser = "[Unauthenticated]";
+            string CurrentHostLocation = NavigationManager.BaseUri;
+
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                strCurrentUser = objCurrentUser.userName;
+                IsSuperUser = UtilitySecurity.IsSuperUser(strCurrentUser, strDefaultConnection);
+                IsAdministrator = UtilitySecurity.IsAdministrator(strCurrentUser, strDefaultConnection);
+            }
+
+            // Call the service
+            DTOStatus result = _UploadTaskController.UpdateTaskMethod(
+                strDefaultConnection, CurrentHostLocation, _IWebHostEnvironment.ContentRootPath,
+                ExistingDTOTask, strCurrentUser, intUserId, CurrentUser.Identity.IsAuthenticated);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+                showWaitGraphic = false;
+                StateHasChanged();
+                await DisplayMessageDialog();
+                return;
+            }
+            else
+            {
+                Message = "Saved";
+            }
+
+            showWaitGraphic = false;
+            StateHasChanged();
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Saved", Detail = "Saved", Duration = 1000 });
+        }
+        catch (Exception ex)
+        {
+            showWaitGraphic = false;
+            Message = ex.Message;
+            await DisplayMessageDialog();
+            StateHasChanged();
+            return;
+        }
+    }
+
+    async Task DeleteTicketDialog() => await DialogService
+        .OpenAsync("Delete Ticket?", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <div class="row">
+            <div class="col-md-12" style="text-align:center;">
+                <RadzenButton Text="Yes" Click="DeleteTicket"
+                          Style="margin-bottom: 10px; width: 150px" />&nbsp;&nbsp;&nbsp;
+                <RadzenButton Text="No" Click="()=> ds.Close(false)"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Style="margin-bottom: 10px; width: 150px" />
+            </div>
+        </div>
+    </RadzenCard>
+    );
+
+    private async Task DeleteTicket()
+    {
+        try
+        {
+            Message = "";
+            showWaitGraphic = true;
+
+            // Call the service
+            var result = _TaskController.Delete(SelectedTaskForm.TaskId, CurrentUser.Identity.Name);
+
+            // Was update successful?
+            if (!result.Success)
+            {
+                Message = result.StatusMessage;
+                showWaitGraphic = false;
+                DialogService.Close();
+                StateHasChanged();
+                await DisplayMessageDialog();
+                return;
+            }
+            else
+            {
+                showWaitGraphic = false;
+                DialogService.Close();
+                // Return Task ID as a negative number so the Tasks page
+                // We know it was deleted
+                DialogService.Close(new DTOTask() { taskId = (SelectedTask.taskId * -1) });
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+            showWaitGraphic = false;
+            await DisplayMessageDialog();
+            StateHasChanged();
+        }
+    }
+
+    // Utility
+
+    private void RefreshTask()
+    {
+        SelectedTask = _TaskController.RetrieveTask(SelectedTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+        SelectedTaskForm = ConvertDTOTaskToDTOTaskForm(SelectedTask);
+        TaskDetailsComments = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType != "Work").ToList();
+        TaskDetailsWork = SelectedTaskForm.colDTOTaskDetail.Where(x => x.detailType == "Work").ToList();
+        StateHasChanged();
+    }
+
+    private DTOTaskForm ConvertDTOTaskToDTOTaskForm(DTOTask Task)
+    {
+        DTOTaskForm NewDTOTaskForm = new DTOTaskForm();
+
+        NewDTOTaskForm.TaskId = Convert.ToInt32(Task.taskId);
+        NewDTOTaskForm.Description = Task.description;
+        NewDTOTaskForm.Status = Task.status;
+        NewDTOTaskForm.Priority = Task.priority;
+        NewDTOTaskForm.CreatedDate = (Task.createdDate != "") ? Convert.ToDateTime(Task.createdDate) : DateTime.Now;
+        NewDTOTaskForm.EstimatedStart = (Task.estimatedStart != "") ? Convert.ToDateTime(Task.estimatedStart) : null;
+        NewDTOTaskForm.EstimatedCompletion = (Task.estimatedCompletion != "") ? Convert.ToDateTime(Task.estimatedCompletion) : null;
+        NewDTOTaskForm.DueDate = (Task.dueDate != "") ? Convert.ToDateTime(Task.dueDate) : null;
+        NewDTOTaskForm.AssignedRoleId = (Task.assignedRoleId != null) ? Task.assignedRoleId.ToString() : "";
+        NewDTOTaskForm.RequesterUserId = (Task.requesterUserId != -1) ? Task.requesterUserId.Value : -1;
+        NewDTOTaskForm.RequesterName = Task.requesterName;
+        NewDTOTaskForm.RequesterEmail = Task.requesterEmail;
+        NewDTOTaskForm.RequesterPhone = Task.requesterPhone;
+        NewDTOTaskForm.EstimatedHours = Task.estimatedHours;
+        NewDTOTaskForm.selectedTreeNodes = Task.selectedTreeNodes;
+        NewDTOTaskForm.colDTOTaskDetail = Task.colDTOTaskDetail;
+
+        return NewDTOTaskForm;
+    }
+
+    private void ClearUser()
+    {
+        SelectedTaskForm.RequesterUserId = -1;
+        SelectedTaskForm.RequesterName = "";
+        SelectedTaskForm.RequesterEmail = "";
+        ShowManualUser = true;
+    }
+
+    private async void SetUser()
+    {
+        DTOUser result = await DialogService.OpenAsync<TicketUserSelector>($"Select User",
+            null,
+            new DialogOptions() { Width = "90%" });
+
+        if (result != null)
+        {
+            DTOUser ReturnUser = (DTOUser)result;
+            SelectedTaskForm.RequesterUserId = ReturnUser.userId;
+            SelectedTaskForm.RequesterName = ReturnUser.userName;
+            SelectedTaskForm.RequesterEmail = ReturnUser.email;
+            ShowManualUser = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task DisplayMessageDialog() => await DialogService
+        .OpenAsync("", ds =>
+    @<RadzenCard Style="padding: 20px;">
+        <div class="row">
+            <div class="col-md-12">
+                <h4 style="color:red;text-align:center;">@Message</h4>
+            </div>
+        </div>
+    </RadzenCard>
+    );
+ }

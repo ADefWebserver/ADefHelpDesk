@@ -1,0 +1,204 @@
+﻿@page "/emailadmin"
+@inherits OwningComponentBase
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskWebApp.Models
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskWebApp.Controllers
+@using ADefHelpDeskWebApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
+@inject EmailAdminController _EmailAdminController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+<h3>Email Administration</h3>
+<AuthorizeView>
+	<Authorized>
+		@if (@IsSuperAdmin)
+		{
+			<table class="form-group" cellpadding="4" cellspacing="4">
+				<tbody>
+					<tr>
+						<td>
+							<label for="SMTP Server and port" class="control-label" style="font-weight: bold">SMTP Server and port: </label>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=selectedSMTPSetting.smtpServer style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="SmtpAuthentication" class="control-label" style="font-weight: bold">SMTP Authentication: </label>
+						</td>
+						<td>
+							<RadzenRadioButtonList Data=@smtpAuthenticationDropdown @bind-Value=selectedSMTPSetting.smtpAuthentication
+											   TextProperty="ItemLabel"
+											   ValueProperty="ItemStringValue"
+											   Style="width: 100%;" />
+						</td>
+					</tr>
+					<tr hidden="@((String)selectedSMTPSetting.smtpAuthentication == "0")">
+						<td>
+							<label for="SMTP Username" class="control-label" style="font-weight: bold">SMTP Username: </label>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=selectedSMTPSetting.smtpUserName style="width: 100%;" />
+						</td>
+					</tr>
+					<tr hidden="@((String)selectedSMTPSetting.smtpAuthentication == "0")">
+						<td>
+							<label for="SMTP Password" class="control-label" style="font-weight: bold">SMTP Password: </label>
+						</td>
+						<td>
+							<RadzenPassword Placeholder="Enter password..." @bind-Value=selectedSMTPSetting.smtpPassword style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="SMTP From email address" class="control-label" style="font-weight: bold">SMTP "From" email address: </label>
+						</td>
+						<td>
+							<RadzenTextBox @bind-Value=selectedSMTPSetting.smtpFromEmail style="width: 100%;" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => SaveTest())
+									  Text="Send Test Email" ButtonStyle="ButtonStyle.Secondary" />
+							<RadzenButton style="margin: 0 1rem 1rem 0" Click=@(args => SaveOnly())
+									  Text="Update" ButtonStyle="ButtonStyle.Success" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			@if (@showWaitGraphic)
+			{
+				<RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+			}
+			@if (@Message != "")
+			{
+				<h4 style="color:red">@Message</h4>
+			}
+		}
+		else
+		{
+			<p>Must be a Super Administrator</p>
+		}
+	</Authorized>
+	<NotAuthorized>
+		<p>You're not signed in.</p>
+	</NotAuthorized>
+</AuthorizeView>
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+	public bool IsSuperAdmin = false;
+	public bool showWaitGraphic = false;
+	public string Message = "";
+
+	public DTOSMTPSetting selectedSMTPSetting = new DTOSMTPSetting();
+	public List<SelectItem> smtpAuthenticationDropdown = new List<SelectItem>();
+	public List<SelectItem> smtpSecureDropdown = new List<SelectItem>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
+
+		_EmailAdminController = (EmailAdminController)ScopedServices.GetService(typeof(EmailAdminController));
+
+		populateDropdowns();
+	}
+
+	private void populateDropdowns()
+	{
+		// ** smtpAuthentication
+		smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "Anonymous", ItemStringValue = "0" });
+		smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "Basic", ItemStringValue = "1" });
+		smtpAuthenticationDropdown.Add(new SelectItem() { ItemLabel = "NTLM", ItemStringValue = "2" });
+
+		// ** smtpSecure
+		smtpSecureDropdown.Add(new SelectItem() { ItemLabel = "True", ItemStringValue = "True" });
+		smtpSecureDropdown.Add(new SelectItem() { ItemLabel = "False", ItemStringValue = "False" });
+
+		// Get current settings
+		GetCurrentSettings();
+	}
+
+	private void GetCurrentSettings()
+	{
+		var DTOSMTPSettings = _EmailAdminController.SMTPSettings();
+
+		selectedSMTPSetting.smtpServer = DTOSMTPSettings.smtpServer;
+		selectedSMTPSetting.smtpAuthentication = DTOSMTPSettings.smtpAuthentication;
+		selectedSMTPSetting.smtpSecure = DTOSMTPSettings.smtpSecure;
+		selectedSMTPSetting.smtpStatus = DTOSMTPSettings.smtpStatus;
+		selectedSMTPSetting.smtpFromEmail = DTOSMTPSettings.smtpFromEmail;
+		selectedSMTPSetting.smtpUserName = DTOSMTPSettings.smtpUserName;
+		selectedSMTPSetting.smtpPassword = DTOSMTPSettings.smtpPassword;
+		selectedSMTPSetting.smtpValid = DTOSMTPSettings.smtpValid;
+		selectedSMTPSetting.updateType = DTOSMTPSettings.updateType;
+	}
+
+	private void SaveOnly()
+	{
+		selectedSMTPSetting.updateType = "Save";
+		Save();
+	}
+
+	private void SaveTest()
+	{
+		selectedSMTPSetting.updateType = "Test";
+		Save();
+	}
+
+	private void Save()
+	{
+		try
+		{
+			Message = "";
+			showWaitGraphic = true;
+			StateHasChanged();
+
+			// Call the service
+			DTOSMTPSetting result = _EmailAdminController.SMTPSetting(selectedSMTPSetting, NavigationManager.BaseUri);
+
+			showWaitGraphic = false;
+			StateHasChanged();
+
+			if (result.smtpStatus != "")
+			{
+				if (result.smtpValid == false)
+				{
+					Message = $"SMTP Test failed: {result.smtpStatus}";
+				}
+				else
+				{
+					Message = result.smtpStatus;
+				}
+		    }
+		}
+		catch (Exception ex)
+		{
+			showWaitGraphic = false;
+			Message = ex.Message;
+			StateHasChanged();
+			return;
+		}
+	}
+}
