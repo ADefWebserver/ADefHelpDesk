@@ -9,12 +9,14 @@ using AdefHelpDeskBase.Models;
 using AdefHelpDeskBase.Models.DataContext;
 using ADefHelpDeskWebApp.Components;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Radzen;
 using System.Text;
 using Tewr.Blazor.FileReader;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ADefHelpDeskWebApp
 {
@@ -37,6 +39,13 @@ namespace ADefHelpDeskWebApp
 
             builder.Services.AddCascadingAuthenticationState();
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+                .AddIdentityCookies();
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -45,10 +54,12 @@ namespace ADefHelpDeskWebApp
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Auth Configuration
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-               .AddEntityFrameworkStores<ApplicationDbContext>()
-               .AddDefaultTokenProviders();
+            builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager()
+            .AddRoleManager<RoleManager<IdentityRole>>() // Add RoleManager
+            .AddDefaultTokenProviders();
 
             // Auth and JWT Configuration
             builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
@@ -64,18 +75,6 @@ namespace ADefHelpDeskWebApp
             // Allows appsettings.json to be updated programatically
             builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
-            builder.Services.AddHttpClient();
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.AddScoped<HttpContextAccessor>();
-            builder.Services.AddScoped<HttpClient>(s =>
-            {
-                var navigationManager = s.GetRequiredService<NavigationManager>();
-                return new HttpClient
-                {
-                    BaseAddress = new Uri(navigationManager.Uri)
-                };
-            });
 
             // Swagger Configuration
             builder.Services.AddControllers();
