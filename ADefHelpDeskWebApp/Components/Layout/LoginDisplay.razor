@@ -43,11 +43,11 @@
 
     private void Register()
     {
-        NavigationManager.NavigateTo("/registercontrol");
+        NavigationManager.NavigateTo("/registercontrol", forceLoad: true);
     }
 
     private void LogIn()
     {
-        NavigationManager.NavigateTo("/logincontrol", forceLoad: true);
+        NavigationManager.NavigateTo("/Authentication/logincontrol", forceLoad: true);
     }
 }

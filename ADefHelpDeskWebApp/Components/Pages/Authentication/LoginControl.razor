@@ -1,5 +1,7 @@
-﻿@page "/logincontrol"
+﻿@page "/Authentication/logincontrol"
 @inherits OwningComponentBase
+@using ADefHelpDeskWebApp.Components.Account
+@using Components.Layout
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Hosting
@@ -16,12 +18,12 @@
 @inject IConfiguration _config
 @inject IHttpContextAccessor _httpContextAccessor
 @inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
 
-<h4>Login</h4>
-    <div class="row">
+<div class="row">
     <div class="col-md-4">
         <section>
-            <p>@errorMessage</p> 
+            <p>@errorMessage</p>
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                 <DataAnnotationsValidator />
                 <h2>Use a local account to log in.</h2>
@@ -96,8 +98,6 @@
     {
         try
         {
-            ReturnUrl ??= NavigationManager.BaseUri;
-
             DTOAuthentication objDTOAuthentication = new DTOAuthentication
                 {
                     userName = Input.Email,
@@ -105,10 +105,19 @@
                     rememberMe = Input.RememberMe
                 };
 
-            // *** THIS IS JUST A TEST - REMOVE WHEN WORKING *********
-            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-
             var objLoginStatus = await GetLoginStatus(objDTOAuthentication);
+
+            ReturnUrl ??= "";
+
+            if (ReturnUrl == "")
+            {
+                ReturnUrl = "/index";
+            }
+
+            // Get the current user
+            CurrentUser = (await authenticationStateTask).User;
+
+            RedirectManager.RedirectTo(ReturnUrl);
         }
         catch (Exception ex)
         {

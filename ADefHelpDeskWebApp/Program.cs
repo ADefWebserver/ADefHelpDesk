@@ -17,6 +17,7 @@ using Radzen;
 using System.Text;
 using Tewr.Blazor.FileReader;
 using Microsoft.Extensions.DependencyInjection;
+using ADefHelpDeskWebApp.Components.Account;
 
 namespace ADefHelpDeskWebApp
 {
@@ -38,6 +39,9 @@ namespace ADefHelpDeskWebApp
             var env = builder.Environment;
 
             builder.Services.AddCascadingAuthenticationState();
+            builder.Services.AddScoped<IdentityUserAccessor>();
+            builder.Services.AddScoped<IdentityRedirectManager>();
+            builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -176,6 +180,9 @@ namespace ADefHelpDeskWebApp
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
+
+            // Add additional endpoints required by the Identity /Account Razor components.
+            app.MapAdditionalIdentityEndpoints();
 
             app.Run();
         }
