@@ -1,5 +1,4 @@
 ﻿@page "/Authentication/logincontrol"
-@inherits OwningComponentBase
 @using ADefHelpDeskWebApp.Components.Account
 @using Components.Layout
 @using Microsoft.AspNetCore.Authentication
@@ -62,12 +61,7 @@
 
 @code {
     [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-
-    [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     string errorMessage = "";
 
@@ -89,9 +83,6 @@
                 await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             }
         }
-
-        // Get the current user
-        CurrentUser = (await authenticationStateTask).User;
     }
 
     private async Task LoginUser()
@@ -107,17 +98,22 @@
 
             var objLoginStatus = await GetLoginStatus(objDTOAuthentication);
 
-            ReturnUrl ??= "";
+            ReturnUrl = "/auth";
 
-            if (ReturnUrl == "")
+            if (objLoginStatus.isLoggedIn)
             {
-                ReturnUrl = "/index";
+                var objUser = await _signInManager.UserManager.FindByNameAsync(Input.Email);
+
+                if (objUser != null)
+                {
+                    await _signInManager.SignInAsync(objUser, false);
+                    RedirectManager.RedirectTo(ReturnUrl);
+                }
             }
-
-            // Get the current user
-            CurrentUser = (await authenticationStateTask).User;
-
-            RedirectManager.RedirectTo(ReturnUrl);
+            else
+            {
+                errorMessage = "Error: Invalid login attempt.";
+            }
         }
         catch (Exception ex)
         {
@@ -138,11 +134,6 @@
 
         if (paramUserName != null && paramPassword != null)
         {
-            if ((CurrentUser.Identity != null) && (CurrentUser.Identity.IsAuthenticated))
-            {
-                await _signInManager.SignOutAsync();
-            }
-
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
             optionsBuilder.UseSqlServer(GetConnectionString());
 

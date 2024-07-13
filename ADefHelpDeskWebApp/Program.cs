@@ -70,11 +70,8 @@ namespace ADefHelpDeskWebApp
             byte[] signingKey = Encoding.UTF8.GetBytes(
                 ApiSecurityController.GetAPIEncryptionKeyKey(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddAuthentication(signingKey);
 
-            builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor()
-                .AddCircuitOptions(options => { options.DetailedErrors = true; });
+            //builder.Services.AddAuthentication(signingKey);
 
             // Allows appsettings.json to be updated programatically
             builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
