@@ -129,6 +129,12 @@ namespace ADefHelpDeskWebApp
                     }
                 });
 
+                // Put the controller paths of "Account/" in the default section
+                options.OperationFilter<HideFromSwaggerOperationFilter>();
+
+                // Hide the default section
+                options.DocumentFilter<HideDefaultSectionDocumentFilter>();
+
                 var xmlPath = Path.GetFullPath(@"bin\Debug\net8.0\ADefHelpDeskWebApp.xml");
                 options.IncludeXmlComments(xmlPath);
             });

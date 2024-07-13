@@ -27,9 +27,11 @@ namespace Microsoft.AspNetCore.Routing
                 [FromForm] string provider,
                 [FromForm] string returnUrl) =>
             {
-                IEnumerable<KeyValuePair<string, StringValues>> query = [
-                    new("ReturnUrl", returnUrl),
-                    new("Action", ExternalLogin.LoginCallbackAction)];
+                IEnumerable<KeyValuePair<string, StringValues>> query = new[]
+                {
+            new KeyValuePair<string, StringValues>("ReturnUrl", returnUrl),
+            new KeyValuePair<string, StringValues>("Action", ExternalLogin.LoginCallbackAction)
+                };
 
                 var redirectUrl = UriHelper.BuildRelative(
                     context.Request.PathBase,
@@ -37,8 +39,8 @@ namespace Microsoft.AspNetCore.Routing
                     QueryString.Create(query));
 
                 var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-                return TypedResults.Challenge(properties, [provider]);
-            });
+                return TypedResults.Challenge(properties, new[] { provider });
+            }).WithMetadata(new HideFromSwaggerAttribute());
 
             accountGroup.MapPost("/Logout", async (
                 ClaimsPrincipal user,
@@ -47,7 +49,7 @@ namespace Microsoft.AspNetCore.Routing
             {
                 await signInManager.SignOutAsync();
                 return TypedResults.LocalRedirect($"~/{returnUrl}");
-            });
+            }).WithMetadata(new HideFromSwaggerAttribute());
 
             var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
 
@@ -65,8 +67,8 @@ namespace Microsoft.AspNetCore.Routing
                     QueryString.Create("Action", ExternalLogins.LinkLoginCallbackAction));
 
                 var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, signInManager.UserManager.GetUserId(context.User));
-                return TypedResults.Challenge(properties, [provider]);
-            });
+                return TypedResults.Challenge(properties, new[] { provider });
+            }).WithMetadata(new HideFromSwaggerAttribute());
 
             var loggerFactory = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>();
             var downloadLogger = loggerFactory.CreateLogger("DownloadPersonalData");
@@ -105,7 +107,7 @@ namespace Microsoft.AspNetCore.Routing
 
                 context.Response.Headers.TryAdd("Content-Disposition", "attachment; filename=PersonalData.json");
                 return TypedResults.File(fileBytes, contentType: "application/json", fileDownloadName: "PersonalData.json");
-            });
+            }).WithMetadata(new HideFromSwaggerAttribute());
 
             return accountGroup;
         }
