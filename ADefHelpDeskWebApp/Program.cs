@@ -18,6 +18,7 @@ using System.Text;
 using Tewr.Blazor.FileReader;
 using Microsoft.Extensions.DependencyInjection;
 using ADefHelpDeskWebApp.Components.Account;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ADefHelpDeskWebApp
 {
@@ -43,12 +44,29 @@ namespace ADefHelpDeskWebApp
             builder.Services.AddScoped<IdentityRedirectManager>();
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
+            builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
+
+            byte[] signingKeyBytes = Encoding.UTF8.GetBytes(
+                ApiSecurityController.GetAPIEncryptionKeyKey(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            SymmetricSecurityKey signingKey = new SymmetricSecurityKey(signingKeyBytes);
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = IdentityConstants.ApplicationScheme;
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-                .AddIdentityCookies();
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = signingKey,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true
+                };
+            }).AddIdentityCookies();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
@@ -66,10 +84,6 @@ namespace ADefHelpDeskWebApp
             .AddDefaultTokenProviders();
 
             // Auth and JWT Configuration
-            builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
-            byte[] signingKey = Encoding.UTF8.GetBytes(
-                ApiSecurityController.GetAPIEncryptionKeyKey(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
             //builder.Services.AddAuthentication(signingKey);
 
