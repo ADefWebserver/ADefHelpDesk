@@ -18,51 +18,64 @@
 @inject IHttpContextAccessor _httpContextAccessor
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <p>@errorMessage</p>
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                <DataAnnotationsValidator />
-                <h2>Use a local account to log in.</h2>
+<style>
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+@if (!LoggedIn)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <section>
+                <p>@errorMessage</p>
+                <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                    <DataAnnotationsValidator />
+                    <h2>Use a local account to log in.</h2>
+                    <hr />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label for="email" class="form-label">Username or Email</label>
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label for="password" class="form-label">Password</label>
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+                    <div class="checkbox mb-3">
+                        &nbsp;&nbsp;&nbsp;&nbsp;<InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                        <label for="checkbox" class="form-label">Remember me</label>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                    </div>
+                </EditForm>
+            </section>
+        </div>
+        <div class="col-md-6 col-md-offset-2">
+            <section>
+                <h3>Use another service to log in.</h3>
                 <hr />
-                <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email" class="form-label">Username or Email</label>
-                    <ValidationMessage For="() => Input.Email" class="text-danger" />
-                </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Password</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger" />
-                </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        &nbsp;&nbsp;&nbsp;<InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                        Remember me
-                    </label>
-                </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-            </EditForm>
-        </section>
+                <ExternalLoginPicker />
+            </section>
+        </div>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
+}
+else
+{
+    <div class="center">
+        <h2><a href="@ReturnUrl">Authenticated - Click Here to Continue</a></h2>
     </div>
-</div>
-
+}
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
+    bool LoggedIn = false;
     string errorMessage = "";
 
     [SupplyParameterFromForm]
@@ -98,7 +111,7 @@
 
             var objLoginStatus = await GetLoginStatus(objDTOAuthentication);
 
-            ReturnUrl = "/auth";
+            ReturnUrl = "/";
 
             if (objLoginStatus.isLoggedIn)
             {
@@ -107,7 +120,7 @@
                 if (objUser != null)
                 {
                     await _signInManager.SignInAsync(objUser, false);
-                    RedirectManager.RedirectTo(ReturnUrl);
+                    LoggedIn = true;
                 }
             }
             else
