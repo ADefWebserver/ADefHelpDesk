@@ -27,7 +27,7 @@
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    private IComponentRenderMode? RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Authentication")
+    private IComponentRenderMode RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Authentication")
         ? null
         : InteractiveServer;
 }

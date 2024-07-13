@@ -10,7 +10,7 @@
         <a href="profilecontrol">Hello, @context.User.Identity.Name!</a>&nbsp;&nbsp;&nbsp;
         <form action="Account/Logout" method="post">
             <AntiforgeryToken />
-            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+            <input type="hidden" name="ReturnUrl" value="Index" />
             <button type="submit" class="btn btn-secondary">Log out</button>
         </form>
     </Authorized>
@@ -27,7 +27,7 @@
     System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     bool AllowRegistration = false;
-    private string? currentUrl;
+    private string currentUrl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,7 +47,7 @@
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private void OnLocationChanged(object sender, LocationChangedEventArgs e)
     {
         currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
