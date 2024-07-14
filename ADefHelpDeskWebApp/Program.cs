@@ -83,10 +83,6 @@ namespace ADefHelpDeskWebApp
             .AddRoleManager<RoleManager<IdentityRole>>() // Add RoleManager
             .AddDefaultTokenProviders();
 
-            // Auth and JWT Configuration
-
-            //builder.Services.AddAuthentication(signingKey);
-
             // Allows appsettings.json to be updated programatically
             builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);

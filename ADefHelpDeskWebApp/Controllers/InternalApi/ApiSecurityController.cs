@@ -443,20 +443,25 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
         #region public static string GetAPIEncryptionKeyKey(string ConnectionString)
         public static string GetAPIEncryptionKeyKey(string ConnectionString)
         {
-            // Collection to hold ApiSecuritys
-            ApiSecurityDTO objApiSecurityDTO = new ApiSecurityDTO();
-
-            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-            optionsBuilder.UseSqlServer(ConnectionString);
-
             string APIEncryptionKeyKey = "";
-            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+
+            try
             {
-                var result = context.AdefHelpDeskSettings.Where(x => x.SettingName == "APIEncryptionKeyKey").FirstOrDefault();
-                if (result != null)
+                var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+                optionsBuilder.UseSqlServer(ConnectionString);
+
+                using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
                 {
-                    APIEncryptionKeyKey = result.SettingValue;
+                    var result = context.AdefHelpDeskSettings.Where(x => x.SettingName == "APIEncryptionKeyKey").FirstOrDefault();
+                    if (result != null)
+                    {
+                        APIEncryptionKeyKey = result.SettingValue;
+                    }
                 }
+            }
+            catch
+            {
+                APIEncryptionKeyKey = "[No KEY - NOW INSTALLING ADefHelpDesk]";
             }
 
             return APIEncryptionKeyKey;
