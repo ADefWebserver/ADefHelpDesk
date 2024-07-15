@@ -19,6 +19,7 @@ using Tewr.Blazor.FileReader;
 using Microsoft.Extensions.DependencyInjection;
 using ADefHelpDeskWebApp.Components.Account;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 
 namespace ADefHelpDeskWebApp
 {
@@ -133,7 +134,8 @@ namespace ADefHelpDeskWebApp
                 // Hide the default section
                 options.DocumentFilter<HideDefaultSectionDocumentFilter>();
 
-                var xmlPath = Path.GetFullPath(@"bin\Debug\net8.0\ADefHelpDeskWebApp.xml");
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
             });
 
