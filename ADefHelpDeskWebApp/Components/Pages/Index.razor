@@ -136,6 +136,7 @@ else
 
         // **************************************************
         // If we get here, we are not installing or upgrading
+        isInstalling = false;
     }
 
     public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)

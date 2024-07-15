@@ -9,7 +9,6 @@
 @using AdefHelpDeskBase.Models.DataContext;
 @using ADefHelpDeskWebApp.Classes;
 @using Microsoft.EntityFrameworkCore;
-@using Microsoft.AspNetCore.Http;
 @using System.IO
 @inject RegisterController _RegisterController
 @inject IConfiguration _configuration
@@ -18,8 +17,6 @@
 @inject SignInManager<ApplicationUser> _SignInManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject ADefHelpDeskContext _ADefHelpDeskService
-@inject IHttpClientFactory ClientFactory
-@inject HttpClient Http
 @inject NavigationManager NavigationManager
 
 <h3>Create Administrator</h3>
