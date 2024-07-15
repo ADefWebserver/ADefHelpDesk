@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using ADefHelpDeskApp
 @using ADefHelpDeskWebApp.Classes
+@using ADefHelpDeskWebApp.Components.Account
 @using AdefHelpDeskBase.Models.DataContext
 @using Microsoft.EntityFrameworkCore
 @inject IConfiguration _configuration
@@ -8,16 +9,17 @@
 @inject ADefHelpDeskContext context
 @inject InstallUpdateState _InstallUpdateState
 @inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
 <RadzenDialog />
 <RadzenNotification />
 <RadzenTooltip />
 <RadzenContextMenu />
- <div class="customToolbar">
-<RadzenHeader>
-    <ChildContent>
-        <NavMenu />
-    </ChildContent>
-</RadzenHeader>
+<div class="customToolbar">
+    <RadzenHeader>
+        <ChildContent>
+            <NavMenu />
+        </ChildContent>
+    </RadzenHeader>
 </div>
 <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
     <ChildContent>
@@ -34,6 +36,7 @@
     </ChildContent>
 </RadzenFooter>
 @code {
+    [CascadingParameter] public HttpContext HttpContext { get; set; }
     // ********************************
     string CurrentVersion = "04.30.00";
     // ********************************
@@ -55,13 +58,13 @@
         {
             if (!context.Database.CanConnect())
             {
-                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+                HttpContext.RedirectTo("/installwizard/INSTALL");
             }
         }
         catch (Exception ex)
         {
             string error = ex.Message;
-            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            HttpContext.RedirectTo("/installwizard/INSTALL");
         }
 
         // The database connection may be good,
@@ -72,13 +75,13 @@
 
             if (!DatabaseSetUp)
             {
-                NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+                HttpContext.RedirectTo("installwizard/RUNSCRIPTS");
             }
         }
         catch (Exception ex)
         {
             string error = ex.Message;
-            NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
+            HttpContext.RedirectTo("installwizard/RUNSCRIPTS");
         }
 
         // The database connection may be good,
@@ -89,13 +92,13 @@
 
             if (!AdminExists)
             {
-                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+                HttpContext.RedirectTo("/installwizard/CreateAdministrator");
             }
         }
         catch (Exception ex)
         {
             string error = ex.Message;
-            NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+            HttpContext.RedirectTo("/installwizard/CreateAdministrator");
         }
     }
 
@@ -124,12 +127,12 @@
                     {
                         try
                         {
-                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                            HttpContext.RedirectTo("/installwizard/UPGRADE");
                         }
                         catch (Exception ex)
                         {
                             string error = ex.Message;
-                            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+                            HttpContext.RedirectTo("/installwizard/UPGRADE");
                         }
                     }
 
@@ -199,4 +202,4 @@
 
         return intVersionNumber;
     }
- }
+}

@@ -58,6 +58,8 @@ namespace ADefHelpDeskWebApp
                 options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             }).AddJwtBearer(options =>
             {
+                options.SaveToken = true;
+                options.ClaimsIssuer = "ADefHelpDesk";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
