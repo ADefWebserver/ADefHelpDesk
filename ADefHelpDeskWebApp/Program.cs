@@ -143,9 +143,9 @@ namespace ADefHelpDeskWebApp
             builder.Services.AddMemoryCache();
 
             // ADefHelpDesk Services
+            builder.Services.AddHttpClient();
             builder.Services.AddScoped<GeneralSettings>();
             builder.Services.AddScoped<InstallUpdateState>();
-
             builder.Services.AddScoped<JWTAuthenticationService>();
             builder.Services.AddScoped<TokenService>();
             builder.Services.AddScoped<ApplicationSettingsController>();

@@ -57,7 +57,6 @@ namespace AdefHelpDeskBase.Controllers.WebInterface
     [Route("api/[controller]")]
     public class V1Controller : Controller
     {
-        static HttpClient client = new HttpClient();
         private IMemoryCache _cache;
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;

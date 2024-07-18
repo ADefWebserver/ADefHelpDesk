@@ -17,6 +17,7 @@
 @using System.IO
 @using System.Text
 @using Newtonsoft.Json
+@inject HttpClient client
 @inject IConfiguration _configuration
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject IJSRuntime JSRuntime
@@ -255,9 +256,6 @@
         var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
         var byteContent = new ByteArrayContent(buffer);
         byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-        // Get HttpClient from HttpContext
-        var client = HttpContext.RequestServices.GetService<HttpClient>();
 
         var response = await client.PostAsync(url, byteContent);
         var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
