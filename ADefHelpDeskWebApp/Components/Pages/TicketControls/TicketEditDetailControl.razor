@@ -18,7 +18,6 @@
 @using System.Text
 @using Newtonsoft.Json
 @inject IConfiguration _configuration
-@inject HttpClient _client
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject ADefHelpDeskContext context
@@ -161,6 +160,8 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    [CascadingParameter] public HttpContext HttpContext { get; set; }
+
     [Parameter]
     public DTOTask SelectedTask { get; set; }
 
@@ -255,7 +256,10 @@
         var byteContent = new ByteArrayContent(buffer);
         byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        var response = await _client.PostAsync(url, byteContent);
+        // Get HttpClient from HttpContext
+        var client = HttpContext.RequestServices.GetService<HttpClient>();
+
+        var response = await client.PostAsync(url, byteContent);
         var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
 
         showWaitAttachmentGraphic = false;
