@@ -28,8 +28,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using AdefHelpDeskBase.Models;
 using AdefHelpDeskBase.Models.DataContext;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace ADefHelpDeskWebApp.Classes
 {
@@ -329,18 +329,20 @@ namespace ADefHelpDeskWebApp.Classes
             // Retrieve the connection string for use with the application. 
             string storageConnectionString = AzureStorageConnection;
 
-            // Check whether the connection string can be parsed.
-            CloudStorageAccount storageAccount = null;
-            CloudBlobContainer cloudBlobContainer = null;
-            if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
+            try
             {
-                CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
-                cloudBlobContainer = cloudBlobClient.GetContainerReference("adefhelpdesk-files");
-                cloudBlobContainer.CreateIfNotExistsAsync().Wait();
+                // Create a BlobServiceClient object which will be used to create a container client.
+                BlobServiceClient blobServiceClient = new BlobServiceClient(storageConnectionString);
+
+                // Get a reference to a container named "adefhelpdesk-files" and then create it
+                BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient("adefhelpdesk-files");
+
+                // Create the container if it does not exist
+                blobContainerClient.CreateIfNotExists(PublicAccessType.Blob);
             }
-            else
+            catch (Exception ex)
             {
-                throw new Exception("Cannot create Azure Storage folder using this connection!");
+                throw new Exception("Cannot create Azure Storage folder using this connection!", ex);
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();

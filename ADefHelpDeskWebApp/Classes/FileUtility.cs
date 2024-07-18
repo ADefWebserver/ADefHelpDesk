@@ -28,8 +28,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using AdefHelpDeskBase.Models.DataContext;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 public static class FileUtility
 {
@@ -39,34 +39,30 @@ public static class FileUtility
         GeneralSettings objGeneralSettings = new GeneralSettings(ConnectionString);
 
         if (objGeneralSettings.StorageFileType == "AzureStorage")
-        {            
-            CloudStorageAccount storageAccount = null;
-            CloudBlobContainer cloudBlobContainer = null;
-
+        {
             // Retrieve the connection string for use with the application. 
             string storageConnectionString = objGeneralSettings.AzureStorageConnection;
 
-            // Check whether the connection string can be parsed.
-            if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
-            {
-                // Ensure there is a AdefHelpDesk Container
-                CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
-                cloudBlobContainer = cloudBlobClient.GetContainerReference("adefhelpdesk-files");
+            // Create a BlobServiceClient object which will be used to create a container client.
+            BlobServiceClient blobServiceClient = new BlobServiceClient(storageConnectionString);
 
-                // Get a reference to the blob address, then upload the file to the blob.
-                // Use the value of localFileName for the blob name.
-                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(strUploadedFileName);
-                // Delete file if it exists
-                cloudBlockBlob.DeleteIfExistsAsync().Wait();
-                // Upload file
-                using (var readStream = objFile.OpenReadStream())
-                {
-                    cloudBlockBlob.UploadFromStreamAsync(readStream).Wait();
-                }
-            }
-            else
+            // Ensure there is a AdefHelpDesk Container
+            BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient("adefhelpdesk-files");
+
+            // Ensure the container exists
+            blobContainerClient.CreateIfNotExists(PublicAccessType.Blob);
+
+            // Get a reference to the blob address, then upload the file to the blob.
+            // Use the value of localFileName for the blob name.
+            BlobClient blobClient = blobContainerClient.GetBlobClient(strUploadedFileName);
+
+            // Delete file if it exists
+            blobClient.DeleteIfExists();
+
+            // Upload file
+            using (var readStream = objFile.OpenReadStream())
             {
-                throw new Exception("AzureStorage configured but AzureStorageConnection value cannot connect.");
+                blobClient.Upload(readStream, true);
             }
         }
         else

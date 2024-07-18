@@ -36,9 +36,9 @@ using AdefHelpDeskBase.Models.DataContext;
 using MimeKit;
 using MessageReader;
 using System.Threading;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
+using Azure.Storage.Blobs.Models;
 
 namespace ADefHelpDeskWebApp.Controllers
 {
@@ -249,37 +249,40 @@ namespace ADefHelpDeskWebApp.Controllers
                             {
                                 if (objGeneralSettings.StorageFileType == "AzureStorage")
                                 {
-                                    CloudStorageAccount storageAccount = null;
-                                    CloudBlobContainer cloudBlobContainer = null;
-
-                                    // Retrieve the connection string for use with the application. 
                                     string storageConnectionString = objGeneralSettings.AzureStorageConnection;
 
-                                    // Check whether the connection string can be parsed.
-                                    if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
+                                    try
                                     {
-                                        // Ensure there is a AdefHelpDesk Container
-                                        CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
-                                        cloudBlobContainer = cloudBlobClient.GetContainerReference("adefhelpdesk-files");
-                                        CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(objAttachment.FileName);
+                                        // Create a BlobServiceClient object which will be used to create a container client.
+                                        BlobServiceClient blobServiceClient = new BlobServiceClient(storageConnectionString);
 
-                                        // Download
-                                        cloudBlockBlob.FetchAttributesAsync().Wait();
-                                        long fileByteLength = cloudBlockBlob.Properties.Length;
+                                        // Get a reference to a container named "adefhelpdesk-files".
+                                        BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient("adefhelpdesk-files");
+
+                                        // Ensure the container exists.
+                                        blobContainerClient.CreateIfNotExists(PublicAccessType.Blob);
+
+                                        // Get a reference to the blob.
+                                        BlobClient blobClient = blobContainerClient.GetBlobClient(objAttachment.FileName);
+
+                                        // Fetch attributes to get the blob's properties.
+                                        BlobProperties properties = blobClient.GetProperties().Value;
+                                        long fileByteLength = properties.ContentLength;
+
+                                        // Download the blob's contents.
                                         byte[] fileContent = new byte[fileByteLength];
-                                        for (int i = 0; i < fileByteLength; i++)
+                                        using (var memoryStream = new MemoryStream(fileContent))
                                         {
-                                            fileContent[i] = 0x20;
+                                            blobClient.DownloadTo(memoryStream);
                                         }
-                                        cloudBlockBlob.DownloadToByteArrayAsync(fileContent, 0).Wait();
 
                                         objDTOFile.Buffer = fileContent;
                                         objDTOFile.FileName = objAttachment.OriginalFileName;
                                         return objDTOFile;
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        throw new Exception("AzureStorage configured but AzureStorageConnection value cannot connect.");
+                                        throw new Exception("AzureStorage configured but AzureStorageConnection value cannot connect.", ex);
                                     }
                                 }
                                 else
@@ -398,31 +401,34 @@ namespace ADefHelpDeskWebApp.Controllers
 
             if (objGeneralSettings.StorageFileType == "AzureStorage")
             {
-                CloudStorageAccount storageAccount = null;
-                CloudBlobContainer cloudBlobContainer = null;
-
-                // Retrieve the connection string for use with the application. 
                 string storageConnectionString = objGeneralSettings.AzureStorageConnection;
 
-                // Check whether the connection string can be parsed.
-                if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
+                try
                 {
-                    // Ensure there is a AdefHelpDesk Container
-                    CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
-                    cloudBlobContainer = cloudBlobClient.GetContainerReference("adefhelpdesk-files");
-                    CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(strFullFilePath);
+                    // Create a BlobServiceClient object which will be used to create a container client.
+                    BlobServiceClient blobServiceClient = new BlobServiceClient(storageConnectionString);
 
-                    // Download
-                    cloudBlockBlob.FetchAttributesAsync().Wait();
-                    long fileByteLength = cloudBlockBlob.Properties.Length;
+                    // Get a reference to a container named "adefhelpdesk-files".
+                    BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient("adefhelpdesk-files");
+
+                    // Ensure the container exists.
+                    blobContainerClient.CreateIfNotExists(PublicAccessType.Blob);
+
+                    // Get a reference to the blob.
+                    BlobClient blobClient = blobContainerClient.GetBlobClient(strFullFilePath);
+
+                    // Fetch attributes to get the blob's properties.
+                    BlobProperties properties = blobClient.GetProperties().Value;
+                    long fileByteLength = properties.ContentLength;
+
+                    // Download the blob's contents.
                     byte[] fileContent = new byte[fileByteLength];
-                    for (int i = 0; i < fileByteLength; i++)
+                    using (var memoryStream = new MemoryStream(fileContent))
                     {
-                        fileContent[i] = 0x20;
+                        blobClient.DownloadTo(memoryStream);
                     }
 
-                    cloudBlockBlob.DownloadToByteArrayAsync(fileContent, 0).Wait();
-
+                    // Process the downloaded content.
                     using (MemoryStream memstream = new MemoryStream(fileContent))
                     {
                         var message = MimeMessage.Load(memstream);
@@ -433,7 +439,7 @@ namespace ADefHelpDeskWebApp.Controllers
                         // Loop through attachments
                         foreach (var item in visitor.Attachments)
                         {
-                            if (item.ContentDisposition.FileName != null)
+                            if (item.ContentDisposition?.FileName != null)
                             {
                                 if (item.ContentDisposition.FileName == strEmailFileName)
                                 {
@@ -443,9 +449,9 @@ namespace ADefHelpDeskWebApp.Controllers
                         }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw new Exception("AzureStorage configured but AzureStorageConnection value cannot connect.");
+                    throw new Exception("AzureStorage configured but AzureStorageConnection value cannot connect.", ex);
                 }
             }
             else

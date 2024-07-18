@@ -22,7 +22,7 @@
 		<PackageReference Include="Radzen.Blazor" Version="4.33.3" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
 		<PackageReference Include="Tewr.Blazor.FileReader" Version="3.3.2.23201" />
-		<PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+	    <PackageReference Include="Azure.Storage.Blobs" Version="12.14.1" />
 		<PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="8.103.0" />
 		<PackageReference Include="NETCore.MailKit" Version="2.1.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
