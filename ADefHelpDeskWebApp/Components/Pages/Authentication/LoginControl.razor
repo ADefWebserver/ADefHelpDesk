@@ -54,25 +54,30 @@
             </EditForm>
         </section>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div>
+    @if (externalLogins.Length > 0)
+    {
+        <div class="col-md-6 col-md-offset-2">
+            <section>
+                <h3>Login in with your social account</h3>
+                <hr />
+                <ExternalLoginPicker />
+            </section>
+        </div>
+    }
 </div>
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
-    string errorMessage = "";
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private string ReturnUrl { get; set; }
+
+    string errorMessage = "";
+
+    private AuthenticationScheme[] externalLogins = [];
 
     public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
@@ -85,6 +90,22 @@
                 // Clear the existing external cookie to ensure a clean login process
                 await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             }
+        }
+
+        // Suppress any external logins that are not configured
+
+        externalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
+
+        GeneralSettings objGeneralSettings = new GeneralSettings(GetConnectionString());
+
+        if (objGeneralSettings.GoogleClientID == "" || objGeneralSettings.GoogleClientSecret == "")
+        {
+            externalLogins = externalLogins.Where(x => x.Name != "Google").ToArray();
+        }
+
+        if (objGeneralSettings.MicrosoftClientID == "" || objGeneralSettings.MicrosoftClientSecret == "")
+        {
+            externalLogins = externalLogins.Where(x => x.Name != "Microsoft").ToArray();
         }
     }
 
