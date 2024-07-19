@@ -19,16 +19,6 @@ BEGIN
 INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Google:ClientSecret', N'')
 END
 
-if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Facebook:AppId') = 0
-BEGIN
-INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Facebook:AppId', N'')
-END
-
-if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Facebook:AppSecret') = 0
-BEGIN
-INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Facebook:AppSecret', N'')
-END
-
 if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Microsoft:ClientId') = 0
 BEGIN
 INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Microsoft:ClientId', N'')
@@ -37,16 +27,6 @@ END
 if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Microsoft:ClientSecret') = 0
 BEGIN
 INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Microsoft:ClientSecret', N'')
-END
-
-if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Twitter:ConsumerAPIKey') = 0
-BEGIN
-INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Twitter:ConsumerAPIKey', N'')
-END
-
-if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Twitter:ConsumerSecret') = 0
-BEGIN
-INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'Authentication:Twitter:ConsumerSecret', N'')
 END
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ADefHelpDesk_ApiSecurityPermission]') AND type in (N'U'))

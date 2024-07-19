@@ -187,6 +187,11 @@ namespace ADefHelpDeskWebApp.Controllers
                 objDTOApplicationSetting.allowRegistration = objGeneralSettings.AllowRegistration;
                 objDTOApplicationSetting.swaggerWebAddress = $"{BaseWebAddress}/swagger";
 
+                objDTOApplicationSetting.googleClientId = objGeneralSettings.GoogleClientID;
+                objDTOApplicationSetting.googleClientSecret = objGeneralSettings.GoogleClientSecret;
+                objDTOApplicationSetting.microsoftClientId = objGeneralSettings.MicrosoftClientID;
+                objDTOApplicationSetting.microsoftClientSecret = objGeneralSettings.MicrosoftClientSecret;
+
                 // Only return the following if a SuperUser is calling this method
                 if (UtilitySecurity.IsSuperUser(CurrentUserName, GetConnectionString()))
                 {

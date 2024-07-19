@@ -81,6 +81,42 @@
                                         Style="width:300px" />
                         </td>
                     </tr>
+
+
+                    <tr>
+                        <td>
+                            <label for="Application Name" class="control-label" style="font-weight: bold">Google Client ID: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Application Name" class="control-label" style="font-weight: bold">Google Client Secret: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Application Name" class="control-label" style="font-weight: bold">Microsoft Client ID: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Application Name" class="control-label" style="font-weight: bold">Microsoft Client Secret: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                        </td>
+                    </tr>
+
+
                     <tr>
                         <td>
                             <label for="Application GUID" class="control-label" style="font-weight: bold">Application GUID: </label>
@@ -134,6 +170,10 @@
     public string azurestorageconnection = "";
     public object selectedPermission = "";
     public string applicationGUID = "";
+    public string googleClientId = "";
+    public string googleClientSecret = "";
+    public string microsoftClientId = "";
+    public string microsoftClientSecret = "";
     public List<SelectItem> storageFileTypeDropdown = new List<SelectItem>();
     public List<SelectItem> uploadPermissionDropdown = new List<SelectItem>();
     public object selectedAllowUserRegistration;
@@ -192,6 +232,11 @@
         selectedPermission = DTOSettings.uploadPermission;
         selectedAllowUserRegistration = DTOSettings.allowRegistration;
         selectedVerifiedRegistration = DTOSettings.verifiedRegistration;
+
+        googleClientId = DTOSettings.googleClientId;
+        googleClientSecret = DTOSettings.googleClientSecret;
+        microsoftClientId = DTOSettings.microsoftClientId;
+        microsoftClientSecret = DTOSettings.microsoftClientSecret;
 
         StateHasChanged();
     }

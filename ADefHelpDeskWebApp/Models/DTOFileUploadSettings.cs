@@ -38,5 +38,9 @@ namespace AdefHelpDeskBase.Models
         public string termsOfUse { get; set; }
         public string privacyStatement { get; set; }
         public string swaggerWebAddress { get; set; }
+        public string googleClientId { get; set; }
+        public string googleClientSecret { get; set; }
+        public string microsoftClientId { get; set; }
+        public string microsoftClientSecret { get; set; }
     }
 }

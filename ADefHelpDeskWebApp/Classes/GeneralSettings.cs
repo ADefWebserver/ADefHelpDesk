@@ -50,6 +50,10 @@ namespace ADefHelpDeskWebApp.Classes
         string _ApplicationName;
         string _ApplicationGUID;
         string _VersionNumber;
+        string _GoogleClientID;
+        string _GoogleClientSecret;
+        string _MicrosoftClientID;
+        string _MicrosoftClientSecret;
 
         #region Public Properties
         public string SMTPServer
@@ -126,6 +130,26 @@ namespace ADefHelpDeskWebApp.Classes
         {
             get { return _VersionNumber; }
         }
+
+        public string GoogleClientID
+        {
+            get { return _GoogleClientID; }
+        }
+
+        public string GoogleClientSecret
+        {
+            get { return _GoogleClientSecret; }
+        }
+
+        public string MicrosoftClientID
+        {
+            get { return _MicrosoftClientID; }
+        }
+
+        public string MicrosoftClientSecret
+        {
+            get { return _MicrosoftClientSecret; }
+        }
         #endregion
 
         public GeneralSettings() { }
@@ -158,6 +182,11 @@ namespace ADefHelpDeskWebApp.Classes
 
                 _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
                 _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
+
+                _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
+                _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
+                _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
+                _MicrosoftClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret").SettingValue);
 
                 // Database Version
                 var result = context.AdefHelpDeskVersion
@@ -446,6 +475,78 @@ namespace ADefHelpDeskWebApp.Classes
 
                 resuts.FirstOrDefault().SettingValue = Convert.ToString(ApplicationGUID);
                 context.SaveChanges();
+            }
+        }
+        #endregion
+
+        #region GoogleClientID
+        public void UpdateGoogleClientID(string DefaultConnection, string GoogleClientID)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                var resuts = from Settings in context.AdefHelpDeskSettings
+                             where Settings.SettingName == "Authentication:Google:ClientId"
+                             select Settings;
+
+                resuts.FirstOrDefault().SettingValue = Convert.ToString(GoogleClientID);
+                context.SaveChanges();
+            }
+        }
+        #endregion
+
+        #region GoogleClientSecret
+        public void UpdateGoogleClientSecret(string DefaultConnection, string GoogleClientSecret)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                var setting = context.AdefHelpDeskSettings.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret");
+                if (setting != null)
+                {
+                    setting.SettingValue = GoogleClientSecret;
+                    context.SaveChanges();
+                }
+            }
+        }
+        #endregion
+
+        #region MicrosoftClientID
+        public void UpdateMicrosoftClientID(string DefaultConnection, string MicrosoftClientID)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                var setting = context.AdefHelpDeskSettings.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId");
+                if (setting != null)
+                {
+                    setting.SettingValue = MicrosoftClientID;
+                    context.SaveChanges();
+                }
+            }
+        }
+        #endregion
+
+        #region MicrosoftClientSecret
+        public void UpdateMicrosoftClientSecret(string DefaultConnection, string MicrosoftClientSecret)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(DefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                var setting = context.AdefHelpDeskSettings.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret");
+                if (setting != null)
+                {
+                    setting.SettingValue = MicrosoftClientSecret;
+                    context.SaveChanges();
+                }
             }
         }
         #endregion
