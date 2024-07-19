@@ -27,9 +27,9 @@
                         </td>
                         <td>
                             <RadzenDropDown Data=@storageFileTypeDropdown @bind-Value=@selectedStoragefiletype
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemStringValue"
-                                        Style="width:300px" />
+                                            TextProperty="ItemLabel"
+                                            ValueProperty="ItemStringValue"
+                                            Style="width:300px" />
                         </td>
                     </tr>
                     <tr hidden="@((String)selectedStoragefiletype == "AzureStorage")">
@@ -54,9 +54,9 @@
                         </td>
                         <td>
                             <RadzenDropDown Data=@uploadPermissionDropdown @bind-Value=@selectedPermission
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemStringValue"
-                                        Style="width:300px" />
+                                            TextProperty="ItemLabel"
+                                            ValueProperty="ItemStringValue"
+                                            Style="width:300px" />
                         </td>
                     </tr>
                     <tr>
@@ -65,9 +65,9 @@
                         </td>
                         <td>
                             <RadzenDropDown Data=@allowUserRegistrationDropdown @bind-Value=@selectedAllowUserRegistration
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemBoolValue"
-                                        Style="width:300px" />
+                                            TextProperty="ItemLabel"
+                                            ValueProperty="ItemBoolValue"
+                                            Style="width:300px" />
                         </td>
                     </tr>
                     <tr hidden="@(!(bool)selectedAllowUserRegistration)">
@@ -76,47 +76,43 @@
                         </td>
                         <td>
                             <RadzenDropDown Data=@verifiedRegistrationDropdown @bind-Value=@selectedVerifiedRegistration
-                                        TextProperty="ItemLabel"
-                                        ValueProperty="ItemBoolValue"
-                                        Style="width:300px" />
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <td>
-                            <label for="Application Name" class="control-label" style="font-weight: bold">Google Client ID: </label>
-                        </td>
-                        <td>
-                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                                            TextProperty="ItemLabel"
+                                            ValueProperty="ItemBoolValue"
+                                            Style="width:300px" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Application Name" class="control-label" style="font-weight: bold">Google Client Secret: </label>
+                            <label for="Google Client Id" class="control-label" style="font-weight: bold">Google Client ID: </label>
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                            <RadzenTextBox @bind-Value=@googleClientId style="width: 100%;" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Application Name" class="control-label" style="font-weight: bold">Microsoft Client ID: </label>
+                            <label for="Google Client Secret" class="control-label" style="font-weight: bold">Google Client Secret: </label>
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                            <RadzenTextBox @bind-Value=@googleClientSecret style="width: 100%;" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Application Name" class="control-label" style="font-weight: bold">Microsoft Client Secret: </label>
+                            <label for="Microsoft Client Id" class="control-label" style="font-weight: bold">Microsoft Client ID: </label>
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value=@applicationName style="width: 100%;" />
+                            <RadzenTextBox @bind-Value=@microsoftClientId style="width: 100%;" />
                         </td>
                     </tr>
-
-
+                    <tr>
+                        <td>
+                            <label for="Microsoft Client Secret" class="control-label" style="font-weight: bold">Microsoft Client Secret: </label>
+                        </td>
+                        <td>
+                            <RadzenTextBox @bind-Value=@microsoftClientSecret style="width: 100%;" />
+                        </td>
+                    </tr>
                     <tr>
                         <td>
                             <label for="Application GUID" class="control-label" style="font-weight: bold">Application GUID: </label>
@@ -128,8 +124,8 @@
                     <tr>
                         <td>
                             <button type="button" label="Save"
-                                class="btn btn-success"
-                                @onclick="Save">
+                                    class="btn btn-success"
+                                    @onclick="Save">
                                 Save
                             </button>
                         </td>
@@ -251,21 +247,25 @@
 
             // Get the form values
             DTOApplicationSetting ApplicationSettings = new DTOApplicationSetting()
-            {
-                applicationName = applicationName,
-                applicationGUID = applicationGUID,
-                fileUploadPath = fileUploadPath,
-                storagefiletype = (String)selectedStoragefiletype,
-                azurestorageconnection = this.azurestorageconnection,
-                uploadPermission = (String)selectedPermission,
-                allowRegistration = (bool)selectedAllowUserRegistration,
-                verifiedRegistration = (bool)selectedVerifiedRegistration,
-                status = "",
-                valid = true,
-                termsOfUse = "",
-                privacyStatement = "",
-                swaggerWebAddress = ""
-            };
+                {
+                    applicationName = applicationName,
+                    applicationGUID = applicationGUID,
+                    fileUploadPath = fileUploadPath,
+                    storagefiletype = (String)selectedStoragefiletype,
+                    azurestorageconnection = this.azurestorageconnection,
+                    uploadPermission = (String)selectedPermission,
+                    allowRegistration = (bool)selectedAllowUserRegistration,
+                    verifiedRegistration = (bool)selectedVerifiedRegistration,
+                    googleClientId = googleClientId,
+                    googleClientSecret = googleClientSecret,
+                    microsoftClientId = microsoftClientId,
+                    microsoftClientSecret = microsoftClientSecret,
+                    status = "",
+                    valid = true,
+                    termsOfUse = "",
+                    privacyStatement = "",
+                    swaggerWebAddress = ""
+                };
 
             // Call the service
             DTOApplicationSetting result = _ApplicationSettingsController.SetSettings(ApplicationSettings, CurrentUser.Identity.Name);

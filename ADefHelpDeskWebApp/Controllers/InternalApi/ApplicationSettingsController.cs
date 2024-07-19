@@ -255,6 +255,10 @@ namespace ADefHelpDeskWebApp.Controllers
                 objGeneralSettings.UpdateUploadPermission(GetConnectionString(), ApplicationSetting.uploadPermission);
                 objGeneralSettings.UpdateAllowRegistration(GetConnectionString(), ApplicationSetting.allowRegistration);
                 objGeneralSettings.UpdateVerifiedRegistration(GetConnectionString(), ApplicationSetting.verifiedRegistration);
+                objGeneralSettings.UpdateGoogleClientID(GetConnectionString(), ApplicationSetting.googleClientId);
+                objGeneralSettings.UpdateGoogleClientSecret(GetConnectionString(), ApplicationSetting.googleClientSecret);
+                objGeneralSettings.UpdateMicrosoftClientID(GetConnectionString(), ApplicationSetting.microsoftClientId);
+                objGeneralSettings.UpdateMicrosoftClientSecret(GetConnectionString(), ApplicationSetting.microsoftClientSecret);
             }
             catch (Exception ex)
             {
