@@ -1,9 +1,12 @@
-﻿@using AdefHelpDeskBase.Models
+﻿@using ADefHelpDeskWebApp.Classes
+@using ADefHelpDeskWebApp.Controllers
+@using AdefHelpDeskBase.Models
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using ADefHelpDeskWebApp.Data
-
+@inject ApplicationSettingsController _ApplicationSettingsController
 @inject SignInManager<ApplicationUser> SignInManager
+@inject IConfiguration _configuration
 <style>
     .btn-google:hover {
         background: #b22222;
@@ -25,63 +28,49 @@
         color: #fff;
     }
 </style>
-@if (externalLogins.Length == 0)
-{
+<form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
     <div>
+        <AntiforgeryToken />
+        <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
         <p>
-            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                article
-                about setting up this ASP.NET application to support logging in via external services
-            </a>.
+            @foreach (var provider in externalLogins)
+            {
+                if (provider.Name == "Google")
+                {
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
+                                title="Log in using your @provider.DisplayName account" name="provider">
+                            <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>Google
+                        </button>
+                    </div>
+                    <span>&nbsp;&nbsp;</span>
+                }
+                else if (provider.Name == "Microsoft")
+                {
+                    <div class="col-md-2">
+                        <button class="btn-block btn btn-microsoft" type="submit" value="@provider.Name"
+                                title="Log in using your @provider.DisplayName account" name="provider">
+                            <i class="fab fa-microsoft fa-align-left social-icon"></i>Microsoft
+                        </button>
+                    </div>
+                    <span>&nbsp;&nbsp;</span>
+                }
+                else
+                {
+                    <div class="col-md-2">
+                        <button class="btn-block btn btn-linkedin" type="submit" name="provider"
+                                value="@provider.Name" title="Log in using your @provider.DisplayName account">
+
+                            <i class="fab fa-life-buoy fa-align-left social-icon"></i>
+                            Sign in with @provider.Name
+
+                        </button>
+                    </div>
+                }
+            }
         </p>
     </div>
-}
-else
-{
-    <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
-        <div>
-            <AntiforgeryToken />
-            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
-            <p>
-                @foreach (var provider in externalLogins)
-                {
-                    if (provider.Name == "Google")
-                    {
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
-                                    title="Log in using your @provider.DisplayName account" name="provider">
-                                <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>Google
-                            </button>
-                        </div>
-                        <span>&nbsp;&nbsp;</span>
-                    }
-                    else if (provider.Name == "Microsoft")
-                    {
-                        <div class="col-md-2">
-                            <button class="btn-block btn btn-microsoft" type="submit" value="@provider.Name"
-                                    title="Log in using your @provider.DisplayName account" name="provider">
-                                <i class="fab fa-microsoft fa-align-left social-icon"></i>Microsoft
-                            </button>
-                        </div>
-                        <span>&nbsp;&nbsp;</span>
-                    }
-                    else
-                    {
-                        <div class="col-md-2">
-                            <button class="btn-block btn btn-linkedin" type="submit" name="provider"
-                                    value="@provider.Name" title="Log in using your @provider.DisplayName account">
-
-                                <i class="fab fa-life-buoy fa-align-left social-icon"></i>
-                                Sign in with @provider.Name
-
-                            </button>
-                        </div>
-                    }
-                }
-            </p>
-        </div>
-    </form>
-}
+</form>
 
 @code {
     private AuthenticationScheme[] externalLogins = [];
@@ -92,5 +81,20 @@ else
     protected override async Task OnInitializedAsync()
     {
         externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
+
+        // Suppress any external logins that are not configured
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        GeneralSettings objGeneralSettings = new GeneralSettings(strDefaultConnection);
+
+        if (objGeneralSettings.GoogleClientID == "" || objGeneralSettings.GoogleClientSecret == "")
+        {
+            externalLogins = externalLogins.Where(x => x.Name != "Google").ToArray();
+        }
+
+        if (objGeneralSettings.MicrosoftClientID == "" || objGeneralSettings.MicrosoftClientSecret == "")
+        {
+            externalLogins = externalLogins.Where(x => x.Name != "Microsoft").ToArray();
+        }
     }
 }

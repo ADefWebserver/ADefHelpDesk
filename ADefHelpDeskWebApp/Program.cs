@@ -53,7 +53,7 @@ namespace ADefHelpDeskWebApp
 
             GeneralSettings objGeneralSettings = new GeneralSettings(builder.Configuration.GetConnectionString("DefaultConnection"));
 
-            string GoogleClientID = "apps.googleusercontent.com";
+            string GoogleClientID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string GoogleClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string MicrosoftClientId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string MicrosoftClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
