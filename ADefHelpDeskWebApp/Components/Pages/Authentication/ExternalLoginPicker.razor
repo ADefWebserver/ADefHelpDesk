@@ -4,13 +4,35 @@
 @using ADefHelpDeskWebApp.Data
 
 @inject SignInManager<ApplicationUser> SignInManager
+<style>
+    .btn-google:hover {
+        background: #b22222;
+        color: #fff;
+    }
 
+    .btn-microsoft:hover {
+        background: #00618E;
+        color: #fff;
+    }
+
+    .btn-google {
+        background: #d24228;
+        color: #fff;
+    }
+
+    .btn-microsoft {
+        background: #007bb6;
+        color: #fff;
+    }
+</style>
 @if (externalLogins.Length == 0)
 {
     <div>
         <p>
-            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-            about setting up this ASP.NET application to support logging in via external services</a>.
+            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                article
+                about setting up this ASP.NET application to support logging in via external services
+            </a>.
         </p>
     </div>
 }
@@ -23,7 +45,38 @@ else
             <p>
                 @foreach (var provider in externalLogins)
                 {
-                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                    if (provider.Name == "Google")
+                    {
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
+                                    title="Log in using your @provider.DisplayName account" name="provider">
+                                <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>Google
+                            </button>
+                        </div>
+                        <span>&nbsp;&nbsp;</span>
+                    }
+                    else if (provider.Name == "Microsoft")
+                    {
+                        <div class="col-md-2">
+                            <button class="btn-block btn btn-microsoft" type="submit" value="@provider.Name"
+                                    title="Log in using your @provider.DisplayName account" name="provider">
+                                <i class="fab fa-microsoft fa-align-left social-icon"></i>Microsoft
+                            </button>
+                        </div>
+                        <span>&nbsp;&nbsp;</span>
+                    }
+                    else
+                    {
+                        <div class="col-md-2">
+                            <button class="btn-block btn btn-linkedin" type="submit" name="provider"
+                                    value="@provider.Name" title="Log in using your @provider.DisplayName account">
+
+                                <i class="fab fa-life-buoy fa-align-left social-icon"></i>
+                                Sign in with @provider.Name
+
+                            </button>
+                        </div>
+                    }
                 }
             </p>
         </div>

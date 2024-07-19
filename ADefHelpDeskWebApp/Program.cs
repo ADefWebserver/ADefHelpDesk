@@ -47,6 +47,31 @@ namespace ADefHelpDeskWebApp
 
             builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
 
+            builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            GeneralSettings objGeneralSettings = new GeneralSettings(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+            string GoogleClientID = "apps.googleusercontent.com";
+            string GoogleClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
+            string MicrosoftClientId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
+            string MicrosoftClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
+
+            if (objGeneralSettings.GoogleClientID.Trim() != "")
+            {
+                GoogleClientID = objGeneralSettings.GoogleClientID.Trim();
+                GoogleClientSecret = objGeneralSettings.GoogleClientSecret.Trim();
+            }
+
+            if (objGeneralSettings.MicrosoftClientID.Trim() != "")
+            {
+                MicrosoftClientId = objGeneralSettings.MicrosoftClientID.Trim();
+                MicrosoftClientSecret = objGeneralSettings.MicrosoftClientSecret.Trim();
+            }
+
+            builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
             byte[] signingKeyBytes = Encoding.UTF8.GetBytes(
                 ApiSecurityController.GetAPIEncryptionKeyKey(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -69,15 +94,20 @@ namespace ADefHelpDeskWebApp
                     ValidateAudience = false,
                     ValidateLifetime = true
                 };
-            }).AddIdentityCookies();
+            }).AddGoogle(googleoptions =>
+            {
+                googleoptions.ClientId = GoogleClientID;
+                googleoptions.ClientSecret = GoogleClientSecret;
+            })
+           .AddMicrosoftAccount(microsoftOptions =>
+           {
+               microsoftOptions.ClientId = MicrosoftClientId;
+               microsoftOptions.ClientSecret = MicrosoftClientSecret;
+           }).AddIdentityCookies();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
-            options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddRoles<IdentityRole>()
