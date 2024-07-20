@@ -30,6 +30,24 @@
 
 <StatusMessage Message="@message" />
 
+@if (Showlogout)
+{
+    <div style="background-color:cornsilk">
+    @if (externalLoginInfo.LoginProvider == "Google")
+    {        
+        <a href="https://accounts.google.com/Logout" class="btn-block btn btn-google" title="Log out of your Google account" name="provider">
+                <u>[Log out of your <i class="fab fa-google fa-align-left social-icon"></i>oogle account]</u>
+        </a>        
+    }
+    else if (externalLoginInfo.LoginProvider == "Microsoft")
+    {
+        <a href="https://login.microsoftonline.com/logout.srf" class="btn-block btn btn-microsoft" title="Log out of your Microsoft account" name="provider">
+                <u>[Log out of your <i class="fab fa-microsoft fa-align-left social-icon"></i> Microsoft account]</u>
+        </a>
+    }
+    </div>
+}
+
 @code {
     public const string LoginCallbackAction = "LoginCallback";
 
@@ -54,6 +72,7 @@
     private string ProviderDisplayName => externalLoginInfo.ProviderDisplayName;
 
     private bool AllowRegistration = false;
+    private bool Showlogout = false;
 
     // RegisterStatus to return
     RegisterStatus objRegisterStatus = new RegisterStatus();
@@ -166,6 +185,7 @@
         if (!objRegisterStatus.isSuccessful)
         {
             message = objRegisterStatus.status;
+            Showlogout = true;
             StateHasChanged();
             return;
         }
