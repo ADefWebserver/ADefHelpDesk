@@ -27,7 +27,7 @@
 @inject ILogger<ExternalLogin> Logger
 
 <PageTitle>External Login</PageTitle>
-@if(message != null)
+@if (message != null)
 {
     <div class="alert alert-danger" role="alert">
         @message
@@ -36,9 +36,9 @@
 <h2>Associate your @ProviderDisplayName account to @strEmail</h2>
 <hr />
 
-<div  class="alert alert-info">
+<div class="alert alert-info">
     You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
-    Please enter the password for the existing <strong>@strEmail</strong> account 
+    Please enter the password for the existing <strong>@strEmail</strong> account
     and click the <strong>Associate</strong> button to finish logging in.
 </div>
 
@@ -48,10 +48,10 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Password" 
-                class="form-control" 
-                autocomplete="password" type="password" 
-                placeholder="Please enter the password for the account." />
+                <InputText @bind-Value="Input.Password"
+                           class="form-control"
+                           autocomplete="password" type="password"
+                           placeholder="Please enter the password for the account." />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Associate</button>
         </EditForm>
@@ -165,6 +165,7 @@
                 "{Name} logged in with {LoginProvider} provider.",
                 externalLoginInfo.Principal.Identity?.Name,
                 externalLoginInfo.LoginProvider);
+
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
@@ -184,41 +185,57 @@
 
     private async Task OnValidSubmitAsync()
     {
-        //var emailStore = GetEmailStore();
-        // var user = CreateUser();
+        if (Input.Password != null)
+        {
+            try
+            {
+                // Get email of the ExternalLoginUser
+                string ExternalLoginUserEmail = "";
+                if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                {
+                    ExternalLoginUserEmail =
+                        externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email);
+                }
 
-        // await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-        // await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                // Check password against user in database
+                var user = await UserManager.FindByEmailAsync(ExternalLoginUserEmail);
 
-        // var result = await UserManager.CreateAsync(user);
-        // if (result.Succeeded)
-        // {
-        //     result = await UserManager.AddLoginAsync(user, externalLoginInfo);
-        //     if (result.Succeeded)
-        //     {
-        //         Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
+                if (user != null)
+                {
+                    var CheckPasswordResult =
+                        await UserManager.CheckPasswordAsync(user, Input.Password);
 
-        //         var userId = await UserManager.GetUserIdAsync(user);
-        //         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-        //         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    if (CheckPasswordResult)
+                    {
+                        // user found and password is correct
+                        // add external login to user and sign in
+                        var AddLoginResult =
+                            await UserManager.AddLoginAsync(user, externalLoginInfo);
 
-        //         var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-        //             NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-        //             new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
-        //         await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-        //         // If account confirmation is required, we need to show the link if we don't have a real email sender
-        //         if (UserManager.Options.SignIn.RequireConfirmedAccount)
-        //         {
-        //             RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email });
-        //         }
-
-        //         await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
-        //         RedirectManager.RedirectTo(ReturnUrl);
-        //     }
-        // }
-
-        message = Input.Password;
+                        if (AddLoginResult.Succeeded)
+                        {
+                            await SignInManager.SignInAsync(user, isPersistent: false);
+                            RedirectManager.RedirectTo(ReturnUrl);
+                        }
+                        else
+                        {
+                            foreach (var error in AddLoginResult.Errors)
+                            {
+                                message = error.Description;
+                            }
+                        }
+                    }
+                    else // password is incorrect
+                    {
+                        message = "Password is incorrect";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+        }
     }
 
     private async Task CreateAccountAsync()
