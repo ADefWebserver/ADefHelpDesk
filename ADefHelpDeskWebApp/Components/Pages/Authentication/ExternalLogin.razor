@@ -33,54 +33,63 @@
         @message
     </div>
 }
-<h2>Associate your @ProviderDisplayName account to @strEmail</h2>
-<hr />
 
-<div class="alert alert-info">
-    You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
-    Please enter the password for the existing <strong>@strEmail</strong> account
-    and click the <strong>Associate</strong> button to finish logging in.
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Password"
-                           class="form-control"
-                           autocomplete="password" type="password"
-                           placeholder="Please enter the password for the account." />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Associate</button>
-        </EditForm>
-    </div>
-</div>
-
-<br />
-@if (Showlogout)
+@if (!ShowSuccess)
 {
+    <h2>Associate your @ProviderDisplayName account to @strEmail</h2>
+    <hr />
+
+    <div class="alert alert-info">
+        You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
+        Please enter the password for the existing <strong>@strEmail</strong> account
+        and click the <strong>Associate</strong> button to finish logging in.
+    </div>
+
     <div class="row">
         <div class="col-md-4">
-            <div style="background-color:cornsilk">
-                @if (externalLoginInfo.LoginProvider == "Google")
-                {
-                    <a href="https://accounts.google.com/Logout" class="btn-block btn btn-google" title="Log out of your Google account" name="provider">
-                        Or <u>[Log out of your <i class="fab fa-google fa-align-left social-icon"></i>oogle account]</u>
-                    </a>
-                }
-                else if (externalLoginInfo.LoginProvider == "Microsoft")
-                {
-                    <a href="https://login.microsoftonline.com/logout.srf" class="btn-block btn btn-microsoft" title="Log out of your Microsoft account" name="provider">
-                        Or <u>[Log out of <i class="fab fa-microsoft fa-align-left social-icon"></i> Microsoft account]</u>
-                    </a>
-                }
-            </div>
+            <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Password"
+                               class="form-control"
+                               autocomplete="password" type="password"
+                               placeholder="Please enter the password for the account." />
+                </div>
+                <button type="submit" class="w-100 btn btn-lg btn-primary">Associate</button>
+            </EditForm>
         </div>
     </div>
-}
 
+    <br />
+    @if (Showlogout)
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <div style="background-color:cornsilk">
+                    @if (externalLoginInfo.LoginProvider == "Google")
+                    {
+                        <a href="https://accounts.google.com/Logout" class="btn-block btn btn-google" title="Log out of your Google account" name="provider">
+                            Or <u>[Log out of your <i class="fab fa-google fa-align-left social-icon"></i>oogle account]</u>
+                        </a>
+                    }
+                    else if (externalLoginInfo.LoginProvider == "Microsoft")
+                    {
+                        <a href="https://login.microsoftonline.com/logout.srf" class="btn-block btn btn-microsoft" title="Log out of your Microsoft account" name="provider">
+                            Or <u>[Log out of <i class="fab fa-microsoft fa-align-left social-icon"></i> Microsoft account]</u>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info">
+        You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
+    </div>
+}
 @code {
     public const string LoginCallbackAction = "LoginCallback";
 
@@ -106,6 +115,7 @@
 
     private bool AllowRegistration = false;
     private bool Showlogout = false;
+    private bool ShowSuccess = false;
 
     string strEmail = "";
     string strFirstName = "";
@@ -215,7 +225,7 @@
                         if (AddLoginResult.Succeeded)
                         {
                             await SignInManager.SignInAsync(user, isPersistent: false);
-                            RedirectManager.RedirectTo(ReturnUrl);
+                            ShowSuccess = true;
                         }
                         else
                         {
