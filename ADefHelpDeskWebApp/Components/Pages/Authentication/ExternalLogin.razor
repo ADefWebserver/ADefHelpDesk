@@ -87,7 +87,8 @@
 else
 {
     <div class="alert alert-info">
-        You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
+        You've successfully associated <strong>@ProviderDisplayName</strong> with the existing <strong>@strEmail</strong> account.
+        Close your web browser and navigate to <strong>@NavigationManager.BaseUri</strong> and log in.
     </div>
 }
 @code {
@@ -224,8 +225,9 @@ else
 
                         if (AddLoginResult.Succeeded)
                         {
-                            await SignInManager.SignInAsync(user, isPersistent: false);
+                            await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
                             ShowSuccess = true;
+                            HttpContext.RedirectTo("/Index");
                         }
                         else
                         {
