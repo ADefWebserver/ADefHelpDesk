@@ -87,9 +87,20 @@
 else
 {
     <div class="alert alert-info">
-        You've successfully associated <strong>@ProviderDisplayName</strong> with the existing <strong>@strEmail</strong> account.
-        Close your web browser and navigate to <strong>@NavigationManager.BaseUri</strong> and log in.
+        You've successfully associated <strong>@ProviderDisplayName</strong> with the existing account.
     </div>
+    <br />
+    <form class="form-horizontal" action="/Index" method="get">
+        <div>
+            <AntiforgeryToken />
+            <div class="col-md-3">
+                <button type="submit" name="provider" class="w-100 btn btn-lg btn-primary"
+                        value="continue" title="Log in to your account">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </form>
 }
 @code {
     public const string LoginCallbackAction = "LoginCallback";
