@@ -3,8 +3,10 @@
 @using AdefHelpDeskBase.Controllers;
 @using AdefHelpDeskBase.Models
 @using ADefHelpDeskWebApp.Classes
+@using Microsoft.AspNetCore.Identity
 @inject IConfiguration _configuration
 @inject ProfileController _ProfileController
+@inject UserManager<ApplicationUser> userManager
 @inject NavigationManager NavigationManager
 
 <h4>Profile</h4>
@@ -44,22 +46,25 @@
                         <input size="50" type="email" id="Email" class="form-control" @bind="strEmail" />
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        <label for="Title" class="control-label" style="font-weight: bold">Original Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" id="Password" class="form-control" @bind="strOrginalPassword" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Title" class="control-label" style="font-weight: bold">New Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
-                    </td>
-                </tr>
+                @if (hasPassword)
+                {
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Original Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strOrginalPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">New Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
+                        </td>
+                    </tr>
+                }
                 <tr>
                     <td>
                         <button type="button" label="Update"
@@ -95,6 +100,8 @@
     string strOrginalPassword = "";
     string strNewPassword = "";
 
+    bool hasPassword = false;
+
     protected override async Task OnInitializedAsync()
     {
         // Get database conection string
@@ -110,6 +117,10 @@
         strEmail = objDTOUser.email;
 
         _ProfileController = (ProfileController)ScopedServices.GetService(typeof(ProfileController));
+
+        // Convert CurrentUser to ApplicationUser
+        var user = await userManager.GetUserAsync(CurrentUser);
+        hasPassword = await userManager.HasPasswordAsync(user);
     }
 
     private async void UpdateUser()
