@@ -65,6 +65,17 @@
                         </td>
                     </tr>
                 }
+                else
+                {
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
+                        </td>
+                    </tr>
+                }
                 <tr>
                     <td>
                         <button type="button" label="Update"
@@ -90,6 +101,7 @@
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     System.Security.Claims.ClaimsPrincipal CurrentUser;
+    ApplicationUser applicationUser = new ApplicationUser();
 
     string Message = "";
 
@@ -109,6 +121,11 @@
 
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
+
+        // Convert CurrentUser to ApplicationUser
+        applicationUser = await userManager.GetUserAsync(CurrentUser);
+
+        // Get the user information
         DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
 
         strUserName = objDTOUser.userName;
@@ -118,9 +135,8 @@
 
         _ProfileController = (ProfileController)ScopedServices.GetService(typeof(ProfileController));
 
-        // Convert CurrentUser to ApplicationUser
-        var user = await userManager.GetUserAsync(CurrentUser);
-        hasPassword = await userManager.HasPasswordAsync(user);
+        // Check if the user has a password
+        hasPassword = await userManager.HasPasswordAsync(applicationUser);
     }
 
     private async void UpdateUser()
@@ -128,6 +144,22 @@
         try
         {
             Message = "";
+
+            if (!hasPassword)
+            {
+                if (strNewPassword.Trim() == "")
+                {
+                    Message = "A Password is required to update your profile. Please enter a password.";
+                    StateHasChanged();
+                    return;
+                }
+
+                // Add the password
+                await AddPasswordAsync(strNewPassword.Trim());
+
+                // Set the original password to the new password
+                strOrginalPassword = strNewPassword;
+            }
 
             ProfileDTO objProfileDTO = new ProfileDTO();
             objProfileDTO.email = strEmail;
@@ -159,5 +191,18 @@
             StateHasChanged();
             return;
         }
+    }
+
+    private async Task AddPasswordAsync(string paramNewPassword)
+    {
+        var addPasswordResult = await userManager.AddPasswordAsync(applicationUser, paramNewPassword);
+
+        if (!addPasswordResult.Succeeded)
+        {
+            Message = $"Error: {string.Join(",", addPasswordResult.Errors.Select(error => error.Description))}";
+            return;
+        }
+
+        hasPassword = await userManager.HasPasswordAsync(applicationUser);
     }
 }
