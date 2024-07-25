@@ -286,7 +286,7 @@ else
         objRegister.userName = strEmail;
         objRegister.firstName = strFirstName;
         objRegister.lastName = strLastName;
-        objRegister.password = CreateVerificationKey(12);
+        objRegister.password = "";
 
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
 

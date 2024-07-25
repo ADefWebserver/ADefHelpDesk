@@ -191,7 +191,16 @@ namespace AdefHelpDeskBase.Controllers
                 objApplicationUser.Email = paramEmail;
                 objApplicationUser.EmailConfirmed = true;
 
-                var result = await _userManager.CreateAsync(objApplicationUser, paramPassword);
+                IdentityResult result = new IdentityResult();
+
+                if (paramPassword == "")
+                {
+                    result = await _userManager.CreateAsync(objApplicationUser);
+                }
+                else
+                {
+                    result = await _userManager.CreateAsync(objApplicationUser, paramPassword);
+                }
 
                 if (!result.Succeeded)
                 {
