@@ -69,7 +69,7 @@
                 {
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                            <label for="Title" class="control-label" style="font-weight: bold">Set Password: </label>
                         </td>
                         <td>
                             <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
@@ -153,6 +153,15 @@
                     StateHasChanged();
                     return;
                 }
+
+                // Test that the password has a number and a non-alphanumeric character
+                if (!UtilitySecurity.IsPasswordStrong(strNewPassword.Trim()))
+                {
+                    Message = "The password must contain at least one number and one non-alphanumeric character and the password must be at least 9 characters long.";
+                    StateHasChanged();
+                    return;
+                }
+
 
                 // Add the password
                 await AddPasswordAsync(strNewPassword.Trim());
