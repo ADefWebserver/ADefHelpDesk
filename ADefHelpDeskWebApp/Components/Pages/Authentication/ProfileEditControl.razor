@@ -3,6 +3,7 @@
 @using AdefHelpDeskBase.Controllers;
 @using AdefHelpDeskBase.Models
 @using ADefHelpDeskWebApp.Classes
+@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @inject IConfiguration _configuration
 @inject ProfileController _ProfileController
@@ -87,6 +88,31 @@
                 </tr>
             </tbody>
         </table>
+        <br />
+        <!-- Display list of currentLogins -->
+        @if (currentLogins != null)
+        {
+            <table class="form-group" cellpadding="4" cellspacing="4">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">External Logins: </label>
+                        </td>
+                    </tr>
+                    @foreach (var login in currentLogins)
+                    {
+                        <tr>
+                            <td>
+                                <label class="control-label">@login.LoginProvider</label>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger" @onclick="() => DeleteLogin(login)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </Authorized>
     <NotAuthorized>
         <p>You're not signed in.</p>
@@ -102,6 +128,9 @@
 
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     ApplicationUser applicationUser = new ApplicationUser();
+
+    private IList<UserLoginInfo> currentLogins;
+    private IList<AuthenticationScheme> otherLogins;
 
     string Message = "";
 
@@ -137,6 +166,8 @@
 
         // Check if the user has a password
         hasPassword = await userManager.HasPasswordAsync(applicationUser);
+
+        currentLogins = await userManager.GetLoginsAsync(applicationUser);
     }
 
     private async void UpdateUser()
@@ -213,5 +244,22 @@
         }
 
         hasPassword = await userManager.HasPasswordAsync(applicationUser);
+    }
+
+    private async void DeleteLogin(UserLoginInfo objUserLoginInfo)
+    {
+        var result = await userManager.RemoveLoginAsync(applicationUser, objUserLoginInfo.LoginProvider, objUserLoginInfo.ProviderKey);
+
+        if (result.Succeeded)
+        {
+            // Refresh the current logins
+            currentLogins = await userManager.GetLoginsAsync(applicationUser);
+        }
+        else
+        {
+            Message = result.Errors.FirstOrDefault().Description;
+            StateHasChanged();
+            return;
+        }
     }
 }
