@@ -94,11 +94,14 @@
         {
             <table class="form-group" cellpadding="4" cellspacing="4">
                 <tbody>
-                    <tr>
-                        <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">External Logins: </label>
-                        </td>
-                    </tr>
+                    @if (currentLogins.Count > 0)
+                    {
+                        <tr>
+                            <td>
+                                <label for="Title" class="control-label" style="font-weight: bold">External Logins: </label>
+                            </td>
+                        </tr>
+                    }
                     @foreach (var login in currentLogins)
                     {
                         <tr>
@@ -253,7 +256,9 @@
         if (result.Succeeded)
         {
             // Refresh the current logins
-            currentLogins = await userManager.GetLoginsAsync(applicationUser);
+            currentLogins = currentLogins.Where(ul => ul.LoginProvider != objUserLoginInfo.LoginProvider).ToList();
+            StateHasChanged();
+            return;
         }
         else
         {
