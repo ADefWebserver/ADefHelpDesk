@@ -5,6 +5,8 @@
 @using ADefHelpDeskWebApp.Classes
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
 @inject IConfiguration _configuration
 @inject ProfileController _ProfileController
 @inject UserManager<ApplicationUser> userManager
@@ -109,7 +111,7 @@
                                 <label class="control-label">@login.LoginProvider</label>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-danger" @onclick="() => DeleteLogin(login)">Delete</button>
+                                <button type="button" class="btn btn-danger" @onclick="() => ConfirmDelete(login)">Delete</button>
                             </td>
                         </tr>
                     }
@@ -265,6 +267,16 @@
             Message = result.Errors.FirstOrDefault().Description;
             StateHasChanged();
             return;
+        }
+    }
+
+    [JSInvokable]
+    public async Task ConfirmDelete(UserLoginInfo login)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to delete the login for {login.ProviderDisplayName}?" });
+        if (confirmed)
+        {
+            DeleteLogin(login);
         }
     }
 }
