@@ -53,23 +53,6 @@ namespace Microsoft.AspNetCore.Routing
 
             var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
 
-            manageGroup.MapPost("/LinkExternalLogin", async (
-                HttpContext context,
-                [FromServices] SignInManager<ApplicationUser> signInManager,
-                [FromForm] string provider) =>
-            {
-                // Clear the existing external cookie to ensure a clean login process
-                await context.SignOutAsync(IdentityConstants.ExternalScheme);
-
-                var redirectUrl = UriHelper.BuildRelative(
-                    context.Request.PathBase,
-                    "/Account/Manage/ExternalLogins",
-                    QueryString.Create("Action", ExternalLogins.LinkLoginCallbackAction));
-
-                var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, signInManager.UserManager.GetUserId(context.User));
-                return TypedResults.Challenge(properties, new[] { provider });
-            }).WithMetadata(new HideFromSwaggerAttribute());
-
             var loggerFactory = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>();
             var downloadLogger = loggerFactory.CreateLogger("DownloadPersonalData");
 

@@ -253,6 +253,13 @@
 
     private async void DeleteLogin(UserLoginInfo objUserLoginInfo)
     {
+        if (!hasPassword)
+        {
+            Message = "You cannot delete your login if you have not set a password. Please set a password first.";
+            StateHasChanged();
+            return;
+        }
+
         var result = await userManager.RemoveLoginAsync(applicationUser, objUserLoginInfo.LoginProvider, objUserLoginInfo.ProviderKey);
 
         if (result.Succeeded)
