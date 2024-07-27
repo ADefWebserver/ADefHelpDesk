@@ -24,6 +24,7 @@
 @inject SignInManager<ApplicationUser> _SignInManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject ADefHelpDeskContext _ADefHelpDeskService
+@inject IHttpContextAccessor _httpContextAccessor
 @inject NavigationManager NavigationManager
 @if (!UserCreated)
 {
@@ -167,6 +168,16 @@
                 {
                     Message = objRegisterStatus.status;
                 }
+
+                try
+                {
+                    Log.InsertSystemLog(strDefaultConnection, "RegisterUser", objRegister.userName, $"Register User: {objRegister.userName}");
+                }
+                catch
+                {
+                    // Do nothing
+                }
+
                 StateHasChanged();
                 return;
             }

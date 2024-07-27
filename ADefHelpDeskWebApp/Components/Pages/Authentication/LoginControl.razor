@@ -131,6 +131,16 @@
                 if (objUser != null)
                 {
                     await _signInManager.SignInAsync(objUser, false);
+
+                    try
+                    {
+                        Log.InsertSystemLog(GetConnectionString(), "Login", objUser.UserName, $"{objUser.UserName} logged in ");
+                    }
+                    catch
+                    {
+                        // Do nothing
+                    }
+
                     HttpContext.RedirectTo("/Index");
                 }
             }
