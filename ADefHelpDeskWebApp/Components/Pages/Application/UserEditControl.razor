@@ -3,6 +3,8 @@
 @using System.Collections.Generic
 @using System.Linq
 @using System.Linq.Dynamic.Core
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
 @using Radzen
 @using Radzen.Blazor
 @using AdefHelpDeskBase.Models
@@ -12,11 +14,13 @@
 @using ADefHelpDeskWebApp.Classes
 @using ADefHelpDeskWebApp.Controllers
 @using ADefHelpDeskWebApp.Controllers.InternalApi
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject DialogService dialogService
 @inject IConfiguration _configuration
 @inject RoleController _RoleController
 @inject UserManagerController _UserManagerController
+@inject UserManager<ApplicationUser> userManager
 
 @if (@strError != "")
 {
@@ -24,7 +28,7 @@
 }
 <div class="row">
 	<div class="col-md-12">
-		<RadzenTabs RenderMode="TabRenderMode.Server">
+		<RadzenTabs Change="OnTabChange" RenderMode="TabRenderMode.Server">
 			<Tabs>
 				<RadzenTabsItem Text="Details">
 					<table class="form-group" cellpadding="4" cellspacing="4" style="width: 100%;">
@@ -111,31 +115,60 @@
 						</Columns>
 					</RadzenDataGrid>
 				</RadzenTabsItem>
+				<RadzenTabsItem Text="External Logins">
+					<!-- Display list of currentLogins -->
+					@if (currentLogins != null)
+					{
+						<table class="form-group" cellpadding="4" cellspacing="4">
+							<tbody>
+								@foreach (var login in currentLogins)
+								{
+									<tr>
+										<td>
+											<label class="control-label">@login.LoginProvider</label>
+										</td>
+										<td>
+											<button type="button" class="btn btn-danger" @onclick="() => ConfirmDelete(login)">Delete</button>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					}
+				</RadzenTabsItem>
 			</Tabs>
 		</RadzenTabs>
 	</div>
 </div>
 <br />
-<div class="row">
-	<div class="col-md-12">
-		<RadzenButton Click="UpdateUser"
-					  Text="Save" ButtonStyle="ButtonStyle.Success"
-					  Style="margin-bottom: 10px; width: 150px" />
-		&nbsp;
-		@if (SelectedDTOUser.userId > 0)
-		{
-			<RadzenButton Click="DeleteUserDialog"
-					  ButtonStyle="ButtonStyle.Danger"
-					  Text="Delete"
-					  Style="margin-bottom: 10px; width: 150px" />
-		}
+@if (ShowUpdateDelete)
+{
+	<div class="row">
+		<div class="col-md-12">
+			<RadzenButton Click="UpdateUser"
+			Text="Save" ButtonStyle="ButtonStyle.Success"
+			Style="margin-bottom: 10px; width: 150px" />
+			&nbsp;
+			@if (SelectedDTOUser.userId > 0)
+			{
+				<RadzenButton Click="DeleteUserDialog"
+				ButtonStyle="ButtonStyle.Danger"
+				Text="Delete"
+				Style="margin-bottom: 10px; width: 150px" />
+			}
+		</div>
 	</div>
-</div>
+}
 @code {
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationStateTask { get; set; }
 
 	[Parameter] public DTOUser SelectedDTOUser { get; set; }
+
+	ApplicationUser SelectedApplicationUser = new ApplicationUser();
+
+	private IList<UserLoginInfo> currentLogins;
+	private IList<AuthenticationScheme> otherLogins;
 
 	System.Security.Claims.ClaimsPrincipal CurrentUser;
 	RadzenDataGrid<RoleDTO> grid;
@@ -143,6 +176,7 @@
 	int count;
 	RoleDTO newRole = new RoleDTO();
 	string strError = "";
+	bool ShowUpdateDelete = true;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -169,6 +203,31 @@
 		}
 
 		colRoles = NewRoleList.OrderBy(x => x.roleName);
+
+		// Convert SelectedDTOUser to ApplicationUser
+		SelectedApplicationUser = await userManager.FindByNameAsync(SelectedDTOUser.userName);
+
+		currentLogins = await userManager.GetLoginsAsync(SelectedApplicationUser);
+	}
+
+	private void OnTabChange(int index)
+	{
+		// Handle tab change here
+		Console.WriteLine($"Tab changed to index: {index}");
+
+		// Perform any other logic you need
+		switch (index)
+		{
+			case 0:
+				ShowUpdateDelete = true;
+				break;
+			case 1:
+				ShowUpdateDelete = true;
+				break;
+			case 2:
+				ShowUpdateDelete = false;
+				break;
+		}
 	}
 
 	private async Task UpdateUser()
@@ -281,5 +340,34 @@
 		}
 
 		await grid.Reload();
+	}
+
+	private async void DeleteLogin(UserLoginInfo objUserLoginInfo)
+	{
+		var result = await userManager.RemoveLoginAsync(SelectedApplicationUser, objUserLoginInfo.LoginProvider, objUserLoginInfo.ProviderKey);
+
+		if (result.Succeeded)
+		{
+			// Refresh the current logins
+			currentLogins = currentLogins.Where(ul => ul.LoginProvider != objUserLoginInfo.LoginProvider).ToList();
+			StateHasChanged();
+			return;
+		}
+		else
+		{
+			strError = result.Errors.FirstOrDefault().Description;
+			StateHasChanged();
+			return;
+		}
+	}
+
+	[JSInvokable]
+	public async Task ConfirmDelete(UserLoginInfo login)
+	{
+		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to delete the login for {login.ProviderDisplayName}?" });
+		if (confirmed)
+		{
+			DeleteLogin(login);
+		}
 	}
 }
