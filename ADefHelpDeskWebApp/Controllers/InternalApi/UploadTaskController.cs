@@ -1006,7 +1006,7 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
                             objTask.requesterName = objAdefHelpDeskTask.RequesterName;
                             objTask.requesterEmail = objAdefHelpDeskTask.RequesterEmail;
                             objTask.requesterUserId = objAdefHelpDeskTask.RequesterUserId;
-                            objTask.description = objAdefHelpDeskTask.Description;
+                            objTask.description = objAdefHelpDeskTask.Description ?? "[Missing Description]";
                             objTask.status = objAdefHelpDeskTask.Status;
                             objTask.priority = objAdefHelpDeskTask.Priority;
 
@@ -1053,7 +1053,7 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
                                 // Only one TaskDetail can be passed to be inserted
 
                                 objAdefHelpDeskTaskDetails.Task = objAdefHelpDeskTask;
-                                objAdefHelpDeskTaskDetails.Description = paramAdefHelpDeskTaskDetails.description;
+                                objAdefHelpDeskTaskDetails.Description = paramAdefHelpDeskTaskDetails.description ?? "[Missing Description]";
                                 objAdefHelpDeskTaskDetails.UserId = intUserId;
                                 objAdefHelpDeskTaskDetails.InsertDate = DateTime.Now;
 
@@ -1185,7 +1185,7 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
                                     }
                                 }
 
-                                objAdefHelpDeskTaskDetails.Description = paramAdefHelpDeskTaskDetails.description;
+                                objAdefHelpDeskTaskDetails.Description = paramAdefHelpDeskTaskDetails.description ?? "[Missing Description]";
 
                                 // Only an Admin can update the following fields
                                 if (IsAdministrator)
