@@ -135,7 +135,6 @@
     ApplicationUser applicationUser = new ApplicationUser();
 
     private IList<UserLoginInfo> currentLogins;
-    private IList<AuthenticationScheme> otherLogins;
 
     string Message = "";
 
@@ -262,8 +261,21 @@
 
         var result = await userManager.RemoveLoginAsync(applicationUser, objUserLoginInfo.LoginProvider, objUserLoginInfo.ProviderKey);
 
+
         if (result.Succeeded)
         {
+            try
+            {
+                // Get database conection string
+                string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+                Log.InsertSystemLog(strDefaultConnection, "LoginExternal", applicationUser.Email ?? "[email missing]", $"{applicationUser.Email ?? "[email missing]"} removed login provider {objUserLoginInfo.LoginProvider}.");
+            }
+            catch
+            {
+                // Do nothing
+            }
+
             // Refresh the current logins
             currentLogins = currentLogins.Where(ul => ul.LoginProvider != objUserLoginInfo.LoginProvider).ToList();
             StateHasChanged();

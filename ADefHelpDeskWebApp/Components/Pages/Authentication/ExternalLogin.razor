@@ -4,6 +4,7 @@
 @using System.Security.Claims
 @using System.Text
 @using System.Text.Encodings.Web
+@using ADefHelpDeskWebApp.Classes
 @using ADefHelpDeskWebApp.Components.Account
 @using ADefHelpDeskWebApp.Controllers
 @using AdefHelpDeskBase.Controllers
@@ -183,10 +184,14 @@ else
 
         if (result.Succeeded)
         {
-            Logger.LogInformation(
-                "{Name} logged in with {LoginProvider} provider.",
-                externalLoginInfo.Principal.Identity?.Name,
-                externalLoginInfo.LoginProvider);
+            try
+            {
+                Log.InsertSystemLog(GetConnectionString(), "LoginExternal", externalLoginInfo.Principal.Identity?.Name, $"{externalLoginInfo.Principal.Identity?.Name} logged in with {externalLoginInfo.LoginProvider} provider.");
+            }
+            catch
+            {
+                // Do nothing
+            }
 
             RedirectManager.RedirectTo(ReturnUrl);
         }
@@ -238,6 +243,16 @@ else
                         {
                             await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
                             ShowSuccess = true;
+
+                            try
+                            {
+                                Log.InsertSystemLog(GetConnectionString(), "LoginExternal", user.Email, $"{user.Email ?? "[missing email]"} added {externalLoginInfo.LoginProvider} provider.");
+                            }
+                            catch
+                            {
+                                // Do nothing
+                            }
+
                             HttpContext.RedirectTo("/Index");
                         }
                         else
@@ -308,9 +323,17 @@ else
 
             if (result.Succeeded)
             {
-                Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
-
                 await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
+
+                try
+                {
+                    Log.InsertSystemLog(GetConnectionString(), "LoginExternal", user.Email ?? "[missing email]", $"{user.Email ?? "[missing email]"} created an account using {externalLoginInfo.LoginProvider} provider.");
+                }
+                catch
+                {
+                    // Do nothing
+                }
+
                 RedirectManager.RedirectTo(ReturnUrl);
             }
         }
@@ -331,19 +354,22 @@ else
         }
     }
 
-    private IUserEmailStore<ApplicationUser> GetEmailStore()
-    {
-        if (!UserManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<ApplicationUser>)UserStore;
-    }
-
     private sealed class InputModel
     {
         [Required]
         public string Password { get; set; } = "";
+    }
+
+    private string GetConnectionString()
+    {
+        try
+        {
+            return _configuration.GetConnectionString("DefaultConnection");
+        }
+        catch
+        {
+            return "ERROR:UNSET-CONNECTION-STRING";
+        }
     }
 
     #region CreateVerificationKey

@@ -134,7 +134,7 @@
 
                     try
                     {
-                        Log.InsertSystemLog(GetConnectionString(), "Login", objUser.UserName, $"{objUser.UserName} logged in ");
+                        Log.InsertSystemLog(GetConnectionString(), "Login", objUser.Email, $"{objUser.Email} logged in ");
                     }
                     catch
                     {
