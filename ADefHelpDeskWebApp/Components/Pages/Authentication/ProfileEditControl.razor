@@ -1,0 +1,301 @@
+﻿@page "/profilecontrol"
+@inherits OwningComponentBase
+@using AdefHelpDeskBase.Controllers;
+@using AdefHelpDeskBase.Models
+@using ADefHelpDeskWebApp.Classes
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@inject IConfiguration _configuration
+@inject ProfileController _ProfileController
+@inject UserManager<ApplicationUser> userManager
+@inject NavigationManager NavigationManager
+
+<h4>Profile</h4>
+<AuthorizeView>
+    <Authorized>
+        <table class="form-group" cellpadding="4" cellspacing="4">
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                    </td>
+                    <td>
+                        <label class="control-label">@strUserName</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">First Name: </label>
+                    </td>
+                    <td>
+                        <input size="50" id="FirstName" class="form-control" @bind="strFirstName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Last Name: </label>
+                    </td>
+                    <td>
+                        <input size="50" id="LastName" class="form-control" @bind="strLastName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
+                    </td>
+                    <td>
+                        <input size="50" type="email" id="Email" class="form-control" @bind="strEmail" />
+                    </td>
+                </tr>
+                @if (hasPassword)
+                {
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Original Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strOrginalPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">New Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Set Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="strNewPassword" />
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td>
+                        <button type="button" label="Update"
+                                class="btn btn-success"
+                                @onclick="UpdateUser">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <!-- Display list of currentLogins -->
+        @if (currentLogins != null)
+        {
+            <table class="form-group" cellpadding="4" cellspacing="4">
+                <tbody>
+                    @if (currentLogins.Count > 0)
+                    {
+                        <tr>
+                            <td>
+                                <label for="Title" class="control-label" style="font-weight: bold">External Logins: </label>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var login in currentLogins)
+                    {
+                        <tr>
+                            <td>
+                                <label class="control-label">@login.LoginProvider</label>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger" @onclick="() => ConfirmDelete(login)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not signed in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+@if (@Message != "")
+{
+    <h4 style="color:red">@Message</h4>
+}
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    ApplicationUser applicationUser = new ApplicationUser();
+
+    private IList<UserLoginInfo> currentLogins;
+
+    string Message = "";
+
+    string strUserName = "";
+    string strFirstName = "";
+    string strLastName = "";
+    string strEmail = "";
+    string strOrginalPassword = "";
+    string strNewPassword = "";
+
+    bool hasPassword = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        // Convert CurrentUser to ApplicationUser
+        applicationUser = await userManager.GetUserAsync(CurrentUser);
+
+        // Get the user information
+        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+
+        strUserName = objDTOUser.userName;
+        strFirstName = objDTOUser.firstName;
+        strLastName = objDTOUser.lastName;
+        strEmail = objDTOUser.email;
+
+        _ProfileController = (ProfileController)ScopedServices.GetService(typeof(ProfileController));
+
+        // Check if the user has a password
+        hasPassword = await userManager.HasPasswordAsync(applicationUser);
+
+        currentLogins = await userManager.GetLoginsAsync(applicationUser);
+    }
+
+    private async void UpdateUser()
+    {
+        try
+        {
+            Message = "";
+
+            if (!hasPassword)
+            {
+                if (strNewPassword.Trim() == "")
+                {
+                    Message = "A Password is required to update your profile. Please enter a password.";
+                    StateHasChanged();
+                    return;
+                }
+
+                // Test that the password has a number and a non-alphanumeric character
+                if (!UtilitySecurity.IsPasswordStrong(strNewPassword.Trim()))
+                {
+                    Message = "The password must contain at least one number and one non-alphanumeric character and the password must be at least 9 characters long.";
+                    StateHasChanged();
+                    return;
+                }
+
+
+                // Add the password
+                await AddPasswordAsync(strNewPassword.Trim());
+
+                // Set the original password to the new password
+                strOrginalPassword = strNewPassword;
+            }
+
+            ProfileDTO objProfileDTO = new ProfileDTO();
+            objProfileDTO.email = strEmail;
+            objProfileDTO.firstName = strFirstName;
+            objProfileDTO.lastName = strLastName;
+            objProfileDTO.orginalpassword = strOrginalPassword;
+            objProfileDTO.password = strNewPassword;
+
+            // ProfileStatus to return
+            ProfileStatus objProfileStatus = new ProfileStatus();
+
+            objProfileStatus = await _ProfileController.UpdateUser(objProfileDTO, CurrentUser.Identity.Name);
+
+            if (!objProfileStatus.isSuccessful)
+            {
+                Message = objProfileStatus.status;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                string url = NavigationManager.BaseUri;
+                NavigationManager.NavigateTo(url, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            StateHasChanged();
+            return;
+        }
+    }
+
+    private async Task AddPasswordAsync(string paramNewPassword)
+    {
+        var addPasswordResult = await userManager.AddPasswordAsync(applicationUser, paramNewPassword);
+
+        if (!addPasswordResult.Succeeded)
+        {
+            Message = $"Error: {string.Join(",", addPasswordResult.Errors.Select(error => error.Description))}";
+            return;
+        }
+
+        hasPassword = await userManager.HasPasswordAsync(applicationUser);
+    }
+
+    private async void DeleteLogin(UserLoginInfo objUserLoginInfo)
+    {
+        if (!hasPassword)
+        {
+            Message = "You cannot delete your login if you have not set a password. Please set a password first.";
+            StateHasChanged();
+            return;
+        }
+
+        var result = await userManager.RemoveLoginAsync(applicationUser, objUserLoginInfo.LoginProvider, objUserLoginInfo.ProviderKey);
+
+
+        if (result.Succeeded)
+        {
+            try
+            {
+                // Get database conection string
+                string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+                Log.InsertSystemLog(strDefaultConnection, "LoginExternal", applicationUser.Email ?? "[email missing]", $"{applicationUser.Email ?? "[email missing]"} removed login provider {objUserLoginInfo.LoginProvider}.");
+            }
+            catch
+            {
+                // Do nothing
+            }
+
+            // Refresh the current logins
+            currentLogins = currentLogins.Where(ul => ul.LoginProvider != objUserLoginInfo.LoginProvider).ToList();
+            StateHasChanged();
+            return;
+        }
+        else
+        {
+            Message = result.Errors.FirstOrDefault().Description;
+            StateHasChanged();
+            return;
+        }
+    }
+
+    [JSInvokable]
+    public async Task ConfirmDelete(UserLoginInfo login)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { $"Are you sure you want to delete the login for {login.ProviderDisplayName}?" });
+        if (confirmed)
+        {
+            DeleteLogin(login);
+        }
+    }
+}

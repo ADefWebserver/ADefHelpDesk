@@ -1,0 +1,72 @@
+﻿@page "/systemlogs"
+@inherits OwningComponentBase
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskWebApp.Models
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskWebApp.Controllers
+@using ADefHelpDeskWebApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject IConfiguration _configuration
+@inject ADefHelpDeskContext context
+
+<h3>System Logs</h3>
+
+@if (@IsSuperAdmin)
+{
+    @if (@Message != "")
+    {
+        <h4 style="color:red">@Message</h4>
+    }
+    <RadzenDataGrid Data="@colSystemLogs" TItem="DTOSystemLog"
+                    AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                    FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="DTOSystemLog" Property="LogType" Title="log Type" Width="200px" />
+            <RadzenDataGridColumn TItem="DTOSystemLog" Property="CreatedDate" Title="Log Date" Width="175px" SortOrder="Radzen.SortOrder.Descending" />
+            <RadzenDataGridColumn TItem="DTOSystemLog" Property="LogMessage" Title="Log Text">
+                <Template Context="SystemLog">
+                    <p style="white-space:pre-wrap">@SystemLog.LogMessage</p>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    string strDefaultConnection;
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    IEnumerable<DTOSystemLog> colSystemLogs = new List<DTOSystemLog>();
+
+    public bool IsSuperAdmin = false;
+    public string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+        DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        IsSuperAdmin = objDTOUser.isSuperUser;
+
+        colSystemLogs = context.AdefHelpDeskSystemLog
+            .Select(x => new DTOSystemLog
+                {
+                    LogType = x.LogType,
+                    CreatedDate = x.CreatedDate,
+                    LogMessage = x.LogMessage
+                }).AsQueryable();
+    }
+}

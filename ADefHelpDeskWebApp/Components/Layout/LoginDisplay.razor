@@ -1,0 +1,74 @@
+﻿@inherits OwningComponentBase
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models
+@using ADefHelpDeskWebApp.Controllers
+@inject IConfiguration _configuration
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject NavigationManager NavigationManager
+<AuthorizeView>
+    <Authorized>
+        <a href="profilecontrol">Hello, @context.User.Identity.Name!</a>&nbsp;&nbsp;&nbsp;
+        <form action="Account/Logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="Index" />
+            <button type="submit" class="btn btn-secondary">Log out</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <button hidden="@(!AllowRegistration)" class="btn btn-primary" @onclick="Register">Register</button>
+        &nbsp;
+        <button class="btn btn-secondary" @onclick="LogIn">Log In</button>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    bool AllowRegistration = false;
+    private string currentUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+
+            _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
+
+            var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
+            AllowRegistration = DTOSettings.allowRegistration;
+        }
+
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    private void Register()
+    {
+        NavigationManager.NavigateTo("/registercontrol", forceLoad: true);
+    }
+
+    private void LogIn()
+    {
+        NavigationManager.NavigateTo("/Authentication/logincontrol", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

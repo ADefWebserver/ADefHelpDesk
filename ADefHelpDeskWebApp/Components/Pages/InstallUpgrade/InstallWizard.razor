@@ -1,0 +1,203 @@
+﻿@layout InstallWizardLayout
+@using System.Security.Claims;
+@using ADefHelpDeskApp
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@using ADefHelpDeskWebApp.Components.Pages.Authentication
+@inject InstallUpdateState InstallUpdateState
+@inject NavigationManager NavigationManager
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+
+<h2>Install Upgrade Wizard</h2>
+<br />
+
+@if (WizardMode == "INSTALL")
+{
+    @if (WizardStage == "DatabaseConfiguration")
+    {
+        <InstallWizardDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Installing" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@if (WizardMode == "RUNSCRIPTS")
+{
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Installing" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@if (WizardMode == "UPGRADE")
+{
+    @if (WizardStage == "VerifyAdministrator")
+    {
+        <LoginControl />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Upgrading" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@if (WizardMode == "CreateAdministrator")
+{
+    @if (WizardStage == "CreateAdministrator")
+    {
+        <InstallWizardCreateAdministrator CreateAdministratorChanged="@CreateAdministratorComplete" />
+    }
+
+    @if (WizardStage == "Continue")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public string WizardMode { get; set; }
+
+    string strDefaultConnection = "";
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    public string WizardStage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (WizardMode == "INSTALL")
+        {
+            WizardStage = "DatabaseConfiguration";
+        }
+
+        if (WizardMode == "RUNSCRIPTS")
+        {
+            WizardStage = "RunScripts";
+        }
+
+        if (WizardMode == "UPGRADE")
+        {
+            if (!(await IsAdminAsync()))
+            {
+                WizardStage = "VerifyAdministrator";
+            }
+            else
+            {
+                WizardStage = "RunScripts";
+            }
+        }
+
+        if (WizardMode == "CreateAdministrator")
+        {
+            WizardStage = "CreateAdministrator";
+        }
+    }
+
+    // Methods
+
+    void DatabaseConfigurationComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "RunScripts";
+        }
+    }
+
+    void CreateAdministratorComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "Continue";
+        }
+    }
+
+    void RunScriptsComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "RunScriptsComplete";
+        }
+    }
+
+    void Continue()
+    {
+        string url = NavigationManager.BaseUri;
+        NavigationManager.NavigateTo(url, true);
+    }
+
+    // Utility
+
+    public async Task<bool> IsAdminAsync()
+    {
+        bool result = false;
+
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+        {
+            try
+            {
+                if (CurrentUser.Identity == null)
+                {
+                    return false;
+                }
+
+                if (CurrentUser.Identity.Name == null)
+                {
+                    return false;
+                }
+
+                // Get the user
+                var objUser = await (from user in context.AdefHelpDeskUsers
+                                     where user.Username.ToLower() == CurrentUser.Identity.Name.ToLower()
+                                     where user.IsSuperUser == true
+                                     select user).FirstOrDefaultAsync();
+
+                if (objUser != null)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+}

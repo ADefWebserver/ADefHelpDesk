@@ -1,0 +1,127 @@
+﻿@page "/apisecurity"
+@inherits OwningComponentBase
+@using Radzen
+@using Radzen.Blazor
+@using ADefHelpDeskWebApp.Models
+@using ADefHelpDeskWebApp.Classes
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskWebApp.Controllers
+@using ADefHelpDeskWebApp.Controllers.InternalApi
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+@using System.Linq.Dynamic.Core
+@inject DialogService DialogService
+@inject IConfiguration _configuration
+@inject ApiSecurityController _ApiSecurityController
+
+<h4>API Security</h4>
+
+@if (@IsSuperAdmin)
+{
+	@if (@Message != "")
+	{
+		<h4 style="color:red">@Message</h4>
+	}
+	<RadzenButton ButtonStyle="ButtonStyle.Primary" Click=@(() => AddAPI()) Text="Add" Style="margin-bottom: 10px" />
+	<br />
+	<RadzenDataGrid Data="@colApiSecuritys" Count="@count"
+				PageSize="10" TItem="ApiSecurityDTO"
+				AllowPaging="true" AllowSorting="true">
+		<Columns>
+			<RadzenDataGridColumn Width="80px" TItem="ApiSecurityDTO" Property="id" Title="Edit" Sortable=false Filterable=false>
+				<Template Context="data">
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Click=@(() => EditAPI(data)) />
+				</Template>
+			</RadzenDataGridColumn>
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="username" Title="Username" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactName" Title="Name" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactCompany" Title="Company" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="contactPhone" Title="Phone" Width="200px" />
+			<RadzenDataGridColumn TItem="ApiSecurityDTO" Property="isActive" Title="isActive" Width="200px" />
+		</Columns>
+	</RadzenDataGrid>
+}
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+	string strDefaultConnection;
+	System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+	int count;
+	IEnumerable<ApiSecurityDTO> colApiSecuritys = new List<ApiSecurityDTO>();
+
+	public bool IsSuperAdmin = false;
+	public string Message = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get database conection string
+		strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+		// Get the current user
+		CurrentUser = (await authenticationStateTask).User;
+		DTOUser objDTOUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+		IsSuperAdmin = objDTOUser.isSuperUser;
+
+		_ApiSecurityController = (ApiSecurityController)ScopedServices.GetService(typeof(ApiSecurityController));
+
+		RefreshGrid();
+	}
+
+	void RefreshGrid()
+	{
+		var filter = new LoadDataArgs();
+		LoadData(filter);
+	}
+
+	void LoadData(LoadDataArgs args)
+	{
+		try
+		{
+			Message = "";
+			colApiSecuritys = _ApiSecurityController.Get(CurrentUser.Identity.Name);
+			count = colApiSecuritys.Count();
+		}
+		catch (Exception ex)
+		{
+			Message = ex.GetBaseException().Message;
+		}
+	}
+
+	async Task AddAPI()
+	{
+		ApiSecurityDTO NewApiSecurity = new ApiSecurityDTO();
+		NewApiSecurity.id = -1;
+		await EditAPI(NewApiSecurity);
+	}
+
+	async Task EditAPI(ApiSecurityDTO ApiSecurity)
+	{
+		Message = "";
+
+		if (ApiSecurity.permissions != null)
+		{
+			if (ApiSecurity.permissions.Count == 0)
+			{
+				ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
+			}
+		}
+		else
+		{
+			ApiSecurity.permissions = _ApiSecurityController.DefaultPermissions().OrderBy(p => p.permissionLabel).ToList();
+		}
+
+		ApiSecurityDTO result = await DialogService.OpenAsync<ApiSecurityEditControl>($"Edit API",
+		new Dictionary<string, object>() { { "SelectedApiSecurity", ApiSecurity } },
+		new DialogOptions() { Width = "650px" });
+
+		if (result != null)
+		{
+			RefreshGrid();
+		}
+	}
+}

@@ -1,0 +1,450 @@
+﻿@page "/tickets"
+@page "/tickets/{ticketnumber:int}/{code?}"
+@inherits OwningComponentBase
+@using ADefHelpDeskWebApp.Models
+@using ADefHelpDeskWebApp.Classes
+@using ADefHelpDeskWebApp.Components.Pages.TicketControls
+@using AdefHelpDeskBase.Controllers
+@using AdefHelpDeskBase.Models
+@using AdefHelpDeskBase.Models.DataContext
+@using ADefHelpDeskWebApp.Controllers
+@using ADefHelpDeskWebApp.Controllers.InternalApi
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.EntityFrameworkCore
+@using Excubo.Blazor.TreeViews
+@using System.Linq
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
+@inject IConfiguration _configuration
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject RoleController _RoleController
+@inject CategoryTreeController _CategoryTreeController
+@inject ApplicationSettingsController _ApplicationSettingsController
+@inject TaskController _TaskController
+@inject SearchParametersController _SearchParametersController
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject IFileReaderService fileReaderService
+@inject IJSRuntime CurrentJSRuntime
+@if (@Message != "")
+{
+    <h4 style="color:red">@Message</h4>
+}
+@if (@IsAuthenticated)
+{
+    <h4 style="color:red">@Message</h4>
+    <div>
+        <p>
+            <RadzenSplitButton Click=@(args => LoadGrid(args)) Text="Search" Icon="search" Style="margin-bottom: 20px;">
+                <ChildContent>
+                    <RadzenSplitButtonItem Text="Clear Search" Value="Clear" />
+                </ChildContent>
+            </RadzenSplitButton> <RadzenTextBox @bind-Value=@SearchString Placeholder="Ticket # Or Search Text" />
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-xl-10 col-lg-10 py-2">
+            <RadzenDataGrid @ref="grid" Data="@_TaskSearchResult.taskList" Count="@count"
+                        TItem="DTOTask" LoadData="@LoadData" FilterMode="FilterMode.Simple"
+                        PageSizeOptions="@pageSizeOptions" AllowFiltering="true"
+                        AllowPaging="true" AllowSorting="true" AllowColumnResize="true">
+                <Columns>
+                    <RadzenDataGridColumn Width="25px" TItem="DTOTask"
+                                      Property="taskId" Title="Edit" Sortable=true Filterable=false>
+                        <Template Context="data">
+                            <a href="javascript: void(0)" @onclick="@(() => EditTask(data))"><b>@($"# {data.taskId}")</b></a>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="status" Title="Status" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@statusDropdown @bind-Value=@Status
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:100px" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="priority" Title="Priority" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@priorityDropdown @bind-Value=@Priority
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="dueDate" Title="Due" Sortable=true Width="55px">
+                        <FilterTemplate>
+                            <RadzenDatePicker @bind-Value=@dtDueDate DateFormat="d" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="createdDate" Title="Created" Sortable=true Width="55px">
+                        <FilterTemplate>
+                            <RadzenDatePicker @bind-Value=@dtCreatedDate DateFormat="d" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="assignedRoleName" Title="Assigned" Sortable=true Width="50px">
+                        <FilterTemplate>
+                            <RadzenDropDown Data=@rolesDropdown @bind-Value=@AssignedRoleId
+                                        TextProperty="ItemLabel"
+                                        ValueProperty="ItemStringValue"
+                                        Style="width:300px" />
+                        </FilterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="DTOTask" Property="requesterName" Filterable=false Title="Requester" Sortable=false Width="50px" />
+                    <RadzenDataGridColumn TItem="DTOTask" Property="description" Filterable=false Title="Description" Sortable=false Width="100px" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+
+        <div class="col-xl-2 col-lg-2 py-2">
+            <!-- Tree Node Control -->
+        <TreeView Items="colAllTags"
+                  GetChildren="(treenode) => treenode.children">
+                <ItemTemplate Context="treenode">
+                    &nbsp;
+                    @if (@treenode.Item.data.selectable)
+                {
+                    <RadzenCheckBox @bind-Value=@treenode.Item.data.CheckboxChecked
+                                TValue="bool"
+                                @onclick:stopPropagation="true" />
+                }
+                &nbsp;@treenode.Item.label
+            </ItemTemplate>
+        </TreeView>
+    </div>
+</div>
+}
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter]
+    public int ticketnumber { get; set; }
+
+    [Parameter]
+    public string code { get; set; }
+
+    private bool IsAuthenticated = false;
+    private bool IsAdmin = false;
+    private System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private DTOUser objCurrentUser = new DTOUser() { userId = -1 };
+    private RadzenDataGrid<DTOTask> grid;
+    private string strDefaultConnection;
+
+    private TaskSearchResult _TaskSearchResult = new TaskSearchResult();
+    private SearchTaskParameters _searchTaskParameters = new SearchTaskParameters();
+    private IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    private List<CategoryDTO> colAllTags = new List<CategoryDTO>();
+    private List<SelectItem> priorityDropdown = new List<SelectItem>();
+    private List<SelectItem> statusDropdown = new List<SelectItem>();
+    private List<SelectItem> rolesDropdown = new List<SelectItem>();
+
+    private int count;
+    private string SearchString = "";
+    private string Status = "ALL";
+    private string Priority = "ALL";
+    private string AssignedRoleId = "0";
+    private DateTime? dtCreatedDate = null;
+    private DateTime? dtDueDate = null;
+
+    public bool IsSuperAdmin = false;
+    public string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            IsAuthenticated = true;
+            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            objCurrentUser = UtilitySecurity.UserFromUserName(CurrentUser.Identity.Name, strDefaultConnection);
+        }
+        else
+        {
+            IsAdmin = false;
+        }
+
+        _RoleController = (RoleController)ScopedServices.GetService(typeof(RoleController));
+        _TaskController = (TaskController)ScopedServices.GetService(typeof(TaskController));
+        _CategoryTreeController = (CategoryTreeController)ScopedServices.GetService(typeof(CategoryTreeController));
+        _SearchParametersController = (SearchParametersController)ScopedServices.GetService(typeof(SearchParametersController));
+
+        PopulateDropdowns();
+        LoadLastSearchParameters();
+        LoadGrid(null);
+    }
+
+    private void PopulateDropdowns()
+    {
+        // ** Priority Dropdown
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Normal", ItemStringValue = "Normal" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "High", ItemStringValue = "High" });
+        priorityDropdown.Add(new SelectItem() { ItemLabel = "Low", ItemStringValue = "Low" });
+
+        // ** Status Dropdown
+        statusDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "ALL" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "New", ItemStringValue = "New" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Active", ItemStringValue = "Active" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Cancelled", ItemStringValue = "Cancelled" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "On Hold", ItemStringValue = "On Hold" });
+        statusDropdown.Add(new SelectItem() { ItemLabel = "Resolved", ItemStringValue = "Resolved" });
+
+        // ** Roles Dropdown
+        rolesDropdown.Add(new SelectItem() { ItemLabel = "*All*", ItemStringValue = "0" });
+
+        var AllRoles = _RoleController.GetRoles();
+        foreach (var role in AllRoles)
+        {
+            rolesDropdown.Add(new SelectItem() { ItemLabel = role.roleName, ItemStringValue = role.iD.ToString() });
+        }
+    }
+
+    private void LoadLastSearchParameters()
+    {
+        var LastSearchParameters = _SearchParametersController.Index(objCurrentUser.userName);
+
+        if (LastSearchParameters != null)
+        {
+            SearchString = LastSearchParameters.searchText;
+            Status = LastSearchParameters.status;
+            Priority = LastSearchParameters.priority;
+            AssignedRoleId = LastSearchParameters.assignedRoleId;
+
+            // Compute CreatedDate
+            try
+            {
+                if (LastSearchParameters.createdDate != null)
+                {
+                    dtCreatedDate = Convert.ToDateTime(LastSearchParameters.createdDate);
+                }
+            }
+            catch { }
+
+            // Compute DueDate
+            try
+            {
+                if (LastSearchParameters.dueDate != null)
+                {
+                    dtDueDate = Convert.ToDateTime(LastSearchParameters.dueDate);
+                }
+            }
+            catch { }
+
+            colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, LastSearchParameters.selectedTreeNodes ?? new List<int>());
+        }
+        else
+        {
+            colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
+        }
+    }
+
+    async void LoadGrid(RadzenSplitButtonItem item)
+    {
+        if (item != null)
+        {
+            if (item.Text == "Clear Search")
+            {
+                SearchString = "";
+                Status = "ALL";
+                Priority = "ALL";
+                AssignedRoleId = "0";
+                dtCreatedDate = null;
+                dtDueDate = null;
+                colAllTags = _CategoryTreeController.GetCategoryTree(!IsAdmin, false, new List<int>());
+                StateHasChanged();
+            }
+        }
+
+        var filter = new LoadDataArgs();
+        filter.Skip = 0;
+        filter.Top = 10;
+        filter.Filter = "";
+        filter.OrderBy = "";
+
+        LoadData(filter);
+
+        if (grid != null)
+        {
+            await grid.FirstPage();
+            await grid.Reload();
+        }
+    }
+
+    void LoadData(LoadDataArgs args)
+    {
+        try
+        {
+            Message = "";
+
+            // Compute pageNumber
+            int pageNumber = 1;
+            try
+            {
+                if ((args.Skip != null) && (args.Top != null) && (args.Skip.Value > 0) && (args.Top.Value > 0))
+                {
+                    pageNumber = (args.Skip.Value / args.Top.Value) + 1;
+                }
+            }
+            catch { }
+
+            // Compute sortOrder and sortField
+            string sortOrder = "";
+            string sortField = "";
+            try
+            {
+                if (args.Sorts.Count() > 0)
+                {
+                    sortField = args.Sorts.FirstOrDefault().Property;
+                    sortOrder = (args.Sorts.FirstOrDefault().SortOrder.HasValue) ? args.Sorts.FirstOrDefault().SortOrder.Value.ToString() : "asc";
+
+                    if (sortOrder == "Descending")
+                    {
+                        sortOrder = "desc";
+                    }
+                    else
+                    {
+                        sortOrder = "asc";
+                    }
+
+                    if (sortField == "taskId")
+                    {
+                        sortField = "ADefHelpDesk_Tasks.TaskID";
+                    }
+                }
+            }
+            catch { }
+
+            // Compute CreatedDate
+            string CreatedDate = "";
+            try
+            {
+                if (dtCreatedDate != null)
+                {
+                    CreatedDate = (dtCreatedDate.HasValue) ? dtCreatedDate.Value.ToShortDateString() : "";
+                }
+            }
+            catch { }
+
+            // Compute DueDate
+            string DueDate = "";
+            try
+            {
+                if (dtDueDate != null)
+                {
+                    DueDate = (dtDueDate.HasValue) ? dtDueDate.Value.ToShortDateString() : "";
+                }
+            }
+            catch { }
+
+            // Get Selected Tree Nodes
+            var SelectedTreeNodes = _CategoryTreeController.GetSelected(colAllTags);
+
+            SearchTaskParameters objSearchTaskParameters =
+                new SearchTaskParameters()
+                    {
+                        userId = objCurrentUser.userId.ToString(),
+                        searchText = SearchString,
+                        status = Status,
+                        priority = Priority,
+                        createdDate = CreatedDate,
+                        dueDate = DueDate,
+                        assignedRoleId = AssignedRoleId,
+                        selectedTreeNodes = SelectedTreeNodes,
+                        sortOrder = sortOrder,
+                        sortField = sortField,
+                        rowsPerPage = args.Top.Value,
+                        pageNumber = pageNumber,
+                    };
+
+            _TaskSearchResult = _TaskController.SearchTasks(objSearchTaskParameters, CurrentUser.Identity.Name);
+            count = _TaskSearchResult.totalRows;
+
+            if (_TaskSearchResult.errorMessage.Trim() != "")
+            {
+                Message = _TaskSearchResult.errorMessage.Trim();
+            }
+
+            // Save as last search
+            _SearchParametersController.SaveSearchParameters(objSearchTaskParameters, objCurrentUser.userName);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task EditTask(DTOTask objTask)
+    {
+        Message = "";
+
+        try
+        {
+            var SelectedTask = _TaskController.RetrieveTask(objTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+
+            if (SelectedTask.taskId != -1)
+            {
+                DTOTask dialogResult = await DialogService.OpenAsync<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
+                new DialogOptions() { Width = "650px" });
+
+                if (dialogResult != null)
+                {
+                    if (dialogResult.taskId != null)
+                    {
+                        // If TaskId is less than zero that means it has been deleted
+                        if (dialogResult.taskId < 0)
+                        {
+                            // Try to get Task
+                            var ExistingTask = _TaskSearchResult.taskList
+                            .Where(x => x.taskId == SelectedTask.taskId)
+                            .FirstOrDefault();
+
+                            // Delete task from search results (if it is there)
+                            _TaskSearchResult.taskList.Remove(ExistingTask);
+                            await grid.Reload();
+                        }
+                    }
+                }
+                {
+                    // Refresh the last task opened
+                    // Try to get Task
+                    var ExistingTask = _TaskSearchResult.taskList
+                    .Where(x => x.taskId == SelectedTask.taskId)
+                    .FirstOrDefault();
+
+                    if (ExistingTask != null)
+                    {
+                        // Update task from search results (if it is there)
+                        var ExistingSearchResultTask = _TaskSearchResult.taskList.Where(x => x.taskId == ExistingTask.taskId).FirstOrDefault();
+                        if(ExistingSearchResultTask != null)
+                        {
+                            ExistingSearchResultTask = ExistingTask;
+                            await grid.Reload();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Message = $"Ticket # {objTask.taskId} not found";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+}

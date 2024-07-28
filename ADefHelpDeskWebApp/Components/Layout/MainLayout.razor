@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+@using ADefHelpDeskApp
+@using ADefHelpDeskWebApp.Classes
+@using ADefHelpDeskWebApp.Components.Account
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+@inject InstallUpdateState _InstallUpdateState
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+<RadzenDialog />
+<RadzenNotification />
+<RadzenTooltip />
+<RadzenContextMenu />
+<div class="customToolbar">
+    <RadzenHeader>
+        <ChildContent>
+            <NavMenu />
+        </ChildContent>
+    </RadzenHeader>
+</div>
+<RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+    <ChildContent>
+        <RadzenContentContainer Name="main">
+            <div style="width:100%" class="my-5">
+                @Body
+            </div>
+        </RadzenContentContainer>
+    </ChildContent>
+</RadzenBody>
+<RadzenFooter>
+    <ChildContent>
+        <FooterControl />
+    </ChildContent>
+</RadzenFooter>
+@code {
+    RadzenBody body0;
+    bool bodyExpanded = true;
+}

@@ -1,0 +1,292 @@
+﻿@page "/"
+@page "/index"
+@page "/{ticketnumber:int}/{ticketPassword?}"
+@page "/tickets/{ticketnumber:int}"
+@using ADefHelpDeskWebApp.Classes
+@using ADefHelpDeskWebApp.Components.Pages.InstallUpgrade
+@using AdefHelpDeskBase.Models.DataContext
+@using Microsoft.EntityFrameworkCore
+@using ADefHelpDeskWebApp.Components.Pages.TicketControls
+
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject ADefHelpDeskContext context
+
+@if (isInstalling)
+{
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+    @if (paramWizardMode == "INSTALL" || paramWizardMode == "RUNSCRIPTS" || paramWizardMode == "UPGRADE" || paramWizardMode == "CreateAdministrator")
+    {
+        <InstallWizard WizardMode=@paramWizardMode />
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+}
+else
+{
+    <TicketCreate ticketnumber=@ticketnumber ticketPassword=@ticketPassword />
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [CascadingParameter] public HttpContext HttpContext { get; set; }
+
+    [Parameter]
+    public int ticketnumber { get; set; } = -1;
+
+    [Parameter]
+    public string ticketPassword { get; set; } = "";
+
+    bool isInstalling = true;
+    string paramWizardMode = "";
+    string ErrorMessage = "";
+
+    // ********************************
+    string CurrentVersion = "04.30.00";
+    // ********************************
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Check for Install/Upgrade
+        // The Index.razor page will detect this and load the
+        // Install/Upgrade Wizard
+        try
+        {
+            if (!context.Database.CanConnect())
+            {
+                paramWizardMode = "INSTALL";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            paramWizardMode = "INSTALL";
+            return;
+        }
+
+        // The database connection may be good,
+        // but the database tables are missing
+        try
+        {
+            var DatabaseSetUp = await IsDatabaseSetUpAsync(strDefaultConnection);
+
+            if (!DatabaseSetUp)
+            {
+                paramWizardMode = "RUNSCRIPTS";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            paramWizardMode = "RUNSCRIPTS";
+            return;
+        }
+
+        // The database connection may be good,
+        // but the Administrator account may not exist
+        try
+        {
+            var AdminExists = await AdminExistsAsync(strDefaultConnection);
+
+            if (!AdminExists)
+            {
+                paramWizardMode = "CreateAdministrator";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            paramWizardMode = "CreateAdministrator";
+            return;
+        }
+
+        // The database connection may be good,
+        // the Administrator account may exist
+        // but we need to perform an Upgrade
+        try
+        {
+            var DatabaseNeedUpgrade = await IsDatabaseNeedUpgradeAsync(strDefaultConnection);
+
+            if (DatabaseNeedUpgrade)
+            {
+                paramWizardMode = "UPGRADE";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            paramWizardMode = "UPGRADE";
+            return;
+        }
+
+        // **************************************************
+        // If we get here, we are not installing or upgrading
+        isInstalling = false;
+    }
+
+    public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        try
+        {
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // If we can get Version Number database is set up
+                var result = await context.AdefHelpDeskVersion
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking().FirstOrDefaultAsync();
+
+                if (result == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        catch
+        {
+            // If we get an exception, the database is not set up
+            return false;
+        }
+    }
+
+    public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+    {
+        bool result = false;
+
+        try
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+            optionsBuilder.UseSqlServer(strDefaultConnection);
+
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                try
+                {
+                    // Get the user
+                    var objUser = await (from user in context.AdefHelpDeskUsers
+                                         where user.IsSuperUser == true
+                                         select user).FirstOrDefaultAsync();
+
+                    if (objUser != null)
+                    {
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
+                }
+                catch
+                {
+                    result = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // This should never happen...
+            ErrorMessage = ex.Message;
+            result = false;
+        }
+
+        return result;
+    }
+
+    public async Task<bool> IsDatabaseNeedUpgradeAsync(string strDefaultConnection)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+        try
+        {
+            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+            {
+                // If we can get Version Number database is set up
+                var result = await context.AdefHelpDeskVersion
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking().FirstOrDefaultAsync();
+
+                if (result == null)
+                {
+                    // This should never happen...
+                    return false;
+                }
+                else
+                {
+                    // Do we need to perform an upgrade?
+                    if (ConvertToInteger(CurrentVersion) > ConvertToInteger(result.VersionNumber))
+                    {
+                        try
+                        {
+                            // Perform the upgrade
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            string error = ex.Message;
+                            paramWizardMode = "UPGRADE";
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        // No upgrade needed
+                        return false;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // This should never happen...
+            ErrorMessage = ex.Message;
+            return false;
+        }
+    }
+
+    // Utility
+
+    private int ConvertToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+        string strVersion = strParamVersion;
+
+        // Split into parts seperated by periods
+        char[] splitchar = { '.' };
+        var strSegments = strVersion.Split(splitchar);
+
+        // Process the segments
+        int i = 0;
+        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+        foreach (var strSegment in strSegments)
+        {
+            int intSegmentNumber = Convert.ToInt32(strSegment);
+            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+            i++;
+        }
+
+        return intVersionNumber;
+    }
+}
