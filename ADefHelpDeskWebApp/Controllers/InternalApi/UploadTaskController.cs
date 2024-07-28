@@ -92,6 +92,12 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
         #region private static void NotifyAssignedGroup(DTOTask objTask, string NotificationType, string strCurrentUser, string CurrentHostLocation, string ConnectionString, string ContentRootPath)
         private static void NotifyAssignedGroup(DTOTask objTask, string NotificationType, string strCurrentUser, string CurrentHostLocation, string ConnectionString, string ContentRootPath)
         {
+            // Strip the last / from CurrentHostLocation
+            if (CurrentHostLocation.EndsWith("/"))
+            {
+                CurrentHostLocation = CurrentHostLocation.Substring(0, CurrentHostLocation.Length - 1);
+            }
+
             // Uses objTask.assignedRoleId.Value to send emails to all Administrator's in that role
             GeneralSettings objGeneralSettings = new GeneralSettings(ConnectionString);
             DTOUser objCurrentDTOUser = UtilitySecurity.UserFromUserName(strCurrentUser, ConnectionString);
@@ -220,6 +226,12 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
             GeneralSettings objGeneralSettings = new GeneralSettings(ConnectionString);
             DTOUser objCurrentDTOUser = UtilitySecurity.UserFromUserName(strCurrentUser, ConnectionString);
 
+            // Strip the last / from CurrentHostLocation
+            if (CurrentHostLocation.EndsWith("/"))
+            {
+                CurrentHostLocation = CurrentHostLocation.Substring(0, CurrentHostLocation.Length - 1);
+            }
+
             // Get all SuperUsers
             List<DTOUser> colUsers = UtilitySecurity.SuperUsers(ConnectionString);
 
@@ -277,6 +289,12 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
         {
             GeneralSettings objGeneralSettings = new GeneralSettings(ConnectionString);
             string strFullName = "";
+
+            // Strip the last / from CurrentHostLocation
+            if (CurrentHostLocation.EndsWith("/"))
+            {
+                CurrentHostLocation = CurrentHostLocation.Substring(0, CurrentHostLocation.Length - 1);
+            }
 
             DTOUser objDTOUser = new DTOUser();
             // If ticket is assigned to a user, get the user information
