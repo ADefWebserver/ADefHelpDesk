@@ -308,6 +308,20 @@
             SelectedTask.sendEmails = paramSendEmails;
             SelectedTaskDetail.sendEmails = paramSendEmails;
 
+            // If this is entered by the requester always send emails
+            if (SelectedTaskDetail.userId == objCurrentUser.userId)
+            {
+                SelectedTask.sendEmails = true;
+                SelectedTaskDetail.sendEmails = true;
+            }
+
+            // If this is entered by anonymous user always send emails
+            if (objCurrentUser.userId < 1)
+            {
+                SelectedTask.sendEmails = true;
+                SelectedTaskDetail.sendEmails = true;
+            }
+
             // Format Start and Stop times (if any)
             SelectedTaskDetail.startTime = (StartTime.HasValue) ? StartTime.Value.ToShortDateString() + " " + StartTime.Value.ToShortTimeString() : "";
             SelectedTaskDetail.stopTime = (StopTime.HasValue) ? StopTime.Value.ToShortDateString() + " " + StopTime.Value.ToShortTimeString() : "";
