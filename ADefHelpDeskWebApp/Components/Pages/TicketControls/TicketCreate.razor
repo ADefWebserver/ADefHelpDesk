@@ -336,9 +336,19 @@
             EditTask(ticketnumber, ticketPassword);
         }
 
-        if ((ticketPassword == null)  & (ticketnumber > 0))
+        // A Ticket number is passed
+        if ((ticketPassword == null) & (ticketnumber > 0))
         {
-            //EditTask(ticketnumber);
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                // Open Task usin the ticket number
+                EditTask(ticketnumber);
+            }
+            else
+            {
+                // If user is not logged in direct them to login page with a return url
+                NavigationManager.NavigateTo($"/Authentication/logincontrol?ReturnUrl=%2Ftickets%2F{ticketnumber}");
+            }
         }
     }
 
@@ -556,6 +566,35 @@
             }
         }
         catch(Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+        }
+    }
+
+    void EditTask(int taskId)
+    {
+        Message = "";
+
+        try
+        {
+            DTOTask objTask = new DTOTask();
+            objTask.taskId = taskId;
+            objTask.ticketPassword = "";
+
+            var SelectedTask = _TaskController.RetrieveTask(objTask, CurrentUser.Identity.Name ?? "", CurrentUser.Identity.IsAuthenticated);
+
+            if (SelectedTask.taskId != -1)
+            {
+                DialogService.Open<TicketEditControl>($"Edit Ticket # {SelectedTask.taskId}",
+                new Dictionary<string, object>() { { "SelectedTask", SelectedTask } },
+                new DialogOptions() { Width = "650px" });
+            }
+            else
+            {
+                Message = $"Ticket # {taskId} not found";
+            }
+        }
+        catch (Exception ex)
         {
             Message = ex.GetBaseException().Message;
         }
