@@ -335,6 +335,11 @@
         {
             EditTask(ticketnumber, ticketPassword);
         }
+
+        if ((ticketPassword == null)  & (ticketnumber > 0))
+        {
+            //EditTask(ticketnumber);
+        }
     }
 
     private void populateDropdowns()
