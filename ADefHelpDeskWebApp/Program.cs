@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ADefHelpDeskWebApp.Components.Account;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ADefHelpDeskWebApp
 {
@@ -51,30 +52,38 @@ namespace ADefHelpDeskWebApp
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            GeneralSettings objGeneralSettings = new GeneralSettings(builder.Configuration.GetConnectionString("DefaultConnection"));
-
             string GoogleClientID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string GoogleClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string MicrosoftClientId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
             string MicrosoftClientSecret = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
-            if (objGeneralSettings.GoogleClientID.Trim() != "")
-            {
-                GoogleClientID = objGeneralSettings.GoogleClientID.Trim();
-                GoogleClientSecret = objGeneralSettings.GoogleClientSecret.Trim();
-            }
+            byte[] signingKeyBytes = Encoding.UTF8.GetBytes("[No KEY - NOW INSTALLING ADefHelpDesk]");
 
-            if (objGeneralSettings.MicrosoftClientID.Trim() != "")
+            try
             {
-                MicrosoftClientId = objGeneralSettings.MicrosoftClientID.Trim();
-                MicrosoftClientSecret = objGeneralSettings.MicrosoftClientSecret.Trim();
+                GeneralSettings objGeneralSettings = new GeneralSettings(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+                if (objGeneralSettings.GoogleClientID.Trim() != "")
+                {
+                    GoogleClientID = objGeneralSettings.GoogleClientID.Trim();
+                    GoogleClientSecret = objGeneralSettings.GoogleClientSecret.Trim();
+                }
+
+                if (objGeneralSettings.MicrosoftClientID.Trim() != "")
+                {
+                    MicrosoftClientId = objGeneralSettings.MicrosoftClientID.Trim();
+                    MicrosoftClientSecret = objGeneralSettings.MicrosoftClientSecret.Trim();
+                }
+
+                signingKeyBytes = Encoding.UTF8.GetBytes(ApiSecurityController.GetAPIEncryptionKeyKey(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
+            catch
+            {
+                // Do nothing
             }
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-            byte[] signingKeyBytes = Encoding.UTF8.GetBytes(
-                ApiSecurityController.GetAPIEncryptionKeyKey(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
             SymmetricSecurityKey signingKey = new SymmetricSecurityKey(signingKeyBytes);
 
