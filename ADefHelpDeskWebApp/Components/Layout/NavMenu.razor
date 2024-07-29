@@ -57,11 +57,20 @@
         CurrentUser = (await authenticationStateTask).User;
 
         IsAuthenticated = CurrentUser.Identity.IsAuthenticated;
-        IsSuperAdmin = await IsSuperUserAsync();
 
-        if (CurrentUser.Identity.IsAuthenticated)
+        try
         {
-            IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            IsSuperAdmin = await IsSuperUserAsync();
+
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                IsAdmin = UtilitySecurity.IsAdministrator(CurrentUser.Identity.Name ?? "", strDefaultConnection);
+            }
+        }
+        catch
+        {
+            IsSuperAdmin = false;
+            IsAdmin = false;
         }
     }
 
