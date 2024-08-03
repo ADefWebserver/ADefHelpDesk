@@ -6,6 +6,7 @@
 @inject IConfiguration _configuration
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject NavigationManager NavigationManager
+@inject TooltipService tooltipService
 <h4>Application Settings</h4>
 <AuthorizeView>
     <Authorized>
@@ -83,6 +84,7 @@
                     </tr>
                     <tr>
                         <td>
+                            <RadzenIcon Icon="info" IconColor="@Colors.Info" MouseEnter="@(args => ShowGoogleTooltip(args, new TooltipOptions(){ Style = "background: var(--rz-warning-light); color: var(--rz-text-color)", Duration = null }))" />
                             <label for="Google Client Id" class="control-label" style="font-weight: bold">Google Client ID: </label>
                         </td>
                         <td>
@@ -99,6 +101,7 @@
                     </tr>
                     <tr>
                         <td>
+                            <RadzenIcon Icon="info" IconColor="@Colors.Info" MouseEnter="@(args => ShowMicrosoftTooltip(args, new TooltipOptions(){ Style = "background: var(--rz-warning-light); color: var(--rz-text-color)", Duration = null }))" />
                             <label for="Microsoft Client Id" class="control-label" style="font-weight: bold">Microsoft Client ID: </label>
                         </td>
                         <td>
@@ -191,6 +194,16 @@
 
         populateDropdowns();
     }
+
+    void ShowGoogleTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, ds =>
+    @<div>
+        <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-8.0" target="_blank">Google external login setup in ASP.NET Core</a>
+    </div>, options);
+
+    void ShowMicrosoftTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, ds =>
+    @<div>
+        <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/microsoft-logins?view=aspnetcore-8.0" target="_blank">Microsoft external login setup in ASP.NET Core</a>
+    </div>, options);
 
     private void populateDropdowns()
     {
