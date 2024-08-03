@@ -183,10 +183,20 @@ namespace ADefHelpDeskWebApp.Classes
                 _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
                 _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
 
-                _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
-                _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
-                _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
-                _MicrosoftClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret").SettingValue);
+                try
+                {          
+                    _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
+                    _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
+                    _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
+                    _MicrosoftClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret").SettingValue);
+                }
+                catch
+                {
+                    _GoogleClientID = string.Empty;
+                    _GoogleClientSecret = string.Empty;
+                    _MicrosoftClientID = string.Empty;
+                    _MicrosoftClientSecret = string.Empty;
+                }
 
                 // Database Version
                 var result = context.AdefHelpDeskVersion

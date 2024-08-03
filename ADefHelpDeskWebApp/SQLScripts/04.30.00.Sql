@@ -8,6 +8,11 @@ BEGIN
 ALTER TABLE dbo.AspNetUsers ADD	NewsletterSubscriber [bit] NULL
 END
 
+/** Fix table values if upgrading from old version of ADefHelpDesk **/
+BEGIN
+UPDATE dbo.AspNetUsers SET NewsletterSubscriber = 0 WHERE NewsletterSubscriber IS NULL;
+END
+
 /** Authentication Settings **/
 if(SELECT count(*) FROM [ADefHelpDesk_Settings] where [SettingName] = 'Authentication:Google:ClientId') = 0
 BEGIN
@@ -60,11 +65,6 @@ ALTER TABLE [dbo].[ADefHelpDesk_ApiSecurityPermission] CHECK CONSTRAINT [FK_ADef
 /** APIEncryptionKeyKey was added to Settings in this version **/
 DELETE FROM ADefHelpDesk_Settings WHERE (SettingName = N'APIEncryptionKeyKey')
 INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'APIEncryptionKeyKey', REPLACE(NEWID(),'-','Z'))
-
-/** Fix table values if upgrading from old version of ADefHelpDesk **/
-UPDATE [AspNetUsers]
-SET [NewsletterSubscriber] = 0
-WHERE [NewsletterSubscriber] IS NULL;
 
 /** Update Version **/
 DELETE FROM ADefHelpDesk_Version

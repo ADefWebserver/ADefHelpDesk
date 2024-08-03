@@ -453,9 +453,14 @@ namespace ADefHelpDeskWebApp.Controllers.InternalApi
                 using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
                 {
                     var result = context.AdefHelpDeskSettings.Where(x => x.SettingName == "APIEncryptionKeyKey").FirstOrDefault();
+
                     if (result != null)
                     {
                         APIEncryptionKeyKey = result.SettingValue;
+                    }
+                    else
+                    {
+                        APIEncryptionKeyKey = "[No KEY - NOW INSTALLING ADefHelpDesk]";
                     }
                 }
             }
