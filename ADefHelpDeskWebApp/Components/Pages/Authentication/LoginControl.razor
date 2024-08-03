@@ -122,8 +122,6 @@
 
             var objLoginStatus = await GetLoginStatus(objDTOAuthentication);
 
-            ReturnUrl = "/";
-
             if (objLoginStatus.isLoggedIn)
             {
                 var objUser = await _signInManager.UserManager.FindByNameAsync(Input.Email);
@@ -141,7 +139,7 @@
                         // Do nothing
                     }
 
-                    HttpContext.RedirectTo("/Index");
+                    HttpContext.RedirectTo("Index");
                 }
             }
             else
