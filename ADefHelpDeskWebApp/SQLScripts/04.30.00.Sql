@@ -61,6 +61,11 @@ ALTER TABLE [dbo].[ADefHelpDesk_ApiSecurityPermission] CHECK CONSTRAINT [FK_ADef
 DELETE FROM ADefHelpDesk_Settings WHERE (SettingName = N'APIEncryptionKeyKey')
 INSERT INTO ADefHelpDesk_Settings(PortalID, SettingName, SettingValue) VALUES (N'0', N'APIEncryptionKeyKey', REPLACE(NEWID(),'-','Z'))
 
+/** Fix table values if upgrading from old version of ADefHelpDesk **/
+UPDATE [AspNetUsers]
+SET [NewsletterSubscriber] = 0
+WHERE [NewsletterSubscriber] IS NULL;
+
 /** Update Version **/
 DELETE FROM ADefHelpDesk_Version
 INSERT INTO ADefHelpDesk_Version(VersionNumber) VALUES (N'04.30.00')
