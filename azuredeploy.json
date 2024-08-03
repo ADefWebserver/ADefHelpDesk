@@ -173,7 +173,7 @@
             "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
           ],
           "properties": {
-            "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
+            "RepoUrl": "https://github.com/ADefWebserver/ADefHelpDesk.git",
             "branch": "main",
             "IsManualIntegration": true
           }
