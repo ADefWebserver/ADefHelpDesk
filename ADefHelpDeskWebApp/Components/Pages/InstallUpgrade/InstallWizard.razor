@@ -49,7 +49,8 @@
 {
     @if (WizardStage == "VerifyAdministrator")
     {
-        <LoginControl />
+        <p>You must be an administrator to upgrade the system.</p>
+        <button class="btn btn-secondary" @onclick="LogIn">Click Here To Login</button>
     }
 
     @if (WizardStage == "RunScripts")
@@ -154,6 +155,10 @@
         NavigationManager.NavigateTo(url, true);
     }
 
+    private void LogIn()
+    {
+        NavigationManager.NavigateTo("Authentication/logincontrol", forceLoad: true);
+    }
     // Utility
 
     public async Task<bool> IsAdminAsync()
