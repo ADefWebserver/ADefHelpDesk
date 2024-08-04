@@ -1,16 +1,6 @@
-﻿IF COL_LENGTH('dbo.AspNetUsers', 'DisplayName') IS NULL
+﻿/** Fix table values if upgrading from old version of ADefHelpDesk **/
 BEGIN
-ALTER TABLE dbo.AspNetUsers ADD	DisplayName nvarchar(256) NULL
-END
-
-IF COL_LENGTH('dbo.AspNetUsers', 'NewsletterSubscriber') IS NULL
-BEGIN
-ALTER TABLE dbo.AspNetUsers ADD	NewsletterSubscriber [bit] NULL
-END
-
-/** Fix table values if upgrading from old version of ADefHelpDesk **/
-BEGIN
-UPDATE dbo.AspNetUsers SET NewsletterSubscriber = 0 WHERE NewsletterSubscriber IS NULL;
+UPDATE dbo.AspNetUsers SET NewsletterSubscriber = 0 WHERE NewsletterSubscriber IS NULL
 END
 
 /** Authentication Settings **/

@@ -40,23 +40,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Get current user
-        CurrentUser = (await authenticationStateTask).User;
-
-        // Get the version Number
-        try
-        {
-            // Get database conection string
-            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-
-            var GeneralSettings = new GeneralSettings(strDefaultConnection);
-            VersionNumber = GeneralSettings.VersionNumber;
-        }
-        catch
-        {
-            VersionNumber = "00.00.00";
-        }
-
-        intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
+        CurrentUser = (await authenticationStateTask).User;        
     }
 
     protected override async Task
@@ -66,6 +50,8 @@ else
         {
             StateHasChanged();
             Task.Delay(1000).Wait();
+
+            GetTheCurrentVersion();
 
             // Get database conection string
             string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
@@ -113,6 +99,25 @@ else
             // Notify parent component
             await ExecuteScriptsChanged.InvokeAsync(true);
         }
+    }
+
+    private void GetTheCurrentVersion()
+    {
+        // Get the version Number
+        try
+        {
+            // Get database conection string
+            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+            var GeneralSettings = new GeneralSettings(strDefaultConnection);
+            VersionNumber = GeneralSettings.VersionNumber;
+        }
+        catch
+        {
+            VersionNumber = "00.00.00";
+        }
+
+        intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
     }
 
     #region private static int ConvertVersionToInteger(string strParamVersion)
@@ -168,6 +173,7 @@ else
         ColScripts.Add(ConvertVersionToInteger("04.00.00.Sql"), "04.00.00.Sql");
         ColScripts.Add(ConvertVersionToInteger("04.10.00.Sql"), "04.10.00.Sql");
         ColScripts.Add(ConvertVersionToInteger("04.20.00.Sql"), "04.20.00.Sql");
+        ColScripts.Add(ConvertVersionToInteger("04.25.00.Sql"), "04.25.00.Sql");
         ColScripts.Add(ConvertVersionToInteger("04.30.00.Sql"), "04.30.00.Sql");
 
         return ColScripts;

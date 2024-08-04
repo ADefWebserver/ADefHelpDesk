@@ -164,6 +164,8 @@ namespace ADefHelpDeskWebApp.Classes
             {
                 var resuts = from Settings in context.AdefHelpDeskSettings
                              select Settings;
+                try
+                {
 
                 _SMTPServer = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPServer").SettingValue);
                 _SMTPAuthendication = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPAuthendication").SettingValue);
@@ -183,15 +185,41 @@ namespace ADefHelpDeskWebApp.Classes
                 _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
                 _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
 
-                try
-                {          
-                    _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
-                    _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
-                    _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
-                    _MicrosoftClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret").SettingValue);
+                    try
+                    {          
+                        _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
+                        _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
+                        _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
+                        _MicrosoftClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientSecret").SettingValue);
+                    }
+                    catch
+                    {
+                        _GoogleClientID = string.Empty;
+                        _GoogleClientSecret = string.Empty;
+                        _MicrosoftClientID = string.Empty;
+                        _MicrosoftClientSecret = string.Empty;
+                    }
                 }
                 catch
                 {
+                    _SMTPServer = string.Empty;
+                    _SMTPAuthendication = string.Empty;
+                    _SMTPSecure = false;
+                    _SMTPUserName = string.Empty;
+                    _SMTPPassword = string.Empty;
+                    _SMTPFromEmail = string.Empty;
+
+                    _FileUploadPath = string.Empty;
+                    _StorageFileType = string.Empty;
+                    _AzureStorageConnection = string.Empty;
+                    _UploadPermission = string.Empty;
+
+                    _AllowRegistration = false;
+                    _VerifiedRegistration = false;
+
+                    _ApplicationName = string.Empty;
+                    _ApplicationGUID = string.Empty;
+
                     _GoogleClientID = string.Empty;
                     _GoogleClientSecret = string.Empty;
                     _MicrosoftClientID = string.Empty;
