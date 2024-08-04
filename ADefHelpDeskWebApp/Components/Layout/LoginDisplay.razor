@@ -24,12 +24,10 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
-
     bool AllowRegistration = false;
     private string currentUrl;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         // Get database conection string
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];

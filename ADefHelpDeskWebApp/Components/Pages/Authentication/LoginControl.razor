@@ -44,6 +44,13 @@
                     <label for="password" class="form-label">Password</label>
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
+                @if (requiresVerification)
+                {
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="Input.VerificationCode" class="form-control" autocomplete="off" aria-required="true" placeholder="verification code" />
+                    <label for="verificationCode" class="form-label">Verification Code</label>
+                    </div>
+                }
                 <div class="checkbox mb-3">
                     &nbsp;&nbsp;&nbsp;&nbsp;<InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
                     <label for="checkbox" class="form-label">Remember me</label>
@@ -76,6 +83,7 @@
     private string ReturnUrl { get; set; }
 
     string errorMessage = "";
+    bool requiresVerification = false;
 
     private AuthenticationScheme[] externalLogins = [];
 
@@ -117,7 +125,8 @@
                 {
                     userName = Input.Email,
                     password = Input.Password,
-                    rememberMe = Input.RememberMe
+                    rememberMe = Input.RememberMe,
+                    verificationCode = Input.VerificationCode
                 };
 
             var objLoginStatus = await GetLoginStatus(objDTOAuthentication);
@@ -142,6 +151,22 @@
                     HttpContext.RedirectTo("Index");
                 }
             }
+            else if (objLoginStatus.status == "Verify")
+            {
+                errorMessage = "Your account needs to be verified. Please check your email for the verification link.";
+            }
+            else if (objLoginStatus.status == "RequiresVerification")
+            {
+                errorMessage = "Your account requires two-factor authentication.";
+            }
+            else if (objLoginStatus.status == "IsLockedOut")
+            {
+                errorMessage = "Your account is locked out.";
+            }
+            else if (objLoginStatus.status == "Authentication Failure")
+            {
+                errorMessage = "Your account is locked out.";
+            }
             else
             {
                 errorMessage = "Error: Invalid login attempt.";
@@ -163,11 +188,12 @@
         var paramUserName = Authentication.userName;
         var paramPassword = Authentication.password;
         var paramRememberMe = Authentication.rememberMe;
+        var paramVerificationCode = Authentication.verificationCode;
 
         if (paramUserName != null && paramPassword != null)
         {
             var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-            optionsBuilder.UseSqlServer(GetConnectionString());           
+            optionsBuilder.UseSqlServer(GetConnectionString());
 
             // Check to see if the user needs to Verify their account
             using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
@@ -177,8 +203,27 @@
 
                 if (objAdefHelpDeskUser?.VerificationCode != null)
                 {
-                    objLoginStatus.status = "Verify";
-                    return objLoginStatus;
+                    requiresVerification = true;
+
+                    if (paramVerificationCode == null)
+                    {
+                        objLoginStatus.status = "Verify";
+                        return objLoginStatus;
+                    }
+                    else 
+                    {
+                        if (paramVerificationCode.Trim().ToLower() != objAdefHelpDeskUser.VerificationCode.Trim().ToLower())
+                        {
+                            objLoginStatus.status = "Verify";
+                            return objLoginStatus;
+                        }
+                        else
+                        {
+                            // Clear the verification code
+                            objAdefHelpDeskUser.VerificationCode = null;
+                            context.SaveChanges();
+                        }
+                    }
                 }
             }
 
@@ -231,5 +276,8 @@
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+
+        [Display(Name = "Verification Code")]
+        public string VerificationCode { get; set; } = "";
     }
 }
