@@ -16,6 +16,14 @@
                 <tbody>
                     <tr>
                         <td>
+                            <label for="Version Number" class="control-label" style="font-weight: bold">Version Number: </label>
+                        </td>
+                        <td>
+                            <b>@versionnumber</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <label for="Application Name" class="control-label" style="font-weight: bold">Application Name: </label>
                         </td>
                         <td>
@@ -173,6 +181,7 @@
     public string googleClientSecret = "";
     public string microsoftClientId = "";
     public string microsoftClientSecret = "";
+    public string versionnumber = "";
     public List<SelectItem> storageFileTypeDropdown = new List<SelectItem>();
     public List<SelectItem> uploadPermissionDropdown = new List<SelectItem>();
     public object selectedAllowUserRegistration;
@@ -203,7 +212,8 @@
     void ShowMicrosoftTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, ds =>
     @<div>
         <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/social/microsoft-logins?view=aspnetcore-8.0" target="_blank">Microsoft external login setup in ASP.NET Core</a>
-    </div>, options);
+    </div>
+    , options);
 
     private void populateDropdowns()
     {
@@ -246,6 +256,8 @@
         googleClientSecret = DTOSettings.googleClientSecret;
         microsoftClientId = DTOSettings.microsoftClientId;
         microsoftClientSecret = DTOSettings.microsoftClientSecret;
+
+        versionnumber = DTOSettings.versionnumber;
 
         StateHasChanged();
     }

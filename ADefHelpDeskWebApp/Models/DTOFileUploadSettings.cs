@@ -42,5 +42,6 @@ namespace AdefHelpDeskBase.Models
         public string googleClientSecret { get; set; }
         public string microsoftClientId { get; set; }
         public string microsoftClientSecret { get; set; }
+        public string versionnumber { get; set; }
     }
 }

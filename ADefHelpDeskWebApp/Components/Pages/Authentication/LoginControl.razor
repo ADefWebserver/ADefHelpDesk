@@ -155,17 +155,13 @@
             {
                 errorMessage = "Your account needs to be verified. Please check your email for the verification link.";
             }
-            else if (objLoginStatus.status == "RequiresVerification")
-            {
-                errorMessage = "Your account requires two-factor authentication.";
-            }
             else if (objLoginStatus.status == "IsLockedOut")
             {
                 errorMessage = "Your account is locked out.";
             }
             else if (objLoginStatus.status == "Authentication Failure")
             {
-                errorMessage = "Your account is locked out.";
+                errorMessage = "Authentication Failure.";
             }
             else
             {

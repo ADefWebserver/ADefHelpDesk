@@ -204,6 +204,9 @@ namespace ADefHelpDeskWebApp.Controllers
                     // For fileUploadPath we use special code to potentially get the default file path
                     objDTOApplicationSetting.fileUploadPath = GetFilesPath(_DefaultFilesPath, GetConnectionString());
                 }
+
+                // Get version
+                objDTOApplicationSetting.versionnumber = objGeneralSettings.VersionNumber;
             }
             catch (Exception ex)
             {
