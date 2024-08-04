@@ -287,12 +287,19 @@ namespace ADefHelpDeskWebApp.Controllers
                                 }
                                 else
                                 {
-                                    // Get file contents
-                                    var fileContents = System.IO.File.ReadAllBytes(FullPath);
+                                    try
+                                    {
+                                        // Get file contents
+                                        var fileContents = System.IO.File.ReadAllBytes(FullPath);
 
-                                    objDTOFile.Buffer = fileContents;
-                                    objDTOFile.FileName = objAttachment.OriginalFileName;
-                                    return objDTOFile;
+                                        objDTOFile.Buffer = fileContents;
+                                        objDTOFile.FileName = objAttachment.OriginalFileName;
+                                        return objDTOFile;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw new Exception("Get file contents:", ex);
+                                    }
                                 }
                             }
                         }

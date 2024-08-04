@@ -239,34 +239,43 @@
 
     private async void DownloadAttachment(DTOAttachment paramAttachment)
     {
-        showWaitAttachmentGraphic = true;
-        StateHasChanged();
-
-        var url = new Uri($"{NavigationManager.BaseUri}api/Files/ReturnFile");
-
-        var request = new DTOFileParameter();
-        request.attachmentID = paramAttachment.attachmentID;
-        request.emailFileName = paramAttachment.fileName;
-        request.detailId = SelectedTaskDetail.detailId;
-        request.portalId = -1;
-        request.taskId = SelectedTask.taskId ?? -1;
-        request.ticketPassword = SelectedTask.ticketPassword;
-
-        var myContent = JsonConvert.SerializeObject(request);
-        var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
-        var byteContent = new ByteArrayContent(buffer);
-        byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-        var response = await client.PostAsync(url, byteContent);
-        var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
-
-        showWaitAttachmentGraphic = false;
-        StateHasChanged();
-
-        using (var stream = await response.Content.ReadAsStreamAsync())
+        try
         {
-            using var streamRef = new DotNetStreamReference(stream: stream);
-            await JSRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+            showWaitAttachmentGraphic = true;
+            StateHasChanged();
+
+            var url = new Uri($"{NavigationManager.BaseUri}api/Files/ReturnFile");
+
+            var request = new DTOFileParameter();
+            request.attachmentID = paramAttachment.attachmentID;
+            request.emailFileName = paramAttachment.fileName;
+            request.detailId = SelectedTaskDetail.detailId;
+            request.portalId = -1;
+            request.taskId = SelectedTask.taskId ?? -1;
+            request.ticketPassword = SelectedTask.ticketPassword;
+
+            var myContent = JsonConvert.SerializeObject(request);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+            var response = await client.PostAsync(url, byteContent);
+            var fileName = response.Content.Headers.ContentDisposition.FileNameStar;
+
+            showWaitAttachmentGraphic = false;
+            StateHasChanged();
+
+            using (var stream = await response.Content.ReadAsStreamAsync())
+            {
+                using var streamRef = new DotNetStreamReference(stream: stream);
+                await JSRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.GetBaseException().Message;
+            showWaitAttachmentGraphic = false;
+            StateHasChanged();
         }
     }
 
