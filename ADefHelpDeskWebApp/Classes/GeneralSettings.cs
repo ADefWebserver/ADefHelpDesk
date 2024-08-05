@@ -167,26 +167,26 @@ namespace ADefHelpDeskWebApp.Classes
                 try
                 {
 
-                _SMTPServer = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPServer").SettingValue);
-                _SMTPAuthendication = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPAuthendication").SettingValue);
-                _SMTPSecure = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "SMTPSecure").SettingValue);
-                _SMTPUserName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPUserName").SettingValue);
-                _SMTPPassword = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPPassword").SettingValue);
-                _SMTPFromEmail = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPFromEmail").SettingValue);
+                    _SMTPServer = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPServer").SettingValue);
+                    _SMTPAuthendication = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPAuthendication").SettingValue);
+                    _SMTPSecure = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "SMTPSecure").SettingValue);
+                    _SMTPUserName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPUserName").SettingValue);
+                    _SMTPPassword = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPPassword").SettingValue);
+                    _SMTPFromEmail = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPFromEmail").SettingValue);
 
-                _FileUploadPath = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "FileUploadPath").SettingValue);
-                _StorageFileType = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "StorageFileType").SettingValue);
-                _AzureStorageConnection = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "AzureStorageConnection").SettingValue);
-                _UploadPermission = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "UploadPermission").SettingValue);
+                    _FileUploadPath = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "FileUploadPath").SettingValue);
+                    _StorageFileType = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "StorageFileType").SettingValue);
+                    _AzureStorageConnection = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "AzureStorageConnection").SettingValue);
+                    _UploadPermission = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "UploadPermission").SettingValue);
 
-                _AllowRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "AllowRegistration").SettingValue);
-                _VerifiedRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "VerifiedRegistration").SettingValue);
+                    _AllowRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "AllowRegistration").SettingValue);
+                    _VerifiedRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "VerifiedRegistration").SettingValue);
 
-                _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
-                _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
+                    _ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
+                    _ApplicationGUID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationGUID").SettingValue);
 
                     try
-                    {          
+                    {
                         _GoogleClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientId").SettingValue);
                         _GoogleClientSecret = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Google:ClientSecret").SettingValue);
                         _MicrosoftClientID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "Authentication:Microsoft:ClientId").SettingValue);
@@ -226,19 +226,26 @@ namespace ADefHelpDeskWebApp.Classes
                     _MicrosoftClientSecret = string.Empty;
                 }
 
-                // Database Version
-                var result = context.AdefHelpDeskVersion
-                        // Use AsNoTracking to disable EF change tracking
-                        .AsNoTracking()
-                        .FirstOrDefault();
+                try
+                {
+                    // Database Version
+                    var result = context.AdefHelpDeskVersion
+                            // Use AsNoTracking to disable EF change tracking
+                            .AsNoTracking()
+                            .FirstOrDefault();
 
-                if (result == null)
+                    if (result == null)
+                    {
+                        _VersionNumber = "00.00.00";
+                    }
+                    else
+                    {
+                        _VersionNumber = result.VersionNumber;
+                    }
+                }
+                catch
                 {
                     _VersionNumber = "00.00.00";
-                }
-                else
-                {
-                    _VersionNumber = result.VersionNumber;
                 }
             }
         }
