@@ -50,7 +50,7 @@
         "2",
         "3"
       ],
-      "defaultValue": "1"
+      "defaultValue": "0"
     },
     "location": {
       "type": "string",
