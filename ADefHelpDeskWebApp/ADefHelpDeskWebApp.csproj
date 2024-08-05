@@ -62,8 +62,14 @@
 		<None Update="SQLScripts\04.20.00.Sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="SQLScripts\04.25.00.Sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="SQLScripts\04.30.00.Sql">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\05.00.00.Sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="SystemFiles\Email-Admin-NewTask.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
