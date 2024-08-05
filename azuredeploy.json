@@ -45,11 +45,12 @@
     "BlazorWorkerSize": {
       "type": "string",
       "allowedValues": [
+        "0",
         "1",
         "2",
         "3"
       ],
-      "defaultValue": "0"
+      "defaultValue": "1"
     },
     "location": {
       "type": "string",
