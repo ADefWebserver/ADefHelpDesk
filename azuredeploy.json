@@ -5,13 +5,13 @@
     "sqlServerName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the sql server. It has to be unique."
+        "description": "The name of the SQL server. It has to be unique."
       }
     },
     "databaseName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the sql databaseName. It has to be unique."
+        "description": "The name of the SQL database. It has to be unique."
       }
     },
     "sqlAdministratorLogin": {
@@ -47,7 +47,8 @@
       "allowedValues": [
         "0",
         "1",
-        "2"
+        "2",
+        "3"
       ],
       "defaultValue": "0"
     },
@@ -159,7 +160,7 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          "netFrameworkVersion": "v5.0"
+          "netFrameworkVersion": "v8.0"
         }
       },
       "resources": [
@@ -187,7 +188,7 @@
           ],
           "properties": {
             "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', parameters('sqlserverName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
               "type": "SQLAzure"
             }
           }
