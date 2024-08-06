@@ -100,4 +100,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\Files\" />
+	</ItemGroup>
+
 </Project>
