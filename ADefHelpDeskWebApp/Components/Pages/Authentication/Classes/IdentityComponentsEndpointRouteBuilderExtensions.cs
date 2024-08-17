@@ -29,8 +29,8 @@ namespace Microsoft.AspNetCore.Routing
             {
                 IEnumerable<KeyValuePair<string, StringValues>> query = new[]
                 {
-            new KeyValuePair<string, StringValues>("ReturnUrl", returnUrl),
-            new KeyValuePair<string, StringValues>("Action", ExternalLogin.LoginCallbackAction)
+                    new KeyValuePair<string, StringValues>("ReturnUrl", returnUrl),
+                    new KeyValuePair<string, StringValues>("Action", ExternalLogin.LoginCallbackAction)
                 };
 
                 var redirectUrl = UriHelper.BuildRelative(
