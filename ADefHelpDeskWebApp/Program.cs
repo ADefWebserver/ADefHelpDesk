@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Builder;
+using ADefHelpDeskWebApp.Areas.Identity;
 
 namespace ADefHelpDeskWebApp
 {
@@ -31,9 +32,9 @@ namespace ADefHelpDeskWebApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
+            builder.Services.AddRazorPages();
+            builder.Services.AddServerSideBlazor();
+            builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             // Read the connection string from the appsettings.json file
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -42,12 +43,9 @@ namespace ADefHelpDeskWebApp
             // Get HostingEnvironment
             var env = builder.Environment;
 
-            builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<IdentityUserAccessor>();
             builder.Services.AddScoped<IdentityRedirectManager>();
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-
-            builder.Services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/LogIn");
 
             builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
             options.UseSqlServer(
@@ -229,15 +227,19 @@ namespace ADefHelpDeskWebApp
                     // Get the host name
                     string host = context.Request.Host.Host;
                     context.Request.Host = new HostString(host);
-               
+
                     context.Request.Scheme = "https";
                     return next();
                 });
             }
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
+            app.UseCookiePolicy();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseRouting();
+            
             app.UseAntiforgery();
 
             app.MapControllers();
@@ -245,11 +247,8 @@ namespace ADefHelpDeskWebApp
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
-
-            // Add additional endpoints required by the Identity /Account Razor components.
-            app.MapAdditionalIdentityEndpoints();
+            app.MapBlazorHub();
+            app.MapFallbackToPage("/_Host");
 
             app.Run();
         }

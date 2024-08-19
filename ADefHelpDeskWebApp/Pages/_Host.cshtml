@@ -1,7 +1,12 @@
-﻿@inject IConfiguration Config
+﻿@page "/"
+@inject IConfiguration Config
+@using ADefHelpDeskWebApp.Components
+@using Microsoft.AspNetCore.Components.Web
+@namespace ADefHelpDeskWebApp.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,23 +18,24 @@
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet @rendermode="RenderModeForPage" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
-
 <body>
-    <Routes @rendermode="RenderModeForPage" />
-    <script src="_framework/blazor.web.js"></script>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
     <script src="js/fileAttachments.js"></script>
 </body>
-
 </html>
-
-@code {
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
-
-    private IComponentRenderMode RenderModeForPage => HttpContext.Request.Path.StartsWithSegments("/Authentication")
-        ? null
-        : InteractiveServer;
-}

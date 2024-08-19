@@ -2,6 +2,10 @@
 @using ADefHelpDeskWebApp.Classes
 @using AdefHelpDeskBase.Models
 @using ADefHelpDeskWebApp.Controllers
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @inject IConfiguration _configuration
 @inject ApplicationSettingsController _ApplicationSettingsController
 @inject NavigationManager NavigationManager
@@ -17,7 +21,7 @@
     <NotAuthorized>
         <button hidden="@(!AllowRegistration)" class="btn btn-primary" @onclick="Register">Register</button>
         &nbsp;
-        <button class="btn btn-secondary" @onclick="LogIn">Log In</button>
+        <a href="Identity/Account/Login">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
 @code {

@@ -104,4 +104,11 @@
 	  <Folder Include="wwwroot\Files\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Areas\Identity\Pages\Account\LogOut.cshtml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>
