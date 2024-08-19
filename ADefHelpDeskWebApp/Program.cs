@@ -34,7 +34,6 @@ namespace ADefHelpDeskWebApp
 
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             // Read the connection string from the appsettings.json file
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -45,7 +44,6 @@ namespace ADefHelpDeskWebApp
 
             builder.Services.AddScoped<IdentityUserAccessor>();
             builder.Services.AddScoped<IdentityRedirectManager>();
-            builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
             builder.Services.AddDbContext<ADefHelpDeskContext>(options =>
             options.UseSqlServer(
@@ -86,11 +84,19 @@ namespace ADefHelpDeskWebApp
 
             SymmetricSecurityKey signingKey = new SymmetricSecurityKey(signingKeyBytes);
 
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            }).AddJwtBearer(options =>
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddSignInManager()
+            .AddRoleManager<RoleManager<IdentityRole>>() // Add RoleManager
+            .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication()
+            .AddJwtBearer(options =>
             {
                 options.SaveToken = true;
                 options.ClaimsIssuer = "ADefHelpDesk";
@@ -102,7 +108,8 @@ namespace ADefHelpDeskWebApp
                     ValidateAudience = false,
                     ValidateLifetime = true
                 };
-            }).AddGoogle(googleoptions =>
+            })
+            .AddGoogle(googleoptions =>
             {
                 googleoptions.ClientId = GoogleClientID;
                 googleoptions.ClientSecret = GoogleClientSecret;
@@ -111,18 +118,7 @@ namespace ADefHelpDeskWebApp
            {
                microsoftOptions.ClientId = MicrosoftClientId;
                microsoftOptions.ClientSecret = MicrosoftClientSecret;
-           }).AddIdentityCookies();
-
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager()
-            .AddRoleManager<RoleManager<IdentityRole>>() // Add RoleManager
-            .AddDefaultTokenProviders();
+           });
 
             // Allows appsettings.json to be updated programatically
             builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
@@ -239,7 +235,7 @@ namespace ADefHelpDeskWebApp
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseRouting();
-            
+
             app.UseAntiforgery();
 
             app.MapControllers();

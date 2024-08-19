@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.Web
+﻿@inject IConfiguration Config
+@using Microsoft.AspNetCore.Components.Web
 @namespace ADefHelpDeskWebApp.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -7,10 +8,14 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="~/" />
+    <meta name="revised" content="Monday, July 1st, 2024, 5:00 pm" />
+    <base href="/@(Config.GetValue<string>("AppBasePath"))" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
-    <link href="ADefHelpDeskWebApp.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/site.css" />
+    <link rel="stylesheet" href="ADefHelpDeskWebApp.styles.css" />
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" type="image/png" href="favicon.png" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
@@ -28,5 +33,7 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script src="js/fileAttachments.js"></script>
 </body>
 </html>
