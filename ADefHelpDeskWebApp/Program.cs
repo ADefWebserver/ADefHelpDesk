@@ -91,6 +91,7 @@ namespace ADefHelpDeskWebApp
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddUserManager<UserManager<ApplicationUser>>() // Ensure UserManager<ApplicationUser> is registered
             .AddSignInManager()
             .AddRoleManager<RoleManager<IdentityRole>>() // Add RoleManager
             .AddDefaultTokenProviders();
