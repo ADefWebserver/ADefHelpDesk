@@ -230,6 +230,7 @@ namespace ADefHelpDeskWebApp
                 });
             }
 
+            app.UseRouting();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

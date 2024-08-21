@@ -1,19 +1,16 @@
-@page
-@model Logout
+﻿@page
+@using AdefHelpDeskBase.Models
+@using Microsoft.AspNetCore.Identity
+@attribute [IgnoreAntiforgeryToken]
+@inject SignInManager<ApplicationUser> SignInManager
+@functions {
+    public async Task<IActionResult> OnPost()
+    {
+        if (SignInManager.IsSignedIn(User))
+        {
+            await SignInManager.SignOutAsync();
+        }
 
-@{
-    Layout = null;
+        return Redirect("~/");
+    }
 }
-
-<!DOCTYPE html>
-
-<html lang="en-us">
-<head>
-    <title>Logout</title>
-</head>
-<body>
-<div>
-
-</div>
-</body>
-</html>

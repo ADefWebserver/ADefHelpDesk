@@ -12,8 +12,7 @@
 <AuthorizeView>
     <Authorized>
         <a href="profilecontrol">Hello, @context.User.Identity.Name!</a>&nbsp;&nbsp;&nbsp;
-        <form action="Account/Logout" method="post">
-            <AntiforgeryToken />
+        <form method="post" action="Identity/Account/LogOut">
             <input type="hidden" name="ReturnUrl" value="Index" />
             <button type="submit" class="btn btn-secondary">Log out</button>
         </form>
