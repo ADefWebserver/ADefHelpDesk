@@ -203,10 +203,13 @@
 
 		colRoles = NewRoleList.OrderBy(x => x.roleName);
 
-		// Convert SelectedDTOUser to ApplicationUser
-		SelectedApplicationUser = await userManager.FindByNameAsync(SelectedDTOUser.userName);
-
-		currentLogins = await userManager.GetLoginsAsync(SelectedApplicationUser);
+		if (!string.IsNullOrEmpty(SelectedDTOUser.userName))
+		{
+			// Convert SelectedDTOUser to ApplicationUser
+			SelectedApplicationUser = await userManager.FindByNameAsync(SelectedDTOUser.userName);
+		
+			currentLogins = await userManager.GetLoginsAsync(SelectedApplicationUser);
+		}
 	}
 
 	private void OnTabChange(int index)
