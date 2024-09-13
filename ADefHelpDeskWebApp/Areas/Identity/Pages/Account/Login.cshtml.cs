@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using AdefHelpDeskBase.Models;
+using ADefHelpDeskWebApp.Classes;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
 {
@@ -22,11 +24,13 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IConfiguration _config;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IConfiguration config)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _config = config;
         }
 
         /// <summary>
@@ -96,7 +100,29 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var AllExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            // Only show the external login buttons if the client ID is set
+
+            ExternalLogins = new List<AuthenticationScheme>();
+
+            GeneralSettings GeneralSettings = new GeneralSettings(GetConnectionString());
+
+            if (GeneralSettings.GoogleClientID != null)
+            {
+                if (GeneralSettings.GoogleClientID.Trim().Length > 0)
+                {
+                    ExternalLogins.Add(AllExternalLogins.FirstOrDefault(x => x.Name == "Google"));
+                }
+            }
+
+            if (GeneralSettings.MicrosoftClientID != null)
+            {
+                if (GeneralSettings.MicrosoftClientID.Trim().Length > 0)
+                {
+                    ExternalLogins.Add(AllExternalLogins.FirstOrDefault(x => x.Name == "Microsoft"));
+                }
+            }
 
             ReturnUrl = returnUrl;
         }
@@ -136,5 +162,24 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             // If we got this far, something failed, redisplay form
             return Page();
         }
+
+        #region private string GetConnectionString()
+        private string GetConnectionString()
+        {
+            // Use this method to make sure we get the latest one
+            string strConnectionString = "ERRROR:UNSET-CONECTION-STRING";
+
+            try
+            {
+                strConnectionString = _config.GetConnectionString("DefaultConnection");
+            }
+            catch
+            {
+                // Do nothing
+            }
+
+            return strConnectionString;
+        }
+        #endregion
     }
 }
