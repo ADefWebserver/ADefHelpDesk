@@ -83,8 +83,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             return new ChallengeResult(provider, properties);
         }
 
-        public async Task<IActionResult> OnGetCallbackAsync(
-            string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             if (remoteError != null)
@@ -92,6 +91,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
                 ErrorMessage = $"Error from external provider: {remoteError}";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -99,39 +99,46 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(
-                info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
-
+            // Step #1: If an external login exists, log the user in directly
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
                 return LocalRedirect(returnUrl);
             }
-            if (result.IsLockedOut)
+
+            // Step #2 and #3: Check if there's an account associated with the email
+            string email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (!string.IsNullOrEmpty(email))
             {
-                return RedirectToPage("./Lockout");
-            }
-            else
-            {
-                // If the user does not have an account, then ask the user to create an account.
-                AssociateExistingAccount = "false";
-                ReturnUrl = returnUrl;
-                ProviderDisplayName = info.ProviderDisplayName;
-                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user != null)
                 {
-                    Input = new InputModel
-                    {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
-                    };
+                    // If the user exists but does not have an external login
+                    AssociateExistingAccount = "true";
+                    Input = new InputModel { Email = email };
+                    ProviderDisplayName = info.ProviderDisplayName;
+                    ReturnUrl = returnUrl;
+                    return Page();
                 }
-                return Page();
+                else
+                {
+                    // Step #3: If there is no existing account, create a new one
+                    Input = new InputModel { Email = email };
+                    AssociateExistingAccount = "false";
+                    ProviderDisplayName = info.ProviderDisplayName;
+                    ReturnUrl = returnUrl;
+                    return Page();
+                }
             }
+
+            ErrorMessage = "Email claim not provided by external login provider.";
+            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
         }
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
-            // Get the information about the user from the external login provider
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -142,72 +149,32 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
                 var result = await _userManager.CreateAsync(user);
-
                 if (result.Succeeded)
                 {
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
-                        var userId = await _userManager.GetUserIdAsync(user);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { area = "Identity", userId = userId, code = code },
-                            protocol: Request.Scheme);
-
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by " +
-                            $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>" +
-                            $"clicking here</a>.");
-
-                        // If account confirmation is required, we need to show the link if
-                        // we don't have a real email sender
-                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                        {
-                            return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
-                        }
-
-                        await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                        await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }
-                else
+
+                // Step #2: If there's an existing account, ask for password association
+                var existingUser = await _userManager.FindByEmailAsync(Input.Email);
+                if (existingUser != null)
                 {
-                    // There is an existing account 
-                    // Check if that account has a password 
-                    var ExistingUserToCheck = await _userManager.FindByEmailAsync(user.Email);
-
-                    if (ExistingUserToCheck != null)
+                    if (existingUser.PasswordHash != null)
                     {
-                        if (ExistingUserToCheck.PasswordHash == null)
-                        {
-                            StringBuilder PasswordNotSetError = new StringBuilder();
-                            PasswordNotSetError.Append("There is an existing account with that email address. ");
-                            PasswordNotSetError.Append("However, that account has no password set. ");
-                            PasswordNotSetError.Append("Please log in to that account, with the ");
-                            PasswordNotSetError.Append("existing external login method, and set a password. ");
-                            PasswordNotSetError.Append("Then you can associate it with additional external ");
-                            PasswordNotSetError.Append("login methods.");
-
-                            AssociateExistingAccount = "blocked";
-                            ModelState.AddModelError(string.Empty, PasswordNotSetError.ToString());
-                            return Page();
-                        }
+                        AssociateExistingAccount = "true";
+                        ProviderDisplayName = info.ProviderDisplayName;
+                        return Page();
                     }
-
-                    // We can associate this login to the existing account
-                    AssociateExistingAccount = "true";
                 }
 
-                // Display any errors that occurred
-                // Usually says email is already used
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -222,78 +189,43 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAssociateLoginAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
-
-            // Set AssociateExistingAccount so we return to this method on postback
-            AssociateExistingAccount = "true";
-
-            // Get the information about the user from the external login provider
-            var ExternalLoginUser = await _signInManager.GetExternalLoginInfoAsync();
-
-            if (ExternalLoginUser == null)
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
             {
-                ErrorMessage = "Error loading external login information during confirmation.";
+                ErrorMessage = "Error loading external login information.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (Input.Password != null)
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user != null && Input.Password != null)
             {
-                try
+                var passwordCheck = await _userManager.CheckPasswordAsync(user, Input.Password);
+                if (passwordCheck)
                 {
-                    // Get email of the ExternalLoginUser
-                    string ExternalLoginUserEmail = "";
-
-                    if (ExternalLoginUser.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                    var result = await _userManager.AddLoginAsync(user, info);
+                    if (result.Succeeded)
                     {
-                        ExternalLoginUserEmail =
-                            ExternalLoginUser.Principal.FindFirstValue(ClaimTypes.Email);
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
                     }
 
-                    // Check password against user in database
-                    var user = await _userManager.FindByEmailAsync(ExternalLoginUserEmail);
-
-                    if (user != null)
+                    foreach (var error in result.Errors)
                     {
-                        var CheckPasswordResult =
-                            await _userManager.CheckPasswordAsync(user, Input.Password);
-
-                        if (CheckPasswordResult)
-                        {
-                            // user found and password is correct
-                            // add external login to user and sign in
-                            var AddLoginResult =
-                                await _userManager.AddLoginAsync(user, ExternalLoginUser);
-
-                            if (AddLoginResult.Succeeded)
-                            {
-                                await _signInManager.SignInAsync(user, isPersistent: false);
-                                return LocalRedirect(returnUrl);
-                            }
-                            else
-                            {
-                                foreach (var error in AddLoginResult.Errors)
-                                {
-                                    ModelState.AddModelError(string.Empty, error.Description);
-                                }
-                            }
-                        }
-                        else // password is incorrect
-                        {
-                            ModelState.AddModelError(string.Empty, "Password is incorrect");
-                        }
+                        ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                    return Page();
+                    ModelState.AddModelError(string.Empty, "Password is incorrect");
                 }
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Password is required");
+                ModelState.AddModelError(string.Empty, "User or password not found.");
             }
 
-            // If we got this far, something failed, redisplay form
+            AssociateExistingAccount = "true";
+            ProviderDisplayName = info.ProviderDisplayName;
             return Page();
         }
 
