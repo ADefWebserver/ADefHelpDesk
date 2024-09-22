@@ -19,6 +19,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using AdefHelpDeskBase.Models;
 
+//#1 If there is an external login just log the person in
+//#2 If there is not an existing external login, but there is an existing account (based on email not username) require the person to enter their existing username and password to associate the account and create an external login
+//#3 If there is not an existing external login and there is not is an existing account (based on email not username) create a new account and an external login
+
 namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
