@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using AdefHelpDeskBase.Models;
+using AdefHelpDeskBase.Models.DataContext;
+using Microsoft.EntityFrameworkCore;
 
 //#1 If there is an external login just log the person in
 //#2 If there is not an existing external login, but there is an existing account (based on email not username) require the person to enter their existing username and password to associate the account and create an external login
@@ -34,13 +36,15 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private IConfiguration _configuration { get; set; }
 
         public ExternalLoginModel(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -48,6 +52,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _configuration = configuration;
         }
 
         [BindProperty]
@@ -153,22 +158,54 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
                 var result = await _userManager.CreateAsync(user);
+
                 if (result.Succeeded)
                 {
                     result = await _userManager.AddLoginAsync(user, info);
+
                     if (result.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        // Add user to ADefHelpDesk_Users table
+                        // Create Account ****************************
+
+                        try
+                        {
+                            var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+                            optionsBuilder.UseSqlServer(GetConnectionString());
+
+                            using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+                            {
+                                AdefHelpDeskUsers objAdefHelpDeskUsers = new AdefHelpDeskUsers();
+                                objAdefHelpDeskUsers.Username = user.Email;
+                                objAdefHelpDeskUsers.Email = user.Email;
+                                objAdefHelpDeskUsers.FirstName = user.DisplayName ?? "";
+                                objAdefHelpDeskUsers.LastName = "";
+                                objAdefHelpDeskUsers.Password = ""; // No longer store the password here
+
+                                context.AdefHelpDeskUsers.Add(objAdefHelpDeskUsers);
+                                context.SaveChanges();
+                            }
+
+                            // *******************************************
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Return the error
+                            ModelState.AddModelError(string.Empty, ex.GetBaseException().Message);
+                        }
                     }
                 }
 
                 // Step #2: If there's an existing account, ask for password association
                 var existingUser = await _userManager.FindByEmailAsync(Input.Email);
+
                 if (existingUser != null)
                 {
                     if (existingUser.PasswordHash != null)
@@ -193,6 +230,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAssociateLoginAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -201,6 +239,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             }
 
             var user = await _userManager.FindByEmailAsync(Input.Email);
+
             if (user != null && Input.Password != null)
             {
                 var passwordCheck = await _userManager.CheckPasswordAsync(user, Input.Password);
@@ -233,7 +272,7 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             return Page();
         }
 
-
+        #region Utility
         private ApplicationUser CreateUser()
         {
             try
@@ -260,5 +299,23 @@ namespace ADefHelpDeskWebApp.Areas.Identity.Pages.Account
             }
             return (IUserEmailStore<ApplicationUser>)_userStore;
         }
+        
+        private string GetConnectionString()
+        {
+            // Use this method to make sure we get the latest one
+            string strConnectionString = "ERRROR:UNSET-CONECTION-STRING";
+
+            try
+            {
+                strConnectionString = _configuration["ConnectionStrings:DefaultConnection"];
+            }
+            catch
+            {
+                // Do nothing
+            }
+
+            return strConnectionString;
+        }
+        #endregion
     }
 }
