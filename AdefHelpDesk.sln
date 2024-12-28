@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.0.31410.414
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADefHelpDeskWebApp", "ADefHelpDeskWebApp\ADefHelpDeskWebApp.csproj", "{CF0E0893-4520-4C72-BC88-9FFDBEA8C3F6}"
 EndProject
