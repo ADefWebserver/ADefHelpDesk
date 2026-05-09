@@ -34,7 +34,7 @@ namespace ADefHelpDeskWebApp.Classes
         /// <summary>
         /// You cannot create SuperUser from API
         /// </summary>
-        [DefaultValue("false")]
+        [DefaultValue(false)]
         public bool isSuperUser { get; set; }
         public string email { get; set; }
         public string password { get; set; }

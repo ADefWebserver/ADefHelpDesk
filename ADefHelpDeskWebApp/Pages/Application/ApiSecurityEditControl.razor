@@ -230,7 +230,7 @@
         _ApplicationSettingsController = (ApplicationSettingsController)ScopedServices.GetService(typeof(ApplicationSettingsController));
         var DTOSettings = _ApplicationSettingsController.GetSettings(CurrentUser.Identity.Name, NavigationManager.BaseUri);
         AppicationGUID = DTOSettings.applicationGUID;
-        AppicationURL = $"{NavigationManager.BaseUri}swagger";
+        AppicationURL = $"{NavigationManager.BaseUri}scalar/v1";
 
         _ApiSecurityController = (ApiSecurityController)ScopedServices.GetService(typeof(ApiSecurityController));
 

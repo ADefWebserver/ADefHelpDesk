@@ -12,7 +12,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using Radzen;
 using System.Text;
 using Tewr.Blazor.FileReader;
@@ -125,53 +126,49 @@ namespace ADefHelpDeskWebApp
             builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-            // Swagger Configuration
+            // OpenAPI configuration (Microsoft.AspNetCore.OpenApi - replaces Swashbuckle)
             builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
+            builder.Services.AddOpenApi("v1", options =>
             {
-                options.SwaggerDoc("v1",
-                    new OpenApiInfo
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Info = new OpenApiInfo
                     {
                         Version = "v1",
                         Title = "External API",
                         Description = "ADefHelpDesk Web API"
-                    });
-
-                options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+                    };
+                    return Task.CompletedTask;
                 });
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                // Bearer/JWT security definition + global requirement
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                    document.Components.SecuritySchemes["bearerAuth"] = new OpenApiSecurityScheme
                     {
-                          new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "bearerAuth"
-                                }
-                            },
-                            new string[] {}
-                    }
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+                    };
+
+                    document.Security ??= new List<OpenApiSecurityRequirement>();
+                    document.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecuritySchemeReference("bearerAuth", document),
+                            new List<string>()
+                        }
+                    });
+                    return Task.CompletedTask;
                 });
 
-                // Put the controller paths of "Account/" in the default section
-                options.OperationFilter<HideFromSwaggerOperationFilter>();
-
-                // Hide the default section
-                options.DocumentFilter<HideDefaultSectionDocumentFilter>();
-
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
+                // Hide Identity UI "Account/" routes from the document
+                options.AddDocumentTransformer<HideAccountEndpointsDocumentTransformer>();
             });
 
             // Add Caching support
@@ -242,8 +239,9 @@ namespace ADefHelpDeskWebApp
 
             app.MapControllers();
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            // OpenAPI document at /openapi/v1.json and Scalar UI at /scalar/v1
+            app.MapOpenApi();
+            app.MapScalarApiReference();
 
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");

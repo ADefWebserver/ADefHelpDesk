@@ -185,7 +185,7 @@ namespace ADefHelpDeskWebApp.Controllers
                 objDTOApplicationSetting.applicationName = objGeneralSettings.ApplicationName;
                 objDTOApplicationSetting.uploadPermission = objGeneralSettings.UploadPermission;
                 objDTOApplicationSetting.allowRegistration = objGeneralSettings.AllowRegistration;
-                objDTOApplicationSetting.swaggerWebAddress = $"{BaseWebAddress}/swagger";
+                objDTOApplicationSetting.swaggerWebAddress = $"{BaseWebAddress}/scalar/v1";
 
                 objDTOApplicationSetting.googleClientId = objGeneralSettings.GoogleClientID;
                 objDTOApplicationSetting.googleClientSecret = objGeneralSettings.GoogleClientSecret;

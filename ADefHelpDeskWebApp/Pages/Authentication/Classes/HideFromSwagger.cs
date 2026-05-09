@@ -1,41 +1,38 @@
-﻿using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
+﻿using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class HideFromSwaggerAttribute : Attribute
 {
 }
 
-public class HideFromSwaggerOperationFilter : IOperationFilter
+/// <summary>
+/// Removes any operation whose route starts with "Account/" from the generated
+/// OpenAPI document. Replaces the previous Swashbuckle-based filters that hid
+/// the Identity UI endpoints.
+/// </summary>
+public class HideAccountEndpointsDocumentTransformer : IOpenApiDocumentTransformer
 {
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    public Task TransformAsync(
+        OpenApiDocument document,
+        OpenApiDocumentTransformerContext context,
+        CancellationToken cancellationToken)
     {
-        var hideFromSwagger = (context.ApiDescription.RelativePath.StartsWith("Account/"));
-
-        if (hideFromSwagger)
+        if (document.Paths is null)
         {
-            operation.Tags.Clear();
-            operation.Responses.Clear();
-            operation.Description = null;
-            operation.Summary = null;
-            operation.OperationId = null;
+            return Task.CompletedTask;
         }
-    }
-}
 
-public class HideDefaultSectionDocumentFilter : IDocumentFilter
-{
-    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
-    {
-        var pathsToRemove = swaggerDoc.Paths
-            .Where(pathItem => pathItem.Value.Operations.Values.All(operation =>
-                operation.Tags == null || operation.Tags.All(tag => tag.Name == "default")))
-            .Select(pathItem => pathItem.Key)
+        var pathsToRemove = document.Paths
+            .Where(p => p.Key.TrimStart('/').StartsWith("Account/", StringComparison.OrdinalIgnoreCase))
+            .Select(p => p.Key)
             .ToList();
 
         foreach (var path in pathsToRemove)
         {
-            swaggerDoc.Paths.Remove(path);
+            document.Paths.Remove(path);
         }
+
+        return Task.CompletedTask;
     }
 }

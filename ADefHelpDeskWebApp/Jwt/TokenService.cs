@@ -42,11 +42,11 @@ namespace ADefHelpDeskWebApp.Jwt
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[]
             {
-                new Claim("Username", paramApiSecurityDTO.username),
+                new Claim("Username", paramApiSecurityDTO.username ?? string.Empty),
                 new Claim("Id", paramApiSecurityDTO.id.ToString()),
-                new Claim("ContactName",paramApiSecurityDTO.contactName),
-                new Claim("ContactCompany",paramApiSecurityDTO.contactCompany),
-                new Claim("IsActive",paramApiSecurityDTO.isActive.ToString()),
+                new Claim("ContactName", paramApiSecurityDTO.contactName ?? string.Empty),
+                new Claim("ContactCompany", paramApiSecurityDTO.contactCompany ?? string.Empty),
+                new Claim("IsActive", paramApiSecurityDTO.isActive.ToString()),
             });
 
             // Add permissions
