@@ -93,11 +93,11 @@
 				</RadzenTabsItem>
 				<RadzenTabsItem Text="Roles">
 					<div style="display: flex; align-items: center">
-						<RadzenDropDown Data=@colRoles @bind-Value=@newRole
-										TValue="RoleDTO" Count="@count"
-										TextProperty="roleName"
+						<RadzenDropDown Data=@colRoles @bind-Value=@selectedRoleId
+										TValue="int"
+										TextProperty="roleName" ValueProperty="iD"
 										Style="width:300px" />&nbsp;
-						<RadzenButton Click=@(args => AddRole())
+						<RadzenButton Click=@(async args => await AddRole())
 									  Text="Add Role" ButtonStyle="ButtonStyle.Success" />
 					</div><br />
 					<RadzenDataGrid Data="SelectedDTOUser.userRoles" @ref="grid" TItem="RoleDTO"
@@ -174,6 +174,7 @@
 	IEnumerable<RoleDTO> colRoles = new List<RoleDTO>();
 	int count;
 	RoleDTO newRole = new RoleDTO();
+	int selectedRoleId = 0;
 	string strError = "";
 	bool ShowUpdateDelete = true;
 
@@ -307,18 +308,23 @@
 
 	async Task AddRole()
 	{
-		if (newRole.iD > 0)
+		if (selectedRoleId > 0)
 		{
+			// Find the selected role from the available list
+			var roleToAdd = colRoles.FirstOrDefault(r => r.iD == selectedRoleId);
+
 			// Add Role - if not already exist
-			if (SelectedDTOUser.userRoles.Where(x => x.iD == newRole.iD).Count() == 0)
+			if (roleToAdd != null && !SelectedDTOUser.userRoles.Any(x => x.iD == roleToAdd.iD))
 			{
-				SelectedDTOUser.userRoles.Add(newRole);
+				SelectedDTOUser.userRoles.Add(roleToAdd);
 				count = SelectedDTOUser.userRoles.Count;
 
-				// Update Role Dropdown
-				List<RoleDTO> NewRoleList = colRoles.Except(SelectedDTOUser.userRoles).ToList();
-				colRoles = NewRoleList;
+				// Update Role Dropdown - remove the just-added role
+				colRoles = colRoles.Where(r => r.iD != roleToAdd.iD)
+								   .OrderBy(r => r.roleName)
+								   .ToList();
 
+				selectedRoleId = 0;
 				newRole = new RoleDTO();
 			}
 
@@ -338,6 +344,7 @@
 			List<RoleDTO> NewRoleList = colRoles.Append(Role).OrderBy(x => x.roleName).ToList(); 
 			colRoles = NewRoleList;
 
+			selectedRoleId = 0;
 			newRole = new RoleDTO();
 		}
 
