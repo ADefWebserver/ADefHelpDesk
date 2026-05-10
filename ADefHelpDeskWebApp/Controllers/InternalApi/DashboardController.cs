@@ -112,8 +112,9 @@ namespace ADefHelpDeskWebApp.Controllers
                     }
                 }
 
-                // Unassigned roles
-                var roleAssignmentCountUnassigned = context.AdefHelpDeskTasks.Where(x => x.AssignedRoleId == -1).Count();
+                // Unassigned roles (any task whose AssignedRoleId does not map to an existing role)
+                var existingRoleIds = AllRoles.Select(x => x.Id).ToList();
+                var roleAssignmentCountUnassigned = context.AdefHelpDeskTasks.Where(x => !existingRoleIds.Contains(x.AssignedRoleId)).Count();
                 colDTORoleAssignments.Add(new DTORoleAssignments { id = 1, name = "Unassigned", roleAssignments = roleAssignmentCountUnassigned });
 
                 objDTODashboard.colTicketStatus = colDTOTicketStatus;

@@ -615,7 +615,6 @@ Program.cs
  system.composition.runtime/9.0.0/lib/net9.0/System.Composition.Runtime.dll
  system.composition.typedparts/9.0.0/lib/net9.0/System.Composition.TypedParts.dll
  system.configuration.configurationmanager/10.0.0/lib/net10.0/System.Configuration.ConfigurationManager.dll
- system.data.sqlclient/4.9.1/lib/net8.0/System.Data.SqlClient.dll
  system.identitymodel.tokens.jwt/8.0.1/lib/net9.0/System.IdentityModel.Tokens.Jwt.dll
  system.io.hashing/10.0.1/lib/net10.0/System.IO.Hashing.dll
  system.memory.data/8.0.1/lib/net8.0/System.Memory.Data.dll
