@@ -5,5 +5,7 @@
 
 ## [ADefHelpDesk.com ](https://ADefHelpDesk.com) / [Documentation](https://www.adefwebserver.com/ADefHelpDeskDocumentation/)
 
+## Also see: [More Powerful than AI RAG: Building Lightweight Knowledge Graphs](https://blazorhelpwebsite.com/ViewBlogPost/20086)
+
 ![image](https://github.com/user-attachments/assets/7a4e606c-e4cd-4d3a-8a67-1bf670a67b0d)
 
